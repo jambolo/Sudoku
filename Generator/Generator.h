@@ -12,5 +12,5 @@ public:
 private:
 
     static bool attempt(Board & b, int r, int c);
-    static std::vector<int> randomizedSquares();
+    static std::vector<int> randomizedIndexes();
 };

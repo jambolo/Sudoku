@@ -17,7 +17,7 @@ Board Generator::generate(int difficulty/* = 0*/)
     attempt(board, 0, -1);
 
     // Randomly remove as many squares as possible until no unique solution can be found
-    std::vector<int> squares = randomizedSquares();
+    std::vector<int> squares = randomizedIndexes();
     for (auto p : squares)
     {
         int r = p / Board::SIZE;
@@ -56,7 +56,7 @@ bool Generator::attempt(Board & board, int r, int c)
     return false;
 }
 
-std::vector<int> Generator::randomizedSquares()
+std::vector<int> Generator::randomizedIndexes()
 {
     std::vector<int> squares(Board::SIZE * Board::SIZE);
     std::iota(squares.begin(), squares.end(), 0);
