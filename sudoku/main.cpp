@@ -69,6 +69,8 @@ int main(int argc, char ** argv)
     printf("Consistent: %s\n", board.consistent() ? "yes" : "no");
     printf("Completed: %s\n", board.completed() ? "yes" : "no");
     printf("Solved: %s\n", board.solved() ? "yes" : "no");
+    printf("Difficulty: %d\n", board.difficulty());
+
     printf("\n");
 
     std::vector<Board> solutions = Solver::allSolutions(board);

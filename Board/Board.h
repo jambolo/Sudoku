@@ -39,6 +39,9 @@ public:
     // Returns true if the board is consistent (no values conflict)
     bool consistent() const;
 
+    // Returns the number of empty squares
+    int difficulty() const;
+
     // Returns the next square
     static void increment(int &r, int &c);
 

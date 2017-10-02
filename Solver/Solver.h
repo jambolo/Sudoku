@@ -14,4 +14,5 @@ public:
 private:
     static bool search(Board &b, int r, int c);
     static void searchAll(Board & b, int r, int c, std::vector<Board> & solutions);
+    static void searchUnique(Board & board, int r, int c, int & count);
 };

@@ -14,14 +14,14 @@ Board Generator::generate(int difficulty/* = 0*/)
 
     // Generate a random solved board
     Board board;
-    attempt(board, 0, -1);
+    attempt(board);
 
     // Randomly remove as many squares as possible until no unique solution can be found
-    std::vector<int> squares = randomizedIndexes();
-    for (auto p : squares)
+    std::vector<int> indexes = randomizedIndexes();
+    for (auto i : indexes)
     {
-        int r = p / Board::SIZE;
-        int c = p % Board::SIZE;
+        int r = i / Board::SIZE;
+        int c = i % Board::SIZE;
         int x = board.get(r, c);
         board.set(r, c, Board::EMPTY);
         if (Solver::hasUniqueSolution(board))
@@ -37,7 +37,7 @@ Board Generator::generate(int difficulty/* = 0*/)
     return board;
 }
 
-bool Generator::attempt(Board & board, int r, int c)
+bool Generator::attempt(Board & board, int r/* = 0*/, int c/* = -1*/)
 {
     // Go to next square
     Board::increment(r, c);

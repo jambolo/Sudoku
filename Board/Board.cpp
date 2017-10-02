@@ -110,6 +110,21 @@ bool Board::consistent() const
     return true;
 }
 
+
+int Board::difficulty() const
+{
+    int difficulty = 0;
+    for (int r = 0; r < SIZE; ++r)
+    {
+        for (int c = 0; c < SIZE; ++c)
+        {
+            if (isEmpty(r, c))
+                ++difficulty;
+        }
+    }
+    return difficulty;
+}
+
 void Board::increment(int & r, int & c)
 {
     ++c;

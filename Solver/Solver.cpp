@@ -9,22 +9,21 @@ bool Solver::solve(Board & b)
 
 bool Solver::search(Board & board, int r, int c)
 {
-    if (board.nextEmpty(&r, &c))
-    {
-        Board::ValueList possible = board.allPossible(r, c);
-        for (auto x : possible)
-        {
-            board.set(r, c, x);
-            if (search(board, r, c))
-                return true;
-        }
-        board.set(r, c, Board::EMPTY);
-        return false;
-    }
-    else
-    {
+    // Find the next empty square. If there are none, then a solution has been found
+    if (!board.nextEmpty(&r, &c))
         return true;
+
+    Board::ValueList possible = board.allPossible(r, c);
+    for (auto x : possible)
+    {
+        board.set(r, c, x);
+        if (search(board, r, c))
+            return true;
     }
+
+    // No solution
+    board.set(r, c, Board::EMPTY); // Reset for backtrack
+    return false;
 }
 
 std::vector<Board> Solver::allSolutions(Board const & board)
@@ -37,23 +36,49 @@ std::vector<Board> Solver::allSolutions(Board const & board)
 
 void Solver::searchAll(Board & board, int r, int c, std::vector<Board> & solutions)
 {
-    if (board.nextEmpty(&r, &c))
-    {
-        Board::ValueList possible = board.allPossible(r, c);
-        for (auto x : possible)
-        {
-            board.set(r, c, x);
-            searchAll(board, r, c, solutions);
-        }
-        board.set(r, c, Board::EMPTY);
-    }
-    else
+    // Find the next empty square. If there are none, then a solution has been found
+    if (!board.nextEmpty(&r, &c))
     {
         solutions.push_back(board);
+        return;
     }
+
+    Board::ValueList possible = board.allPossible(r, c);
+    for (auto x : possible)
+    {
+        board.set(r, c, x);
+        searchAll(board, r, c, solutions);
+    }
+
+    board.set(r, c, Board::EMPTY); // Reset for backtrack
+}
+
+void Solver::searchUnique(Board & board, int r, int c, int & count)
+{
+    // Find the next empty square. If there are none, then a solution has been found
+    if (!board.nextEmpty(&r, &c))
+    {
+        ++count;
+        return;
+    }
+
+    // Try all the possible values for the empty square
+    Board::ValueList possible = board.allPossible(r, c);
+    for (auto x : possible)
+    {
+        board.set(r, c, x);
+        searchUnique(board, r, c, count);
+        if (count > 1)
+            return; // Early out -- not unique
+    }
+
+    board.set(r, c, Board::EMPTY); // Reset for backtrack
 }
 
 bool Solver::hasUniqueSolution(Board const & board)
 {
-    return allSolutions(board).size() == 1;
+    Board copy(board);
+    int count = 0;
+    searchUnique(copy, 0, 0, count);
+    return count == 1;
 }

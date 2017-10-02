@@ -11,6 +11,6 @@ public:
 
 private:
 
-    static bool attempt(Board & b, int r, int c);
+    static bool attempt(Board & b, int r = 0, int c = -1);
     static std::vector<int> randomizedIndexes();
 };
