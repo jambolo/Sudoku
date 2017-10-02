@@ -57,17 +57,17 @@ Board::ValueList Board::allPossible(int r, int c) const
     return values;
 }
 
-bool Board::firstEmpty(int & firstR, int & firstC) const
+bool Board::firstEmpty(int * firstR, int * firstC) const
 {
-    firstR = 0;
-    firstC = 0;
+    *firstR = 0;
+    *firstC = 0;
     return nextEmpty(firstR, firstC);
 }
 
-bool Board::nextEmpty(int & nextR, int & nextC) const
+bool Board::nextEmpty(int * nextR, int * nextC) const
 {
-    int r = nextR;
-    int c = nextC;
+    int r = *nextR;
+    int c = *nextC;
     while (r < SIZE && !isEmpty(r, c))
     {
         increment(r, c);
@@ -75,8 +75,8 @@ bool Board::nextEmpty(int & nextR, int & nextC) const
     if (r >= SIZE)
         return false;
 
-    nextR = r;
-    nextC = c;
+    *nextR = r;
+    *nextC = c;
     return true;
 }
 
@@ -88,7 +88,7 @@ bool Board::solved() const
 bool Board::completed() const
 {
     int r, c;
-    return !firstEmpty(r, c);
+    return !firstEmpty(&r, &c);
 }
 
 bool Board::consistent() const

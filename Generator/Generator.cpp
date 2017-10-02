@@ -13,8 +13,8 @@ Board Generator::generate(int difficulty/* = 0*/)
         difficulty = Board::SIZE * Board::SIZE;
 
     // Generate a random solved board
-    Board b;
-    attempt(b, 0, -1);
+    Board board;
+    attempt(board, 0, -1);
 
     // Randomly remove as many squares as possible until no unique solution can be found
     std::vector<int> squares = randomizedSquares();
@@ -22,37 +22,37 @@ Board Generator::generate(int difficulty/* = 0*/)
     {
         int r = p / Board::SIZE;
         int c = p % Board::SIZE;
-        int x = b.get(r, c);
-        b.set(r, c, Board::EMPTY);
-        if (Solver::hasUniqueSolution(b))
+        int x = board.get(r, c);
+        board.set(r, c, Board::EMPTY);
+        if (Solver::hasUniqueSolution(board))
         {
             if (--difficulty <= 0)
-                return b;
+                return board;
         }
         else
         {
-            b.set(r, c, x); // Skip this one
+            board.set(r, c, x); // Skip this one
         }
     }
-    return b;
+    return board;
 }
 
-bool Generator::attempt(Board & b, int r, int c)
+bool Generator::attempt(Board & board, int r, int c)
 {
     // Go to next square
     Board::increment(r, c);
     if (r >= Board::SIZE)
         return true;
 
-    Board::ValueList possibleValues = b.allPossible(r, c);
+    Board::ValueList possibleValues = board.allPossible(r, c);
     std::random_shuffle(possibleValues.begin(), possibleValues.end());
     for (auto x : possibleValues)
     {
-        b.set(r, c, x);
-        if (attempt(b, r, c))
+        board.set(r, c, x);
+        if (attempt(board, r, c))
             return true;
     }
-    b.set(r, c, 0);
+    board.set(r, c, 0);
     return false;
 }
 

@@ -28,10 +28,10 @@ public:
     ValueList allPossible(int r, int c) const;
 
     // Returns true if there is an empty square, along with its coordinates
-    bool firstEmpty(int & firstR, int & firstC) const;
+    bool firstEmpty(int * firstR, int * firstC) const;
 
     // Returns true if there is an empty square at or following the given square, along with its coordinates
-    bool nextEmpty(int & nextR, int & nextC) const;
+    bool nextEmpty(int * nextR, int * nextC) const;
 
     // Returns true if the board is solved
     bool solved() const;
