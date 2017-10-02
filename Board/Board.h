@@ -21,9 +21,6 @@ public:
     // Returns true if the square is empty
     bool isEmpty(int r, int c) const;
 
-    // Returns true, if the square can be set to that value
-    bool isPossible(int r, int c, int x) const;
-
     // Returns all possible values for the square
     ValueList allPossible(int r, int c) const;
 
@@ -47,9 +44,6 @@ public:
 
 private:
 
-    bool boxContains(int r, int c, int x) const;
-    bool columnContains(int c, int x) const;
-    bool rowContains(int r, int x) const;
     bool boxIsConsistent(int r0, int c0) const;
     bool columnIsConsistent(int c) const;
     bool rowIsConsistent(int r) const;

@@ -13,11 +13,6 @@ bool Board::isEmpty(int r, int c) const
     return board_[r][c] == EMPTY;
 }
 
-bool Board::isPossible(int r, int c, int x) const
-{
-    return !rowContains(r, x) && !columnContains(c, x) && !boxContains(r, c, x);
-}
-
 Board::ValueList Board::allPossible(int r, int c) const
 {
     ValueList values = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
@@ -123,42 +118,6 @@ void Board::increment(int & r, int & c)
         ++r;
         c = 0;
     }
-}
-
-bool Board::boxContains(int r, int c, int x) const
-{
-    int r0 = r - (r % 3);
-    int c0 = c - (c % 3);
-
-    for (int i = 0; i < 3; ++i)
-    {
-        for (int j = 0; j < 3; ++j)
-        {
-            if (board_[c0 + i][r0 + j] == x)
-                return true;
-        }
-    }
-    return false;
-}
-
-bool Board::columnContains(int c, int x) const
-{
-    for (int i = 0; i < 9; ++i)
-    {
-        if (board_[i][c] == x)
-            return true;
-    }
-    return false;
-}
-
-bool Board::rowContains(int r, int x) const
-{
-    for (int j = 0; j < 9; ++j)
-    {
-        if (board_[r][j] == x)
-            return true;
-    }
-    return false;
 }
 
 bool Board::boxIsConsistent(int r0, int c0) const
