@@ -10,7 +10,6 @@ public:
     static Board generate(int difficulty = 0);
 
 private:
-
-    static bool attempt(Board & b, int r = 0, int c = -1);
+    static bool             attempt(Board & b, int r = 0, int c = -1);
     static std::vector<int> randomizedIndexes();
 };

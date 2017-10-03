@@ -21,4 +21,6 @@ add_subdirectory(Solver)
 
 # Applications and tests
 
-add_subdirectory(sudoku)
+add_subdirectory(generate)
+add_subdirectory(solve)
+add_subdirectory(tests)

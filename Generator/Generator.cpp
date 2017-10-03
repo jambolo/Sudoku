@@ -7,7 +7,7 @@
 #include <numeric>
 #include <vector>
 
-Board Generator::generate(int difficulty/* = 0*/)
+Board Generator::generate(int difficulty /* = 0*/)
 {
     if (difficulty <= 0)
         difficulty = Board::SIZE * Board::SIZE;
@@ -37,7 +37,7 @@ Board Generator::generate(int difficulty/* = 0*/)
     return board;
 }
 
-bool Generator::attempt(Board & board, int r/* = 0*/, int c/* = -1*/)
+bool Generator::attempt(Board & board, int r /* = 0*/, int c /* = -1*/)
 {
     // Go to next square
     Board::increment(r, c);

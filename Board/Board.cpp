@@ -110,7 +110,6 @@ bool Board::consistent() const
     return true;
 }
 
-
 int Board::difficulty() const
 {
     int difficulty = 0;
@@ -188,4 +187,3 @@ bool Board::consistent(int x, int & values)
     values |= mask;
     return true;
 }
-

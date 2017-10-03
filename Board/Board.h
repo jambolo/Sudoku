@@ -43,13 +43,13 @@ public:
     int difficulty() const;
 
     // Returns the next square
-    static void increment(int &r, int &c);
+    static void increment(int & r, int & c);
 
 private:
 
-    bool boxIsConsistent(int r0, int c0) const;
-    bool columnIsConsistent(int c) const;
-    bool rowIsConsistent(int r) const;
+    bool        boxIsConsistent(int r0, int c0) const;
+    bool        columnIsConsistent(int c) const;
+    bool        rowIsConsistent(int r) const;
     static bool isEmpty(int x);
     static bool consistent(int x, int & values);
 
