@@ -5,4 +5,4 @@ set(SOURCES
 )
 
 add_executable(solve ${SOURCES})
-target_link_libraries(solve Board Solver)
+target_link_libraries(solve PRIVATE Board Solver)

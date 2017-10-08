@@ -11,4 +11,4 @@ set(INTERFACE_INCLUDE_PATHS
 
 add_library(Generator ${SOURCES})
 target_include_directories(Generator INTERFACE ${INTERFACE_INCLUDE_PATHS})
-target_link_libraries(Generator Board Solver)
+target_link_libraries(Generator PRIVATE Board Solver)
