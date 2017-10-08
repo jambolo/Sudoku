@@ -15,6 +15,7 @@ option(BUILD_SHARED_LIBS "Build libraries as DLLs" FALSE)
 
 # Libraries
 
+add_subdirectory(Analyzer)
 add_subdirectory(Board)
 add_subdirectory(Generator)
 add_subdirectory(Solver)
@@ -24,3 +25,4 @@ add_subdirectory(Solver)
 add_subdirectory(generate)
 add_subdirectory(solve)
 add_subdirectory(tests)
+add_subdirectory(tutor)

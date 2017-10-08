@@ -44,6 +44,9 @@ public:
 
     // Returns the next square
     static void increment(int * r, int * c);
+    
+    // Returns indexes of all squares that depend on this one
+    static std::vector<int> getDependents(int r, int c);
 
 private:
 

@@ -17,33 +17,13 @@ Board::ValueList Board::allPossible(int r, int c) const
 {
     ValueList values = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
 
-    // Check the row
-    for (int j = 0; j < SIZE; ++j)
+    std::vector<int> others = getDependents(r, c);
+    for (auto i : others)
     {
-        int x = board_[r][j];
-        if (!isEmpty(x))
-            values[x] = EMPTY;
-    }
-
-    // Check the column
-    for (int i = 0; i < SIZE; ++i)
-    {
-        int x = board_[i][c];
-        if (!isEmpty(x))
-            values[x] = EMPTY;
-    }
-
-    // Check the box
-    int r0 = r - (r % 3);
-    int c0 = c - (c % 3);
-
-    for (int i = 0; i < 3; ++i)
-    {
-        for (int j = 0; j < 3; ++j)
-        {
-            int x = board_[r0 + i][c0 + j];
-            values[x] = EMPTY;
-        }
+        int otherR = i / SIZE;
+        int otherC = i % SIZE;
+        int x = board_[otherR][otherC];
+        values[x] = EMPTY;
     }
 
     // Remove EMPTYs
@@ -132,6 +112,41 @@ void Board::increment(int * r, int * c)
         ++*r;
         *c = 0;
     }
+}
+
+std::vector<int> Board::getDependents(int r, int c)
+{
+    std::vector<int> dependents;
+    dependents.reserve(3 * (SIZE - 1));
+
+    // Add the row
+    for (int j = 0; j < SIZE; ++j)
+    {
+        if (j != c)
+            dependents.push_back(r * SIZE + j);
+    }
+
+    // Add the column
+    for (int i = 0; i < SIZE; ++i)
+    {
+        if (i != r)
+            dependents.push_back(i * SIZE + c);
+    }
+
+    // Add the box
+    int r0 = r - (r % 3);
+    int c0 = c - (c % 3);
+
+    for (int i = 0; i < 3; ++i)
+    {
+        for (int j = 0; j < 3; ++j)
+        {
+            if (r0 + i != r && c0 + j != c)
+                dependents.push_back((r0 + i) * SIZE + (c0 + j));
+        }
+    }
+
+    return dependents;
 }
 
 bool Board::boxIsConsistent(int r0, int c0) const
