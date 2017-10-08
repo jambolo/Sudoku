@@ -5,4 +5,4 @@ set(SOURCES
 )
 
 add_executable(tests ${SOURCES})
-target_link_libraries(tests PRIVATE Board Generator Solver)
+target_link_libraries(tests PRIVATE Analyzer Board Generator Solver)
