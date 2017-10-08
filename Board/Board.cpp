@@ -65,7 +65,7 @@ bool Board::nextEmpty(int * nextR, int * nextC) const
     int c = *nextC;
     while (r < SIZE && !isEmpty(r, c))
     {
-        increment(r, c);
+        increment(&r, &c);
     }
     if (r >= SIZE)
         return false;
@@ -124,13 +124,13 @@ int Board::difficulty() const
     return difficulty;
 }
 
-void Board::increment(int & r, int & c)
+void Board::increment(int * r, int * c)
 {
-    ++c;
-    if (c >= SIZE)
+    ++*c;
+    if (*c >= SIZE)
     {
-        ++r;
-        c = 0;
+        ++*r;
+        *c = 0;
     }
 }
 

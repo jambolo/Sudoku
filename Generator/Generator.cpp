@@ -40,7 +40,7 @@ Board Generator::generate(int difficulty /* = 0*/)
 bool Generator::attempt(Board & board, int r /* = 0*/, int c /* = -1*/)
 {
     // Go to next square
-    Board::increment(r, c);
+    Board::increment(&r, &c);
     if (r >= Board::SIZE)
         return true;
 

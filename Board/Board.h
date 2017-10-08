@@ -43,7 +43,7 @@ public:
     int difficulty() const;
 
     // Returns the next square
-    static void increment(int & r, int & c);
+    static void increment(int * r, int * c);
 
 private:
 
