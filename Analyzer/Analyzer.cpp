@@ -65,25 +65,25 @@ Analyzer::Step Analyzer::next()
     if (allOtherNumbersTaken(&r, &c, &x))
     {
         solve(r, c, x);
-        return { Step::Type::SOLVE, { Board::indexOf(r, c) }, x, "all other numbers are taken" };
+        return { Step::Type::SOLVE, { Board::indexOf(r, c) }, x, "all other numbers are taken (naked single)" };
     }
 
     if (onlySquareInRowForThisValue(&r, &c, &x))
     {
         solve(r, c, x);
-        return { Step::Type::SOLVE, { Board::indexOf(r, c) }, x, "only square available in this row for this value" };
+        return { Step::Type::SOLVE, { Board::indexOf(r, c) }, x, "only square in this row that can be this value (hidden single)" };
     }
 
     if (onlySquareInColumnForThisValue(&r, &c, &x))
     {
         solve(r, c, x);
-        return { Step::Type::SOLVE, { Board::indexOf(r, c) }, x, "only square available in this column for this value" };
+        return { Step::Type::SOLVE, { Board::indexOf(r, c) }, x, "only square in this column that can be this value (hidden single)" };
     }
 
     if (onlySquareInBoxForThisValue(&r, &c, &x))
     {
         solve(r, c, x);
-        return { Step::Type::SOLVE, { Board::indexOf(r, c) }, x, "only square available in this box for this value" };
+        return { Step::Type::SOLVE, { Board::indexOf(r, c) }, x, "only square in this box that can be this value (hidden single)" };
     }
 
     done_ = true;
