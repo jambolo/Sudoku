@@ -15,13 +15,13 @@ bool Board::isEmpty(int r, int c) const
 
 Board::ValueList Board::allPossible(int r, int c) const
 {
-    ValueList values = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
-
+    ValueList values        = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
     std::vector<int> others = getDependents(r, c);
     for (auto i : others)
     {
-        int otherR = i / SIZE;
-        int otherC = i % SIZE;
+        int otherR;
+        int otherC;
+        locationOf(i, &otherR, &otherC);
         int x = board_[otherR][otherC];
         values[x] = EMPTY;
     }
@@ -80,9 +80,9 @@ bool Board::consistent() const
             return false;
     }
 
-    for (int r0 = 0; r0 < SIZE; r0 += 3)
+    for (int r0 = 0; r0 < SIZE; r0 += BOX_SIZE)
     {
-        for (int c0 = 0; c0 < SIZE; c0 += 3)
+        for (int c0 = 0; c0 < SIZE; c0 += BOX_SIZE)
         {
             return boxIsConsistent(r0, c0);
         }
@@ -104,45 +104,79 @@ int Board::difficulty() const
     return difficulty;
 }
 
+void Board::draw() const
+{
+    printf("    1   2   3   4   5   6   7   8   9\n");
+    printf("  +===+===+===+===+===+===+===+===+===+\n");
+    for (int r = 0; r < SIZE; ++r)
+    {
+        printf("%c |", 'A' + r);
+        for (int c = 0; c < SIZE; ++c)
+        {
+            int x = board_[r][c];
+            if (x > 0)
+            {
+                printf(" %d ", x);
+            }
+            else
+            {
+                printf("   ");
+            }
+            if (c % 3 == 2)
+            {
+                printf("|");
+            }
+            else
+            {
+                printf(":");
+            }
+        }
+        printf("\n");
+        if (r % 3 == 2)
+        {
+            printf("  +===+===+===+===+===+===+===+===+===+\n");
+        }
+        else
+        {
+            printf("  +---+---+---+---+---+---+---+---+---+\n");
+        }
+    }
+}
+
 void Board::increment(int * r, int * c)
 {
-    ++*c;
-    if (*c >= SIZE)
-    {
-        ++*r;
-        *c = 0;
-    }
+    locationOf(indexOf(*r, *c) + 1, r, c);
 }
 
 std::vector<int> Board::getDependents(int r, int c)
 {
     std::vector<int> dependents;
-    dependents.reserve(3 * (SIZE - 1));
+    dependents.reserve(BOX_SIZE * (SIZE - 1));
 
     // Add the row
     for (int j = 0; j < SIZE; ++j)
     {
         if (j != c)
-            dependents.push_back(r * SIZE + j);
+            dependents.push_back(indexOf(r, j));
     }
 
     // Add the column
     for (int i = 0; i < SIZE; ++i)
     {
         if (i != r)
-            dependents.push_back(i * SIZE + c);
+            dependents.push_back(indexOf(i, c));
     }
 
     // Add the box
-    int r0 = r - (r % 3);
-    int c0 = c - (c % 3);
+    int r0 = r - (r % BOX_SIZE);
+    int c0 = c - (c % BOX_SIZE);
 
-    for (int i = 0; i < 3; ++i)
+    for (int i = 0; i < BOX_SIZE; ++i)
     {
-        for (int j = 0; j < 3; ++j)
+        for (int j = 0; j < BOX_SIZE; ++j)
         {
-            if (r0 + i != r && c0 + j != c)
-                dependents.push_back((r0 + i) * SIZE + (c0 + j));
+            if (r0 + i != r || c0 + j != c)
+                dependents.push_back(indexOf((r0 + i), (c0 + j)));
         }
     }
 
@@ -152,9 +186,9 @@ std::vector<int> Board::getDependents(int r, int c)
 bool Board::boxIsConsistent(int r0, int c0) const
 {
     int values = 0;
-    for (int i = 0; i < 3; ++i)
+    for (int i = 0; i < BOX_SIZE; ++i)
     {
-        for (int j = 0; j < 3; ++j)
+        for (int j = 0; j < BOX_SIZE; ++j)
         {
             if (!consistent(board_[r0 + i][c0 + j], values))
                 return false;
@@ -185,14 +219,9 @@ bool Board::rowIsConsistent(int r) const
     return true;
 }
 
-bool Board::isEmpty(int x)
-{
-    return x == EMPTY;
-}
-
 bool Board::consistent(int x, int & values)
 {
-    if (isEmpty(x))
+    if (x == EMPTY)
         return true;
 
     int mask = 1 << x;

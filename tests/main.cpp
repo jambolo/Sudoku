@@ -7,28 +7,6 @@
 #include <cstdio>
 #include <ctime>
 
-static void draw(Board const & b)
-{
-    printf("+---+---+---+---+---+---+---+---+---+\n");
-    for (int r = 0; r < Board::SIZE; ++r)
-    {
-        printf("|");
-        for (int c = 0; c < Board::SIZE; ++c)
-        {
-            int x = b.get(r, c);
-            if (x > 0)
-            {
-                printf(" %d |", x);
-            }
-            else
-            {
-                printf("   |");
-            }
-        }
-        printf("\n+---+---+---+---+---+---+---+---+---+\n");
-    }
-}
-
 int main(int argc, char ** argv)
 {
 //     --argc;

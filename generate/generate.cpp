@@ -5,12 +5,17 @@
 #include <cstdio>
 #include <ctime>
 
+static void syntax()
+{
+    fprintf(stderr, "syntax: generate [difficulty]\n");
+}
+
 int main(int argc, char ** argv)
 {
     --argc;
     ++argv;
 
-    int difficulty;
+    int difficulty = 0;
 
     if (argc == 0)
     {
@@ -22,21 +27,19 @@ int main(int argc, char ** argv)
     }
     else
     {
-        fprintf(stderr, "syntax: generate [difficulty]\n");
+        syntax();
         return 1;
     }
 
     srand((unsigned int)time(NULL));
 
-    Board board = Generator::generate();
-    for (int r = 0; r < Board::SIZE; ++r)
+    Board board = Generator::generate(difficulty);
+    printf("[ ");
+    printf("%d", board.get(0));
+    for (int i = 1; i < Board::SIZE*Board::SIZE; ++i)
     {
-        for (int c = 0; c < Board::SIZE; ++c)
-        {
-            printf("%2d ", board.get(r, c));
-        }
+        printf(", %d", board.get(i));
     }
-
-    printf("\n");
+    printf(" ]\n");
     return 0;
 }

@@ -3,19 +3,24 @@
 #include "Board/Board.h"
 
 #include <algorithm>
+#include <cassert>
 #include <numeric>
 
+static int const ALL_POSSIBLE_MASK = 0x3fe;
+
+// Returns true if there is only one possibility
 static bool solved(int possible)
 {
     return (possible & (possible - 1)) == 0;
 }
 
-static int valueFromMask(int unused)
+// Returns the value of the only possibility
+static int valueFromMask(int mask)
 {
     int x = 0;
-    while ((unused & 1) == 0)
+    while ((mask & 1) == 0)
     {
-        unused >>= 1;
+        mask >>= 1;
         ++x;
     }
 
@@ -23,20 +28,13 @@ static int valueFromMask(int unused)
 }
 
 Analyzer::Analyzer(Board const & board)
+    : board_(board)
+    , unsolved_(Board::SIZE * Board::SIZE)
+    , possibilities_(Board::SIZE * Board::SIZE, ALL_POSSIBLE_MASK)
+    , done_(false)
 {
     // Nothing is solved initially
-    unsolved_.resize(Board::SIZE * Board::SIZE);
     std::iota(unsolved_.begin(), unsolved_.end(), 0);
-    
-    // Anything is possible initially
-    for (int r = 0; r < Board::SIZE; ++r)
-    {
-        for (int c = 0; c < Board::SIZE; ++c)
-        {
-            int index = r * Board::SIZE + c;
-            possible_[index] = 0x3fe;
-        }
-    }
 
     // For solved squares, mark as solved
     for (int r = 0; r < Board::SIZE; ++r)
@@ -52,56 +50,177 @@ Analyzer::Analyzer(Board const & board)
     }
 }
 
-Analyzer::Operation Analyzer::nextOperation()
+Analyzer::Step Analyzer::next()
 {
+    if (board_.completed())
+    {
+        done_ = true;
+        return { Step::Type::DONE };
+    }
+
     int r;
     int c;
     int x;
-    if (findObviousStep(&r, &c, &x))
+
+    if (allOtherNumbersTaken(&r, &c, &x))
     {
-        return { Operation::Type::SOLVE, { r * Board::SIZE + c } , x, "All other numbers are taken" };
+        solve(r, c, x);
+        return { Step::Type::SOLVE, { Board::indexOf(r, c) }, x, "all other numbers are taken" };
     }
 
-    return { Operation::Type::STUCK };
+    if (onlySquareInRowForThisValue(&r, &c, &x))
+    {
+        solve(r, c, x);
+        return { Step::Type::SOLVE, { Board::indexOf(r, c) }, x, "only square available in this row for this value" };
+    }
+
+    if (onlySquareInColumnForThisValue(&r, &c, &x))
+    {
+        solve(r, c, x);
+        return { Step::Type::SOLVE, { Board::indexOf(r, c) }, x, "only square available in this column for this value" };
+    }
+
+    if (onlySquareInBoxForThisValue(&r, &c, &x))
+    {
+        solve(r, c, x);
+        return { Step::Type::SOLVE, { Board::indexOf(r, c) }, x, "only square available in this box for this value" };
+    }
+
+    done_ = true;
+    return { Step::Type::STUCK };
 }
 
 void Analyzer::solve(int r, int c, int x)
 {
-    int index = r * Board::SIZE + c;
-    possible_[index] = 1 << x;
+    // Update the board
+    board_.set(r, c, x);
+
+    // The square has only one possible value now
+    int index = Board::indexOf(r, c);
+    possibilities_[index] = 1 << x;
+
+    // Remove from the list of unsolved squares
     unsolved_.erase(std::remove(unsolved_.begin(), unsolved_.end(), index), unsolved_.end());
+
+    // Eliminate this square's value from possibilities for its dependents
+    std::vector<int> dependents = Board::getDependents(r, c);
+    eliminate(dependents, x);
 }
 
 void Analyzer::eliminate(std::vector<int> const & indexes, int x)
 {
     for (auto i : indexes)
     {
-        possible_[i] &= ~(1 << x);
+        possibilities_[i] &= ~(1 << x);
+        assert(possibilities_[i] != 0);
     }
 }
 
-bool Analyzer::findObviousStep(int * r, int * c, int * x)
+bool Analyzer::allOtherNumbersTaken(int * r, int * c, int * x)
 {
-    std::random_shuffle(unsolved_.begin(), unsolved_.end());
+    // For each unsolved square, if it only has one possible value, then success
     for (auto i : unsolved_)
     {
-        int tryR = i / Board::SIZE;
-        int tryC =  i % Board::SIZE;
-
-        int unused = 0x3fe;
-        std::vector<int> dependents = Board::getDependents(tryR, tryC);
-        for (auto d : dependents)
+        if (solved(possibilities_[i]))
         {
-            if (solved(possible_[d]))
+            Board::locationOf(i, r, c);
+            *x = valueFromMask(possibilities_[i]);
+            return true;
+        }
+    }
+    return false;
+}
+
+bool Analyzer::onlySquareInRowForThisValue(int * r, int * c, int * x)
+{
+    // For each unsolved square, if one of its possible values doesn't overlap with the others in its row, then success.
+    for (auto s : unsolved_)
+    {
+        int i;
+        int j;
+        Board::locationOf(s, &i, &j);
+
+        int others = 0;
+        for (int k = 0; k < Board::SIZE; ++k)
+        {
+            if (k != j)
             {
-                unused &= ~possible_[d];
+                others |= possibilities_[Board::indexOf(i, k)];
             }
         }
-        if (solved(unused))
+        int exclusive = possibilities_[Board::indexOf(i, j)] & ~others;
+        if (exclusive != 0)
         {
-            *r = tryR;
-            *c = tryC;
-            *x = valueFromMask(unused);
+            assert(solved(exclusive));
+            *r = i;
+            *c = j;
+            *x = valueFromMask(exclusive);
+            return true;
+        }
+    }
+    return false;
+}
+
+bool Analyzer::onlySquareInColumnForThisValue(int * r, int * c, int * x)
+{
+    // For each unsolved square, if one of its possible values doesn't overlap with the others in its column, then success.
+    for (auto s : unsolved_)
+    {
+        int i;
+        int j;
+        Board::locationOf(s, &i, &j);
+
+        int others = 0;
+        for (int k = 0; k < Board::SIZE; ++k)
+        {
+            if (k != i)
+            {
+                others |= possibilities_[Board::indexOf(k, j)];
+            }
+        }
+        int exclusive = possibilities_[Board::indexOf(i, j)] & ~others;
+        if (exclusive != 0)
+        {
+            assert(solved(exclusive));
+            *r = i;
+            *c = j;
+            *x = valueFromMask(exclusive);
+            return true;
+        }
+    }
+    return false;
+}
+
+bool Analyzer::onlySquareInBoxForThisValue(int * r, int * c, int * x)
+{
+    // For each unsolved square, if one of its possible values doesn't overlap with the others in its box, then success.
+    for (auto s : unsolved_)
+    {
+        int i;
+        int j;
+        Board::locationOf(s, &i, &j);
+        
+        int i0 = i - (i % Board::BOX_SIZE);
+        int j0 = j - (j % Board::BOX_SIZE);
+
+        int others = 0;
+        for (int m = 0; m < Board::BOX_SIZE; ++m)
+        {
+            for (int n = 0; n < Board::BOX_SIZE; ++n)
+            {
+                if (i0 + m != i || j0 + n != j)
+                {
+                    others |= possibilities_[Board::indexOf(i0 + m, j0 + n)];
+                }
+            }
+        }
+        int exclusive = possibilities_[Board::indexOf(i, j)] & ~others;
+        if (exclusive != 0)
+        {
+            assert(solved(exclusive));
+            *r = i;
+            *c = j;
+            *x = valueFromMask(exclusive);
             return true;
         }
     }

@@ -5,26 +5,9 @@
 #include <cstdio>
 #include <ctime>
 
-static void draw(Board const & b)
+static void syntax()
 {
-    printf("+---+---+---+---+---+---+---+---+---+\n");
-    for (int r = 0; r < Board::SIZE; ++r)
-    {
-        printf("|");
-        for (int c = 0; c < Board::SIZE; ++c)
-        {
-            int x = b.get(r, c);
-            if (x > 0)
-            {
-                printf(" %d |", x);
-            }
-            else
-            {
-                printf("   |");
-            }
-        }
-        printf("\n+---+---+---+---+---+---+---+---+---+\n");
-    }
+    fprintf(stderr, "syntax: solve <81 values, 0-9>\n");
 }
 
 int main(int argc, char ** argv)
@@ -33,7 +16,7 @@ int main(int argc, char ** argv)
     ++argv;
     if (argc != Board::SIZE * Board::SIZE)
     {
-        fprintf(stderr, "syntax: solve <81 values, 0-9>\n");
+        syntax();
         return 1;
     }
 
@@ -46,7 +29,7 @@ int main(int argc, char ** argv)
             sscanf(*argv, "%d", &x);
             if (x < 0 || x > 9)
             {
-                fprintf(stderr, "syntax: soduko <81 values, 0-9>\n");
+                syntax();
                 return 2;
             }
             board.set(r, c, x);
@@ -56,7 +39,7 @@ int main(int argc, char ** argv)
     }
 
     printf("Board to solve:\n");
-    draw(board);
+    board.draw();
     printf("Difficulty: %d\n", board.difficulty());
     printf("\n");
 
@@ -67,7 +50,7 @@ int main(int argc, char ** argv)
         printf("\n");
         for (auto const & s : solutions)
         {
-            draw(s);
+            s.draw();
             printf("\n");
         }
     }
