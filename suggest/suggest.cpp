@@ -26,16 +26,35 @@ static void printStep(Analyzer::Step const & step, bool verbose, int i = 0)
         int r;
         int c;
         Board::locationOf(step.indexes[0], &r, &c);
-        printf("The value of %c%d is %d", 'A' + r, 1 + c, step.value);
+        printf("The value of %c%c is %d", Board::rowName(r), Board::columnName(c), step.values[0]);
         if (verbose)
         {
-            printf(" (%s)", step.reason.c_str());
+            printf(" (%s)", step.reasonText.c_str());
         }
         printf("\n");
         break;
     }
     case Analyzer::Step::ELIMINATE:
+    {
+        for (auto v : step.values)
+        {
+            printf("%d ", v);
+        }
+        printf("can be eliminated as candidate values for ");
+        for (auto v : step.indexes)
+        {
+            int r;
+            int c;
+            Board::locationOf(v, &r, &c);
+            printf("%c%c ", Board::rowName(r), Board::columnName(c));
+        }
+        if (verbose)
+        {
+            printf("(%s)", step.reasonText.c_str());
+        }
+        printf("\n");
         break;
+    }
     case Analyzer::Step::STUCK:
         printf("Stuck\n");
         break;

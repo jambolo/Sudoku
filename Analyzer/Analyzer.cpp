@@ -6,31 +6,64 @@
 #include <cassert>
 #include <numeric>
 
-static int const ALL_POSSIBLE_MASK = 0x3fe;
+static int const ALL_CANDIDATES = 0x3fe;
 
-// Returns true if there is only one possibility
-static bool solved(int possible)
+// Returns true if there is only one candidate
+static bool solved(unsigned candidates)
 {
-    return (possible & (possible - 1)) == 0;
+    return (candidates & (candidates - 1)) == 0;
 }
 
-// Returns the value of the only possibility
-static int valueFromMask(int mask)
+// Returns the value of the only candidate
+static int valueFromMask(unsigned candidates)
 {
-    int x = 0;
-    while ((mask & 1) == 0)
+    int v = 0;
+    while (candidates)
     {
-        mask >>= 1;
-        ++x;
+        candidates >>= 1;
+        ++v;
+        if (candidates & 1)
+        {
+            return v;
+        }
     }
+    return 0;
+}
 
-    return x;
+static std::vector<int> valuesFromMask(unsigned candidates)
+{
+    std::vector<int> values;
+    int v = 0;
+    while (candidates)
+    {
+        candidates >>= 1;
+        ++v;
+        if (candidates & 1)
+        {
+            values.push_back(v);
+        }
+    }
+    return values;
+}
+
+static int candidateCount(unsigned candidates)
+{
+    int count = 0;
+    while (candidates != 0)
+    {
+        candidates >>= 1;
+        if (candidates & 1)
+        {
+            ++count;
+        }
+    }
+    return count;
 }
 
 Analyzer::Analyzer(Board const & board)
     : board_(board)
     , unsolved_(Board::SIZE * Board::SIZE)
-    , possibilities_(Board::SIZE * Board::SIZE, ALL_POSSIBLE_MASK)
+    , candidates_(Board::SIZE * Board::SIZE, ALL_CANDIDATES)
     , done_(false)
 {
     // Nothing is solved initially
@@ -62,28 +95,80 @@ Analyzer::Step Analyzer::next()
     int c;
     int x;
 
-    if (allOtherNumbersTaken(&r, &c, &x))
+    if (nakedSingle(&r, &c, &x))
     {
         solve(r, c, x);
-        return { Step::Type::SOLVE, { Board::indexOf(r, c) }, x, "all other numbers are taken (naked single)" };
+        return { Step::Type::SOLVE,
+                 { Board::indexOf(r, c) },
+                 { x },
+                 Step::Reason::NAKED_SINGLE,
+                 "all other numbers are taken (naked single)" };
     }
 
-    if (onlySquareInRowForThisValue(&r, &c, &x))
+    if (hiddenSingleRow(&r, &c, &x))
     {
         solve(r, c, x);
-        return { Step::Type::SOLVE, { Board::indexOf(r, c) }, x, "only square in this row that can be this value (hidden single)" };
+        return { Step::Type::SOLVE,
+                 { Board::indexOf(r, c) },
+                 { x },
+                 Step::Reason::HIDDEN_SINGLE_ROW,
+                 "only square in this row that can be this value (hidden single)" };
     }
 
-    if (onlySquareInColumnForThisValue(&r, &c, &x))
+    if (hiddenSingleColumn(&r, &c, &x))
     {
         solve(r, c, x);
-        return { Step::Type::SOLVE, { Board::indexOf(r, c) }, x, "only square in this column that can be this value (hidden single)" };
+        return { Step::Type::SOLVE,
+                 { Board::indexOf(r, c) },
+                 { x },
+                 Step::Reason::HIDDEN_SINGLE_COLUMN,
+                 "only square in this column that can be this value (hidden single)" };
     }
 
-    if (onlySquareInBoxForThisValue(&r, &c, &x))
+    if (hiddenSingleBox(&r, &c, &x))
     {
         solve(r, c, x);
-        return { Step::Type::SOLVE, { Board::indexOf(r, c) }, x, "only square in this box that can be this value (hidden single)" };
+        return { Step::Type::SOLVE,
+                 { Board::indexOf(r, c) },
+                 { x },
+                 Step::Reason::HIDDEN_SINGLE_BOX,
+                 "only square in this box that can be this value (hidden single)" };
+    }
+
+    std::vector<int> eliminatedIndexes;
+    std::vector<int> eliminatedValues;
+
+    if (nakedPairRow(eliminatedIndexes, eliminatedValues))
+    {
+        eliminate(eliminatedIndexes, eliminatedValues[0]);
+        eliminate(eliminatedIndexes, eliminatedValues[1]);
+        return { Step::Type::ELIMINATE,
+                 eliminatedIndexes,
+                 eliminatedValues,
+                 Step::Reason::NAKED_PAIR_ROW,
+                 "two other squares in the row must have one of these two values, so no others can (naked pair)" };
+    }
+
+    if (nakedPairColumn(eliminatedIndexes, eliminatedValues))
+    {
+        eliminate(eliminatedIndexes, eliminatedValues[0]);
+        eliminate(eliminatedIndexes, eliminatedValues[1]);
+        return { Step::Type::ELIMINATE,
+                 eliminatedIndexes,
+                 eliminatedValues,
+                 Step::Reason::NAKED_PAIR_COLUMN,
+                 "two other squares in the column must have one of these two values, so no others can (naked pair)" };
+    }
+
+    if (nakedPairBox(eliminatedIndexes, eliminatedValues))
+    {
+        eliminate(eliminatedIndexes, eliminatedValues[0]);
+        eliminate(eliminatedIndexes, eliminatedValues[1]);
+        return { Step::Type::ELIMINATE,
+                 eliminatedIndexes,
+                 eliminatedValues,
+                 Step::Reason::NAKED_PAIR_BOX,
+                 "two other squares in the box must have one of these two values, so no others can (naked pair)" };
     }
 
     done_ = true;
@@ -95,14 +180,14 @@ void Analyzer::solve(int r, int c, int x)
     // Update the board
     board_.set(r, c, x);
 
-    // The square has only one possible value now
+    // The square has only one candidate now
     int index = Board::indexOf(r, c);
-    possibilities_[index] = 1 << x;
+    candidates_[index] = 1 << x;
 
     // Remove from the list of unsolved squares
     unsolved_.erase(std::remove(unsolved_.begin(), unsolved_.end(), index), unsolved_.end());
 
-    // Eliminate this square's value from possibilities for its dependents
+    // Eliminate this square's value from its dependents' candidates
     std::vector<int> dependents = Board::getDependents(r, c);
     eliminate(dependents, x);
 }
@@ -111,117 +196,181 @@ void Analyzer::eliminate(std::vector<int> const & indexes, int x)
 {
     for (auto i : indexes)
     {
-        possibilities_[i] &= ~(1 << x);
-        assert(possibilities_[i] != 0);
+        candidates_[i] &= ~(1 << x);
+        assert(candidates_[i] != 0);
     }
 }
 
-bool Analyzer::allOtherNumbersTaken(int * r, int * c, int * x)
+bool Analyzer::nakedSingle(int * solvedR, int * solvedC, int * solvedValue)
 {
-    // For each unsolved square, if it only has one possible value, then success
+    // For each unsolved square, if it only has one candidate, then success
     for (auto i : unsolved_)
     {
-        if (solved(possibilities_[i]))
+        if (solved(candidates_[i]))
         {
-            Board::locationOf(i, r, c);
-            *x = valueFromMask(possibilities_[i]);
+            Board::locationOf(i, solvedR, solvedC);
+            *solvedValue = valueFromMask(candidates_[i]);
             return true;
         }
     }
     return false;
 }
 
-bool Analyzer::onlySquareInRowForThisValue(int * r, int * c, int * x)
+bool Analyzer::hiddenSingleRow(int * solvedR, int * solvedC, int * solvedValue)
 {
-    // For each unsolved square, if one of its possible values doesn't overlap with the others in its row, then success.
+    // For each unsolved square, if one of its candidates doesn't overlap with the others in its row, then success.
     for (auto s : unsolved_)
     {
-        int i;
-        int j;
-        Board::locationOf(s, &i, &j);
+        int r;
+        int c;
+        Board::locationOf(s, &r, &c);
 
-        int others = 0;
-        for (int k = 0; k < Board::SIZE; ++k)
+        std::vector<int> indexes = Board::getRowIndexes(r);
+        if (hiddenSingle(indexes, s, solvedR, solvedC, solvedValue))
         {
-            if (k != j)
-            {
-                others |= possibilities_[Board::indexOf(i, k)];
-            }
-        }
-        int exclusive = possibilities_[Board::indexOf(i, j)] & ~others;
-        if (exclusive != 0)
-        {
-            assert(solved(exclusive));
-            *r = i;
-            *c = j;
-            *x = valueFromMask(exclusive);
             return true;
         }
     }
     return false;
 }
 
-bool Analyzer::onlySquareInColumnForThisValue(int * r, int * c, int * x)
+bool Analyzer::hiddenSingleColumn(int * solvedR, int * solvedC, int * solvedValue)
 {
-    // For each unsolved square, if one of its possible values doesn't overlap with the others in its column, then success.
+    // For each unsolved square, if one of its candidates doesn't overlap with the others in its column, then success.
     for (auto s : unsolved_)
     {
-        int i;
-        int j;
-        Board::locationOf(s, &i, &j);
+        int r;
+        int c;
+        Board::locationOf(s, &r, &c);
 
-        int others = 0;
-        for (int k = 0; k < Board::SIZE; ++k)
+        std::vector<int> indexes = Board::getColumnIndexes(c);
+        if (hiddenSingle(indexes, s, solvedR, solvedC, solvedValue))
         {
-            if (k != i)
-            {
-                others |= possibilities_[Board::indexOf(k, j)];
-            }
-        }
-        int exclusive = possibilities_[Board::indexOf(i, j)] & ~others;
-        if (exclusive != 0)
-        {
-            assert(solved(exclusive));
-            *r = i;
-            *c = j;
-            *x = valueFromMask(exclusive);
             return true;
         }
     }
     return false;
 }
 
-bool Analyzer::onlySquareInBoxForThisValue(int * r, int * c, int * x)
+bool Analyzer::hiddenSingleBox(int * solvedR, int * solvedC, int * solvedValue)
 {
-    // For each unsolved square, if one of its possible values doesn't overlap with the others in its box, then success.
+    // For each unsolved square, if one of its candidates doesn't overlap with the others in its box, then success.
     for (auto s : unsolved_)
     {
-        int i;
-        int j;
-        Board::locationOf(s, &i, &j);
-        
-        int i0 = i - (i % Board::BOX_SIZE);
-        int j0 = j - (j % Board::BOX_SIZE);
+        int r;
+        int c;
+        Board::locationOf(s, &r, &c);
 
-        int others = 0;
-        for (int m = 0; m < Board::BOX_SIZE; ++m)
+        int r0 = r - (r % Board::BOX_SIZE);
+        int c0 = c - (c % Board::BOX_SIZE);
+        std::vector<int> indexes = Board::getBoxIndexes(r0, c0);
+        if (hiddenSingle(indexes, s, solvedR, solvedC, solvedValue))
         {
-            for (int n = 0; n < Board::BOX_SIZE; ++n)
+            return true;
+        }
+    }
+    return false;
+}
+
+bool Analyzer::hiddenSingle(std::vector<int> const & indexes, int s, int * solvedR, int * solvedC, int * & solvedValue)
+{
+    unsigned others = 0;
+    for (auto i : indexes)
+    {
+        if (i != s)
+        {
+            others |= candidates_[i];
+        }
+    }
+
+    unsigned exclusive = candidates_[s] & ~others;
+    if (!exclusive)
+    {
+        return false;
+    }
+
+    assert(solved(exclusive));
+    Board::locationOf(s, solvedR, solvedC);
+    *solvedValue = valueFromMask(exclusive);
+    return true;
+}
+
+bool Analyzer::nakedPairRow(std::vector<int> & eliminatedIndexes, std::vector<int> & eliminatedValues)
+{
+    // For each conjugate pair in a row, if there are other candidates that overlap, then success.
+    for (int r = 0; r < Board::SIZE; ++r)
+    {
+        std::vector<int> indexes = Board::getRowIndexes(r);
+        if (nakedPair(indexes, eliminatedIndexes, eliminatedValues))
+            return true;
+    }
+    return false;
+}
+
+bool Analyzer::nakedPairColumn(std::vector<int> & eliminatedIndexes, std::vector<int> & eliminatedValues)
+{
+    // For each conjugate pair in a column, if there are other candidates that overlap, then success.
+    for (int c = 0; c < Board::SIZE; ++c)
+    {
+        std::vector<int> indexes = Board::getColumnIndexes(c);
+        if (nakedPair(indexes, eliminatedIndexes, eliminatedValues))
+            return true;
+    }
+    return false;
+}
+
+bool Analyzer::nakedPairBox(std::vector<int> & eliminatedIndexes, std::vector<int> & eliminatedValues)
+{
+    // For each conjugate pair in a column, if there are other candidates that overlap, then success.
+    for (int r0 = 0; r0 < Board::SIZE; r0 += Board::BOX_SIZE)
+    {
+        for (int c0 = 0; c0 < Board::SIZE; c0 += Board::BOX_SIZE)
+        {
+            std::vector<int> indexes = Board::getBoxIndexes(r0, c0);
+            if (nakedPair(indexes, eliminatedIndexes, eliminatedValues))
+                return true;
+        }
+    }
+    return false;
+}
+
+bool Analyzer::nakedPair(std::vector<int> const & indexes, std::vector<int> & eliminatedIndexes,
+                         std::vector<int> & eliminatedValues)
+{
+    for (int b0 = 0; b0 < Board::SIZE - 1; ++b0)
+    {
+        int i0     = indexes[b0];
+        int count0 = candidateCount(candidates_[i0]);
+        if (count0 > 1 && count0 <= 2)
+        {
+            for (int b1 = b0 + 1; b1 < Board::SIZE; ++b1)
             {
-                if (i0 + m != i || j0 + n != j)
+                int i1     = indexes[b1];
+                int count1 = candidateCount(candidates_[i1]);
+                if (count1 > 1 && count1 <= 2)
                 {
-                    others |= possibilities_[Board::indexOf(i0 + m, j0 + n)];
+                    unsigned candidates = candidates_[i0] | candidates_[i1];
+                    if (candidateCount(candidates) == 2)
+                    {
+                        for (auto i : indexes)
+                        {
+                            if (i != i0 && i != i1)
+                            {
+                                unsigned eliminated = candidates_[i] & candidates;
+                                if (eliminated)
+                                {
+                                    eliminatedIndexes.push_back(i);
+                                }
+                            }
+                        }
+                        if (!eliminatedIndexes.empty())
+                        {
+                            eliminatedValues = valuesFromMask(candidates);
+                            return true;
+                        }
+                    }
                 }
             }
-        }
-        int exclusive = possibilities_[Board::indexOf(i, j)] & ~others;
-        if (exclusive != 0)
-        {
-            assert(solved(exclusive));
-            *r = i;
-            *c = j;
-            *x = valueFromMask(exclusive);
-            return true;
         }
     }
     return false;

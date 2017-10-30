@@ -111,7 +111,7 @@ void Board::draw() const
     printf("  +===+===+===+===+===+===+===+===+===+\n");
     for (int r = 0; r < SIZE; ++r)
     {
-        printf("%c |", 'A' + r);
+        printf("%c |", rowName(r));
         for (int c = 0; c < SIZE; ++c)
         {
             int x = board_[r][c];
@@ -182,6 +182,42 @@ std::vector<int> Board::getDependents(int r, int c)
     }
 
     return dependents;
+}
+
+std::vector<int> Board::getRowIndexes(int r)
+{
+    std::vector<int> indexes;
+    indexes.reserve(SIZE);
+    for (int c = 0; c < SIZE; ++c)
+    {
+        indexes.push_back(indexOf(r, c));
+    }
+    return indexes;
+}
+
+std::vector<int> Board::getColumnIndexes(int c)
+{
+    std::vector<int> indexes;
+    indexes.reserve(SIZE);
+    for (int r = 0; r < SIZE; ++r)
+    {
+        indexes.push_back(indexOf(r, c));
+    }
+    return indexes;
+}
+
+std::vector<int> Board::getBoxIndexes(int r0, int c0)
+{
+    std::vector<int> indexes;
+    indexes.reserve(SIZE);
+    for (int i = 0; i < BOX_SIZE; ++i)
+    {
+        for (int j = 0; j < BOX_SIZE; ++j)
+        {
+            indexes.push_back(indexOf(r0 + i, c0 + j));
+        }
+    }
+    return indexes;
 }
 
 bool Board::boxIsConsistent(int r0, int c0) const

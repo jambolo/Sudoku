@@ -70,6 +70,21 @@ public:
     // Returns the location corresponding to a given index
     static void locationOf(int index, int * r, int * c) { *r = index / SIZE; *c = index % SIZE; }
 
+    // Returns the name of the give row
+    static char rowName(int r)    { return "ABCDEFGHJ"[r]; }
+
+    // Returns the name of the given column
+    static char columnName(int c) { return "123456789"[c]; }
+
+    // Returns the indexes for the given row
+    static std::vector<int> getRowIndexes(int r);
+
+    // Returns the indexes for the given column
+    static std::vector<int> getColumnIndexes(int c);
+
+    // Returns the indexes for the box at the given location
+    static std::vector<int> getBoxIndexes(int r, int c);
+
 private:
 
     bool        boxIsConsistent(int r0, int c0) const;
