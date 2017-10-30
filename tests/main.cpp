@@ -2,8 +2,6 @@
 #include "Generator/Generator.h"
 #include "Solver/Solver.h"
 
-#include "Windows.h"
-
 #include <cstdio>
 #include <ctime>
 
@@ -76,10 +74,8 @@ int main(int argc, char ** argv)
 //         printf("No solutions.\n");
 //     }
 
-    LARGE_INTEGER counter;
-    QueryPerformanceCounter(&counter);
-    srand(counter.LowPart);
-
+    srand(time(NULL));
+    
     std::vector<int> histo(81);
 
     time_t start_time = time(NULL);
@@ -101,7 +97,6 @@ int main(int argc, char ** argv)
     {
         printf("%2d: %4d\n", i, histo[i]);
     }
-
 
     return 0;
 }

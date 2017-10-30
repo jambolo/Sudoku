@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <memory>
+#include <vector>
 
 Board::Board()
 {
@@ -15,7 +16,7 @@ bool Board::isEmpty(int r, int c) const
 
 Board::ValueList Board::allPossible(int r, int c) const
 {
-    ValueList values        = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
+    std::vector<int> values { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
     std::vector<int> others = getDependents(r, c);
     for (auto i : others)
     {
@@ -23,11 +24,11 @@ Board::ValueList Board::allPossible(int r, int c) const
         int otherC;
         locationOf(i, &otherR, &otherC);
         int x = board_[otherR][otherC];
-        values[x] = EMPTY;
+        values[x] = 0;
     }
 
     // Remove EMPTYs
-    values.erase(std::remove(values.begin(), values.end(), EMPTY), values.end());
+    values.erase(std::remove(values.begin(), values.end(), 0), values.end());
 
     return values;
 }
