@@ -41,6 +41,7 @@ public:
     // Determines the next solution step
     Step next();
 
+
     // Returns the current state of the board
     Board const & board() const { return board_; }
 
@@ -51,21 +52,24 @@ private:
 
     void solve(int r, int c, int x);
     void eliminate(std::vector<int> const & indexes, int x);
+    void eliminate(std::vector<int> const & indexes, std::vector<int> const & values);
     bool nakedSingle(int * r, int * c, int * x);
     bool hiddenSingle(std::vector<int>const & indexes, int s, int * solvedR, int * solvedC, int * &solvedValue);
     bool hiddenSingleRow(int * r, int * c, int * x);
     bool hiddenSingleColumn(int * r, int * c, int * x);
     bool hiddenSingleBox(int * r, int * c, int * x);
-    bool nakedPair(std::vector<int> const & indexes, std::vector<int> &eliminatedIndexes, std::vector<int> &eliminatedValues);
     bool nakedPairRow(std::vector<int> & indexes, std::vector<int> & values);
     bool nakedPairColumn(std::vector<int> & indexes, std::vector<int> & values);
     bool nakedPairBox(std::vector<int> & indexes, std::vector<int> & values);
+    bool nakedPair(std::vector<int> const & indexes, std::vector<int> &eliminatedIndexes, std::vector<int> &eliminatedValues);
     bool nakedTripleRow(std::vector<int> & indexes, std::vector<int> & values);
     bool nakedTripleColumn(std::vector<int> & indexes, std::vector<int> & values);
     bool nakedTripleBox(std::vector<int> & indexes, std::vector<int> & values);
+    bool nakedTriple(std::vector<int> const & indexes, std::vector<int> &eliminatedIndexes, std::vector<int> &eliminatedValues);
     bool nakedQuadRow(std::vector<int> & indexes, std::vector<int> & values);
     bool nakedQuadColumn(std::vector<int> & indexes, std::vector<int> & values);
     bool nakedQuadBox(std::vector<int> & indexes, std::vector<int> & values);
+    bool nakedQuad(std::vector<int> const & indexes, std::vector<int> &eliminatedIndexes, std::vector<int> &eliminatedValues);
 
     Board board_;
     std::vector<int> unsolved_;         // Indexes of unsolved squares

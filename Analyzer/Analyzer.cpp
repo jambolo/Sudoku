@@ -140,8 +140,7 @@ Analyzer::Step Analyzer::next()
 
     if (nakedPairRow(eliminatedIndexes, eliminatedValues))
     {
-        eliminate(eliminatedIndexes, eliminatedValues[0]);
-        eliminate(eliminatedIndexes, eliminatedValues[1]);
+        eliminate(eliminatedIndexes, eliminatedValues);
         return { Step::Type::ELIMINATE,
                  eliminatedIndexes,
                  eliminatedValues,
@@ -151,8 +150,7 @@ Analyzer::Step Analyzer::next()
 
     if (nakedPairColumn(eliminatedIndexes, eliminatedValues))
     {
-        eliminate(eliminatedIndexes, eliminatedValues[0]);
-        eliminate(eliminatedIndexes, eliminatedValues[1]);
+        eliminate(eliminatedIndexes, eliminatedValues);
         return { Step::Type::ELIMINATE,
                  eliminatedIndexes,
                  eliminatedValues,
@@ -162,13 +160,72 @@ Analyzer::Step Analyzer::next()
 
     if (nakedPairBox(eliminatedIndexes, eliminatedValues))
     {
-        eliminate(eliminatedIndexes, eliminatedValues[0]);
-        eliminate(eliminatedIndexes, eliminatedValues[1]);
+        eliminate(eliminatedIndexes, eliminatedValues);
         return { Step::Type::ELIMINATE,
                  eliminatedIndexes,
                  eliminatedValues,
                  Step::Reason::NAKED_PAIR_BOX,
                  "two other squares in the box must have one of these two values, so no others can (naked pair)" };
+    }
+
+    if (nakedTripleRow(eliminatedIndexes, eliminatedValues))
+    {
+        eliminate(eliminatedIndexes, eliminatedValues);
+        return { Step::Type::ELIMINATE,
+                 eliminatedIndexes,
+                 eliminatedValues,
+                 Step::Reason::NAKED_PAIR_ROW,
+                 "three other squares in the row must have one of these three values, so no others can (naked triple)" };
+    }
+
+    if (nakedTripleColumn(eliminatedIndexes, eliminatedValues))
+    {
+        eliminate(eliminatedIndexes, eliminatedValues);
+        return { Step::Type::ELIMINATE,
+                 eliminatedIndexes,
+                 eliminatedValues,
+                 Step::Reason::NAKED_PAIR_COLUMN,
+                 "three other squares in the column must have one of these three values, so no others can (naked triple)" };
+    }
+
+    if (nakedTripleBox(eliminatedIndexes, eliminatedValues))
+    {
+        eliminate(eliminatedIndexes, eliminatedValues);
+        return { Step::Type::ELIMINATE,
+                 eliminatedIndexes,
+                 eliminatedValues,
+                 Step::Reason::NAKED_PAIR_BOX,
+                 "three other squares in the box must have one of these three values, so no others can (naked triple)" };
+    }
+
+    if (nakedQuadRow(eliminatedIndexes, eliminatedValues))
+    {
+        eliminate(eliminatedIndexes, eliminatedValues);
+        return { Step::Type::ELIMINATE,
+                 eliminatedIndexes,
+                 eliminatedValues,
+                 Step::Reason::NAKED_PAIR_ROW,
+                 "four other squares in the row must have one of these four values, so no others can (naked quad)" };
+    }
+
+    if (nakedQuadColumn(eliminatedIndexes, eliminatedValues))
+    {
+        eliminate(eliminatedIndexes, eliminatedValues);
+        return { Step::Type::ELIMINATE,
+                 eliminatedIndexes,
+                 eliminatedValues,
+                 Step::Reason::NAKED_PAIR_COLUMN,
+                 "four other squares in the column must have one of these four values, so no others can (naked quad)" };
+    }
+
+    if (nakedQuadBox(eliminatedIndexes, eliminatedValues))
+    {
+        eliminate(eliminatedIndexes, eliminatedValues);
+        return { Step::Type::ELIMINATE,
+                 eliminatedIndexes,
+                 eliminatedValues,
+                 Step::Reason::NAKED_PAIR_BOX,
+                 "four other squares in the box must have one of these four values, so no others can (naked quad)" };
     }
 
     done_ = true;
@@ -198,6 +255,14 @@ void Analyzer::eliminate(std::vector<int> const & indexes, int x)
     {
         candidates_[i] &= ~(1 << x);
         assert(candidates_[i] != 0);
+    }
+}
+
+void Analyzer::eliminate(std::vector<int> const & indexes, std::vector<int> const & values)
+{
+    for (auto v : values)
+    {
+        eliminate(indexes, v);
     }
 }
 
@@ -302,7 +367,9 @@ bool Analyzer::nakedPairRow(std::vector<int> & eliminatedIndexes, std::vector<in
     {
         std::vector<int> indexes = Board::getRowIndexes(r);
         if (nakedPair(indexes, eliminatedIndexes, eliminatedValues))
+        {
             return true;
+        }
     }
     return false;
 }
@@ -314,7 +381,9 @@ bool Analyzer::nakedPairColumn(std::vector<int> & eliminatedIndexes, std::vector
     {
         std::vector<int> indexes = Board::getColumnIndexes(c);
         if (nakedPair(indexes, eliminatedIndexes, eliminatedValues))
+        {
             return true;
+        }
     }
     return false;
 }
@@ -328,14 +397,17 @@ bool Analyzer::nakedPairBox(std::vector<int> & eliminatedIndexes, std::vector<in
         {
             std::vector<int> indexes = Board::getBoxIndexes(r0, c0);
             if (nakedPair(indexes, eliminatedIndexes, eliminatedValues))
+            {
                 return true;
+            }
         }
     }
     return false;
 }
 
-bool Analyzer::nakedPair(std::vector<int> const & indexes, std::vector<int> & eliminatedIndexes,
-                         std::vector<int> & eliminatedValues)
+bool Analyzer::nakedPair(std::vector<int> const & indexes,
+                         std::vector<int> &       eliminatedIndexes,
+                         std::vector<int> &       eliminatedValues)
 {
     for (int b0 = 0; b0 < Board::SIZE - 1; ++b0)
     {
@@ -367,6 +439,194 @@ bool Analyzer::nakedPair(std::vector<int> const & indexes, std::vector<int> & el
                         {
                             eliminatedValues = valuesFromMask(candidates);
                             return true;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    return false;
+}
+
+bool Analyzer::nakedTripleRow(std::vector<int> & eliminatedIndexes, std::vector<int> & eliminatedValues)
+{
+    // For each conjugate pair in a row, if there are other candidates that overlap, then success.
+    for (int r = 0; r < Board::SIZE; ++r)
+    {
+        std::vector<int> indexes = Board::getRowIndexes(r);
+        if (nakedTriple(indexes, eliminatedIndexes, eliminatedValues))
+            return true;
+    }
+    return false;
+}
+
+bool Analyzer::nakedTripleColumn(std::vector<int> & eliminatedIndexes, std::vector<int> & eliminatedValues)
+{
+    // For each conjugate pair in a column, if there are other candidates that overlap, then success.
+    for (int c = 0; c < Board::SIZE; ++c)
+    {
+        std::vector<int> indexes = Board::getColumnIndexes(c);
+        if (nakedTriple(indexes, eliminatedIndexes, eliminatedValues))
+            return true;
+    }
+    return false;
+}
+
+bool Analyzer::nakedTripleBox(std::vector<int> & eliminatedIndexes, std::vector<int> & eliminatedValues)
+{
+    // For each conjugate pair in a column, if there are other candidates that overlap, then success.
+    for (int r0 = 0; r0 < Board::SIZE; r0 += Board::BOX_SIZE)
+    {
+        for (int c0 = 0; c0 < Board::SIZE; c0 += Board::BOX_SIZE)
+        {
+            std::vector<int> indexes = Board::getBoxIndexes(r0, c0);
+            if (nakedTriple(indexes, eliminatedIndexes, eliminatedValues))
+                return true;
+        }
+    }
+    return false;
+}
+
+bool Analyzer::nakedTriple(std::vector<int> const & indexes,
+                           std::vector<int> &       eliminatedIndexes,
+                           std::vector<int> &       eliminatedValues)
+{
+    for (int b0 = 0; b0 < Board::SIZE - 2; ++b0)
+    {
+        int i0     = indexes[b0];
+        int count0 = candidateCount(candidates_[i0]);
+        if (count0 > 1 && count0 <= 3)
+        {
+            for (int b1 = b0 + 1; b1 < Board::SIZE - 1; ++b1)
+            {
+                int i1     = indexes[b1];
+                int count1 = candidateCount(candidates_[i1]);
+                if (count1 > 1 && count1 <= 3)
+                {
+                    for (int b2 = b1 + 1; b2 < Board::SIZE; ++b2)
+                    {
+                        int i2     = indexes[b2];
+                        int count2 = candidateCount(candidates_[i2]);
+                        if (count2 > 1 && count2 <= 3)
+                        {
+                            unsigned candidates = candidates_[i0] | candidates_[i1] | candidates_[i2];
+                            if (candidateCount(candidates) == 3)
+                            {
+                                for (auto i : indexes)
+                                {
+                                    if (i != i0 && i != i1 && i != i2)
+                                    {
+                                        unsigned eliminated = candidates_[i] & candidates;
+                                        if (eliminated)
+                                        {
+                                            eliminatedIndexes.push_back(i);
+                                        }
+                                    }
+                                }
+                                if (!eliminatedIndexes.empty())
+                                {
+                                    eliminatedValues = valuesFromMask(candidates);
+                                    return true;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    return false;
+}
+
+bool Analyzer::nakedQuadRow(std::vector<int> & eliminatedIndexes, std::vector<int> & eliminatedValues)
+{
+    // For each conjugate pair in a row, if there are other candidates that overlap, then success.
+    for (int r = 0; r < Board::SIZE; ++r)
+    {
+        std::vector<int> indexes = Board::getRowIndexes(r);
+        if (nakedQuad(indexes, eliminatedIndexes, eliminatedValues))
+            return true;
+    }
+    return false;
+}
+
+bool Analyzer::nakedQuadColumn(std::vector<int> & eliminatedIndexes, std::vector<int> & eliminatedValues)
+{
+    // For each conjugate pair in a column, if there are other candidates that overlap, then success.
+    for (int c = 0; c < Board::SIZE; ++c)
+    {
+        std::vector<int> indexes = Board::getColumnIndexes(c);
+        if (nakedQuad(indexes, eliminatedIndexes, eliminatedValues))
+            return true;
+    }
+    return false;
+}
+
+bool Analyzer::nakedQuadBox(std::vector<int> & eliminatedIndexes, std::vector<int> & eliminatedValues)
+{
+    // For each conjugate pair in a column, if there are other candidates that overlap, then success.
+    for (int r0 = 0; r0 < Board::SIZE; r0 += Board::BOX_SIZE)
+    {
+        for (int c0 = 0; c0 < Board::SIZE; c0 += Board::BOX_SIZE)
+        {
+            std::vector<int> indexes = Board::getBoxIndexes(r0, c0);
+            if (nakedQuad(indexes, eliminatedIndexes, eliminatedValues))
+                return true;
+        }
+    }
+    return false;
+}
+
+bool Analyzer::nakedQuad(std::vector<int> const & indexes,
+                         std::vector<int> &       eliminatedIndexes,
+                         std::vector<int> &       eliminatedValues)
+{
+    for (int b0 = 0; b0 < Board::SIZE - 3; ++b0)
+    {
+        int i0     = indexes[b0];
+        int count0 = candidateCount(candidates_[i0]);
+        if (count0 > 1 && count0 <= 4)
+        {
+            for (int b1 = b0 + 1; b1 < Board::SIZE - 2; ++b1)
+            {
+                int i1     = indexes[b1];
+                int count1 = candidateCount(candidates_[i1]);
+                if (count1 > 1 && count1 <= 4)
+                {
+                    for (int b2 = b1 + 1; b2 < Board::SIZE - 1; ++b2)
+                    {
+                        int i2     = indexes[b2];
+                        int count2 = candidateCount(candidates_[i2]);
+                        if (count2 > 1 && count2 <= 4)
+                        {
+                            for (int b3 = b2 + 1; b3 < Board::SIZE; ++b3)
+                            {
+                                int i3     = indexes[b3];
+                                int count3 = candidateCount(candidates_[i3]);
+                                if (count3 > 1 && count3 <= 4)
+                                {
+                                    unsigned candidates = candidates_[i0] | candidates_[i1] | candidates_[i2] | candidates_[i3];
+                                    if (candidateCount(candidates) == 4)
+                                    {
+                                        for (auto i : indexes)
+                                        {
+                                            if (i != i0 && i != i1 && i != i2 && i != i3)
+                                            {
+                                                unsigned eliminated = candidates_[i] & candidates;
+                                                if (eliminated)
+                                                {
+                                                    eliminatedIndexes.push_back(i);
+                                                }
+                                            }
+                                        }
+                                        if (!eliminatedIndexes.empty())
+                                        {
+                                            eliminatedValues = valuesFromMask(candidates);
+                                            return true;
+                                        }
+                                    }
+                                }
+                            }
                         }
                     }
                 }

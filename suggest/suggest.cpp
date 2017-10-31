@@ -1,5 +1,5 @@
-#include "Board/Board.h"
 #include "Analyzer/Analyzer.h"
+#include "Board/Board.h"
 
 #include <cstdio>
 #include <ctime>
@@ -21,53 +21,53 @@ static void printStep(Analyzer::Step const & step, bool verbose, int i = 0)
 
     switch (step.type)
     {
-    case Analyzer::Step::SOLVE:
-    {
-        int r;
-        int c;
-        Board::locationOf(step.indexes[0], &r, &c);
-        printf("The value of %c%c is %d", Board::rowName(r), Board::columnName(c), step.values[0]);
-        if (verbose)
-        {
-            printf(" (%s)", step.reasonText.c_str());
-        }
-        printf("\n");
-        break;
-    }
-    case Analyzer::Step::ELIMINATE:
-    {
-        for (auto v : step.values)
-        {
-            printf("%d ", v);
-        }
-        printf("can be eliminated as candidate values for ");
-        for (auto v : step.indexes)
+        case Analyzer::Step::SOLVE:
         {
             int r;
             int c;
-            Board::locationOf(v, &r, &c);
-            printf("%c%c ", Board::rowName(r), Board::columnName(c));
+            Board::locationOf(step.indexes[0], &r, &c);
+            printf("The value of %c%c is %d", Board::rowName(r), Board::columnName(c), step.values[0]);
+            if (verbose)
+            {
+                printf(" (%s)", step.reasonText.c_str());
+            }
+            printf("\n");
+            break;
         }
-        if (verbose)
+        case Analyzer::Step::ELIMINATE:
         {
-            printf("(%s)", step.reasonText.c_str());
+            for (auto v : step.values)
+            {
+                printf("%d ", v);
+            }
+            printf("can be eliminated as candidate values for ");
+            for (auto v : step.indexes)
+            {
+                int r;
+                int c;
+                Board::locationOf(v, &r, &c);
+                printf("%c%c ", Board::rowName(r), Board::columnName(c));
+            }
+            if (verbose)
+            {
+                printf("(%s)", step.reasonText.c_str());
+            }
+            printf("\n");
+            break;
         }
-        printf("\n");
-        break;
-    }
-    case Analyzer::Step::STUCK:
-        printf("Stuck\n");
-        break;
-    case Analyzer::Step::DONE:
-        printf("Done\n");
-        break;
+        case Analyzer::Step::STUCK:
+            printf("Stuck\n");
+            break;
+        case Analyzer::Step::DONE:
+            printf("Done\n");
+            break;
     }
 }
 
 int main(int argc, char ** argv)
 {
     bool verbose = false;
-    bool all = false;
+    bool all     = false;
 
     --argc;
     ++argv;
@@ -79,7 +79,7 @@ int main(int argc, char ** argv)
 
     if (strcmp(*argv, "-a") == 0)
     {
-        all = true;
+        all     = true;
         verbose = true;
         ++argv;
         --argc;
@@ -148,7 +148,6 @@ int main(int argc, char ** argv)
         Analyzer::Step step = analyzer.next();
         printStep(step, verbose);
     }
-
 
     return 0;
 }
