@@ -275,8 +275,8 @@ bool Analyzer::hiddenSingleRow(int * solvedR, int * solvedC, int * solvedValue)
         int c;
         Board::locationOf(s, &r, &c);
 
-        std::vector<int> indexes = Board::getRowIndexes(r);
-        if (hiddenSingle(indexes, s, solvedR, solvedC, solvedValue))
+        std::vector<int> row = Board::getRowIndexes(r);
+        if (hiddenSingle(row, s, solvedR, solvedC, solvedValue))
         {
             return true;
         }
@@ -293,8 +293,8 @@ bool Analyzer::hiddenSingleColumn(int * solvedR, int * solvedC, int * solvedValu
         int c;
         Board::locationOf(s, &r, &c);
 
-        std::vector<int> indexes = Board::getColumnIndexes(c);
-        if (hiddenSingle(indexes, s, solvedR, solvedC, solvedValue))
+        std::vector<int> column = Board::getColumnIndexes(c);
+        if (hiddenSingle(column, s, solvedR, solvedC, solvedValue))
         {
             return true;
         }
@@ -313,8 +313,8 @@ bool Analyzer::hiddenSingleBox(int * solvedR, int * solvedC, int * solvedValue)
 
         int r0 = r - (r % Board::BOX_SIZE);
         int c0 = c - (c % Board::BOX_SIZE);
-        std::vector<int> indexes = Board::getBoxIndexes(r0, c0);
-        if (hiddenSingle(indexes, s, solvedR, solvedC, solvedValue))
+        std::vector<int> box = Board::getBoxIndexes(r0, c0);
+        if (hiddenSingle(box, s, solvedR, solvedC, solvedValue))
         {
             return true;
         }
@@ -360,13 +360,13 @@ bool Analyzer::nakedSingle(int * solvedR, int * solvedC, int * solvedValue)
     return false;
 }
 
-bool Analyzer::nakedPairRow(std::vector<int> & eliminatedIndexes, std::vector<int> & eliminatedValues)
+bool Analyzer::nakedPairRow(std::vector<int> & indexes, std::vector<int> & eliminatedValues)
 {
     // For each conjugate pair in a row, if there are other candidates that overlap, then success.
     for (int r = 0; r < Board::SIZE; ++r)
     {
-        std::vector<int> indexes = Board::getRowIndexes(r);
-        if (nakedPair(indexes, eliminatedIndexes, eliminatedValues))
+        std::vector<int> row = Board::getRowIndexes(r);
+        if (nakedPair(row, indexes, eliminatedValues))
         {
             return true;
         }
@@ -374,13 +374,13 @@ bool Analyzer::nakedPairRow(std::vector<int> & eliminatedIndexes, std::vector<in
     return false;
 }
 
-bool Analyzer::nakedPairColumn(std::vector<int> & eliminatedIndexes, std::vector<int> & eliminatedValues)
+bool Analyzer::nakedPairColumn(std::vector<int> & indexes, std::vector<int> & eliminatedValues)
 {
     // For each conjugate pair in a column, if there are other candidates that overlap, then success.
     for (int c = 0; c < Board::SIZE; ++c)
     {
-        std::vector<int> indexes = Board::getColumnIndexes(c);
-        if (nakedPair(indexes, eliminatedIndexes, eliminatedValues))
+        std::vector<int> column = Board::getColumnIndexes(c);
+        if (nakedPair(column, indexes, eliminatedValues))
         {
             return true;
         }
@@ -388,15 +388,15 @@ bool Analyzer::nakedPairColumn(std::vector<int> & eliminatedIndexes, std::vector
     return false;
 }
 
-bool Analyzer::nakedPairBox(std::vector<int> & eliminatedIndexes, std::vector<int> & eliminatedValues)
+bool Analyzer::nakedPairBox(std::vector<int> & indexes, std::vector<int> & eliminatedValues)
 {
     // For each conjugate pair in a column, if there are other candidates that overlap, then success.
     for (int r0 = 0; r0 < Board::SIZE; r0 += Board::BOX_SIZE)
     {
         for (int c0 = 0; c0 < Board::SIZE; c0 += Board::BOX_SIZE)
         {
-            std::vector<int> indexes = Board::getBoxIndexes(r0, c0);
-            if (nakedPair(indexes, eliminatedIndexes, eliminatedValues))
+            std::vector<int> box = Board::getBoxIndexes(r0, c0);
+            if (nakedPair(box, indexes, eliminatedValues))
             {
                 return true;
             }
@@ -448,39 +448,39 @@ bool Analyzer::nakedPair(std::vector<int> const & indexes,
     return false;
 }
 
-bool Analyzer::nakedTripleRow(std::vector<int> & eliminatedIndexes, std::vector<int> & eliminatedValues)
+bool Analyzer::nakedTripleRow(std::vector<int> & indexes, std::vector<int> & values)
 {
     // For each conjugate triple in a row, if there are other candidates that overlap, then success.
     for (int r = 0; r < Board::SIZE; ++r)
     {
-        std::vector<int> indexes = Board::getRowIndexes(r);
-        if (nakedTriple(indexes, eliminatedIndexes, eliminatedValues))
+        std::vector<int> row = Board::getRowIndexes(r);
+        if (nakedTriple(row, indexes, values))
             return true;
     }
     return false;
 }
 
-bool Analyzer::nakedTripleColumn(std::vector<int> & eliminatedIndexes, std::vector<int> & eliminatedValues)
+bool Analyzer::nakedTripleColumn(std::vector<int> & indexes, std::vector<int> & values)
 {
     // For each conjugate triple in a column, if there are other candidates that overlap, then success.
     for (int c = 0; c < Board::SIZE; ++c)
     {
-        std::vector<int> indexes = Board::getColumnIndexes(c);
-        if (nakedTriple(indexes, eliminatedIndexes, eliminatedValues))
+        std::vector<int> column = Board::getColumnIndexes(c);
+        if (nakedTriple(column, indexes, values))
             return true;
     }
     return false;
 }
 
-bool Analyzer::nakedTripleBox(std::vector<int> & eliminatedIndexes, std::vector<int> & eliminatedValues)
+bool Analyzer::nakedTripleBox(std::vector<int> & indexes, std::vector<int> & values)
 {
     // For each conjugate triple in a column, if there are other candidates that overlap, then success.
     for (int r0 = 0; r0 < Board::SIZE; r0 += Board::BOX_SIZE)
     {
         for (int c0 = 0; c0 < Board::SIZE; c0 += Board::BOX_SIZE)
         {
-            std::vector<int> indexes = Board::getBoxIndexes(r0, c0);
-            if (nakedTriple(indexes, eliminatedIndexes, eliminatedValues))
+            std::vector<int> box = Board::getBoxIndexes(r0, c0);
+            if (nakedTriple(box, indexes, values))
                 return true;
         }
     }
@@ -538,39 +538,39 @@ bool Analyzer::nakedTriple(std::vector<int> const & indexes,
     return false;
 }
 
-bool Analyzer::nakedQuadRow(std::vector<int> & eliminatedIndexes, std::vector<int> & eliminatedValues)
+bool Analyzer::nakedQuadRow(std::vector<int> & indexes, std::vector<int> & values)
 {
     // For each conjugate quad in a row, if there are other candidates that overlap, then success.
     for (int r = 0; r < Board::SIZE; ++r)
     {
-        std::vector<int> indexes = Board::getRowIndexes(r);
-        if (nakedQuad(indexes, eliminatedIndexes, eliminatedValues))
+        std::vector<int> row = Board::getRowIndexes(r);
+        if (nakedQuad(row, indexes, values))
             return true;
     }
     return false;
 }
 
-bool Analyzer::nakedQuadColumn(std::vector<int> & eliminatedIndexes, std::vector<int> & eliminatedValues)
+bool Analyzer::nakedQuadColumn(std::vector<int> & indexes, std::vector<int> & values)
 {
     // For each conjugate quad in a column, if there are other candidates that overlap, then success.
     for (int c = 0; c < Board::SIZE; ++c)
     {
-        std::vector<int> indexes = Board::getColumnIndexes(c);
-        if (nakedQuad(indexes, eliminatedIndexes, eliminatedValues))
+        std::vector<int> column = Board::getColumnIndexes(c);
+        if (nakedQuad(column, indexes, values))
             return true;
     }
     return false;
 }
 
-bool Analyzer::nakedQuadBox(std::vector<int> & eliminatedIndexes, std::vector<int> & eliminatedValues)
+bool Analyzer::nakedQuadBox(std::vector<int> & indexes, std::vector<int> & values)
 {
     // For each conjugate quad in a column, if there are other candidates that overlap, then success.
     for (int r0 = 0; r0 < Board::SIZE; r0 += Board::BOX_SIZE)
     {
         for (int c0 = 0; c0 < Board::SIZE; c0 += Board::BOX_SIZE)
         {
-            std::vector<int> indexes = Board::getBoxIndexes(r0, c0);
-            if (nakedQuad(indexes, eliminatedIndexes, eliminatedValues))
+            std::vector<int> box = Board::getBoxIndexes(r0, c0);
+            if (nakedQuad(box, indexes, values))
                 return true;
         }
     }

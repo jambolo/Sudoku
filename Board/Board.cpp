@@ -1,6 +1,7 @@
 #include "Board.h"
 
 #include <algorithm>
+#include <cassert>
 #include <memory>
 #include <vector>
 
@@ -208,6 +209,8 @@ std::vector<int> Board::getColumnIndexes(int c)
 
 std::vector<int> Board::getBoxIndexes(int r0, int c0)
 {
+    assert(r0 % BOX_SIZE == 0);
+    assert(c0 % BOX_SIZE == 0);
     std::vector<int> indexes;
     indexes.reserve(SIZE);
     for (int i = 0; i < BOX_SIZE; ++i)
@@ -222,6 +225,8 @@ std::vector<int> Board::getBoxIndexes(int r0, int c0)
 
 bool Board::boxIsConsistent(int r0, int c0) const
 {
+    assert(r0 % BOX_SIZE == 0);
+    assert(c0 % BOX_SIZE == 0);
     int values = 0;
     for (int i = 0; i < BOX_SIZE; ++i)
     {
