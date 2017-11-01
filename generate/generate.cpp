@@ -36,7 +36,7 @@ int main(int argc, char ** argv)
     Board board = Generator::generate(difficulty);
     printf("[ ");
     printf("%d", board.get(0));
-    for (int i = 1; i < Board::SIZE*Board::SIZE; ++i)
+    for (int i = 1; i < Board::SIZE * Board::SIZE; ++i)
     {
         printf(", %d", board.get(i));
     }
