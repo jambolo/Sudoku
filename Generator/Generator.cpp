@@ -44,7 +44,7 @@ bool Generator::attempt(Board & board, int r /* = 0*/, int c /* = -1*/)
     if (r >= Board::SIZE)
         return true;
 
-    Board::ValueList possibleValues = board.allPossible(r, c);
+    std::vector<int> possibleValues = board.allPossible(r, c);
     std::random_shuffle(possibleValues.begin(), possibleValues.end());
     for (auto x : possibleValues)
     {

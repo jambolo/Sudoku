@@ -102,7 +102,7 @@ Analyzer::Step Analyzer::next()
                  { Board::indexOf(r, c) },
                  { x },
                  Step::NAKED_SINGLE,
-                 "all other numbers are taken (naked single)" };
+                 "there are no other possibilities for this square (naked single)" };
     }
 
     if (hiddenSingleRow(&r, &c, &x))

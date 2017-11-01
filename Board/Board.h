@@ -11,8 +11,6 @@ public:
     static int const BOX_SIZE = 3;
     static int const EMPTY    = 0;
 
-    using ValueList = std::vector<int>;
-
     // Sets the value of a square (1 - 9, or EMPTY)
     void set(int r, int c, int x) { board_[r][c] = x; }
 
@@ -32,10 +30,10 @@ public:
     bool isEmpty(int i) const { int r, c; locationOf(i, &r, &c); return isEmpty(r, c); }
 
     // Returns all possible values for the square
-    ValueList allPossible(int r, int c) const;
+    std::vector<int> allPossible(int r, int c) const;
 
     // Returns all possible values for the square by index
-    ValueList allPossible(int i) const { int r, c; locationOf(i, &r, &c); return allPossible(r, c); }
+    std::vector<int> allPossible(int i) const { int r, c; locationOf(i, &r, &c); return allPossible(r, c); }
 
     // Returns the coordinates of an empty square, or false if there are none
     bool firstEmpty(int * firstR, int * firstC) const;

@@ -15,7 +15,7 @@ bool Board::isEmpty(int r, int c) const
     return board_[r][c] == EMPTY;
 }
 
-Board::ValueList Board::allPossible(int r, int c) const
+std::vector<int> Board::allPossible(int r, int c) const
 {
     std::vector<int> values { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
     std::vector<int> others = getDependents(r, c);

@@ -77,8 +77,8 @@ private:
     bool nakedQuadBox(std::vector<int> & indexes, std::vector<int> & values);
     bool nakedQuad(std::vector<int> const & indexes, std::vector<int> & eliminatedIndexes, std::vector<int> & eliminatedValues);
 
-    Board board_;
+    Board board_;                       // Current state of the board
     std::vector<int> unsolved_;         // Indexes of unsolved squares
     std::vector<unsigned> candidates_;  // Masks of possible values for each square
-    bool done_;
+    bool done_;                         // True if the analyzer can do no more, either because it is stumped or the board is solved
 };
