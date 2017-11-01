@@ -1,9 +1,9 @@
 #pragma once
 
+#include "Board/Board.h"
+#include <functional>
 #include <string>
 #include <vector>
-#include <functional>
-#include "Board/Board.h"
 
 class Analyzer
 {
@@ -11,29 +11,24 @@ public:
 
     struct Step
     {
-        enum Type { SOLVE, ELIMINATE, STUCK, DONE };
-        enum Reason
+        enum ActionId { SOLVE, ELIMINATE, STUCK, DONE };
+        enum TechniqueId
         {
             NONE = 0,
+            HIDDEN_SINGLE,
+            HIDDEN_PAIR,
+            HIDDEN_TRIPLE,
+            HIDDEN_QUAD,
             NAKED_SINGLE,
-            HIDDEN_SINGLE_ROW,
-            HIDDEN_SINGLE_COLUMN,
-            HIDDEN_SINGLE_BOX,
-            NAKED_PAIR_ROW,
-            NAKED_PAIR_COLUMN,
-            NAKED_PAIR_BOX,
-            NAKED_TRIPLE_ROW,
-            NAKED_TRIPLE_COLUMN,
-            NAKED_TRIPLE_BOX,
-            NAKED_QUAD_ROW,
-            NAKED_QUAD_COLUMN,
-            NAKED_QUAD_BOX,
+            NAKED_PAIR,
+            NAKED_TRIPLE,
+            NAKED_QUAD,
         };
-        Type             type;
+        ActionId         action;
         std::vector<int> indexes;
         std::vector<int> values;
-        Reason           reason;
-        std::string      reasonText;
+        TechniqueId      technique;
+        std::string      reason;
     };
 
     Analyzer(Board const & board);
@@ -41,35 +36,34 @@ public:
     // Determines the next solution step
     Step next();
 
-
     // Returns the current state of the board
     Board const & board() const { return board_; }
 
     // Returns true if the analyzer can make no more progress
-    bool done() const  { return done_; }
+    bool done() const { return done_; }
 
 private:
 
     void solve(int r, int c, int x);
     void eliminate(std::vector<int> const & indexes, int x);
     void eliminate(std::vector<int> const & indexes, std::vector<int> const & values);
-    bool nakedSingle(int * r, int * c, int * x);
-    bool hiddenSingle(std::vector<int>const & indexes, int s, int * solvedR, int * solvedC, int * &solvedValue);
     bool hiddenSingleRow(int * r, int * c, int * x);
     bool hiddenSingleColumn(int * r, int * c, int * x);
     bool hiddenSingleBox(int * r, int * c, int * x);
+    bool hiddenSingle(std::vector<int> const & indexes, int s, int * solvedR, int * solvedC, int * & solvedValue);
+    bool nakedSingle(int * r, int * c, int * x);
     bool nakedPairRow(std::vector<int> & indexes, std::vector<int> & values);
     bool nakedPairColumn(std::vector<int> & indexes, std::vector<int> & values);
     bool nakedPairBox(std::vector<int> & indexes, std::vector<int> & values);
-    bool nakedPair(std::vector<int> const & indexes, std::vector<int> &eliminatedIndexes, std::vector<int> &eliminatedValues);
+    bool nakedPair(std::vector<int> const & indexes, std::vector<int> & eliminatedIndexes, std::vector<int> & eliminatedValues);
     bool nakedTripleRow(std::vector<int> & indexes, std::vector<int> & values);
     bool nakedTripleColumn(std::vector<int> & indexes, std::vector<int> & values);
     bool nakedTripleBox(std::vector<int> & indexes, std::vector<int> & values);
-    bool nakedTriple(std::vector<int> const & indexes, std::vector<int> &eliminatedIndexes, std::vector<int> &eliminatedValues);
+    bool nakedTriple(std::vector<int> const & indexes, std::vector<int> & eliminatedIndexes, std::vector<int> & eliminatedValues);
     bool nakedQuadRow(std::vector<int> & indexes, std::vector<int> & values);
     bool nakedQuadColumn(std::vector<int> & indexes, std::vector<int> & values);
     bool nakedQuadBox(std::vector<int> & indexes, std::vector<int> & values);
-    bool nakedQuad(std::vector<int> const & indexes, std::vector<int> &eliminatedIndexes, std::vector<int> &eliminatedValues);
+    bool nakedQuad(std::vector<int> const & indexes, std::vector<int> & eliminatedIndexes, std::vector<int> & eliminatedValues);
 
     Board board_;
     std::vector<int> unsolved_;         // Indexes of unsolved squares
