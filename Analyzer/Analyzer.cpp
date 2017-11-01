@@ -145,7 +145,7 @@ Analyzer::Step Analyzer::next()
                  eliminatedIndexes,
                  eliminatedValues,
                  Step::NAKED_PAIR,
-                 "two other squares in the row must have one of these two values, so no others can (naked pair)" };
+                 "two other squares in the row must be one of these two values, so no others can (naked pair)" };
     }
 
     if (nakedPairColumn(eliminatedIndexes, eliminatedValues))
@@ -155,7 +155,7 @@ Analyzer::Step Analyzer::next()
                  eliminatedIndexes,
                  eliminatedValues,
                  Step::NAKED_PAIR,
-                 "two other squares in the column must have one of these two values, so no others can (naked pair)" };
+                 "two other squares in the column must be one of these two values, so no others can (naked pair)" };
     }
 
     if (nakedPairBox(eliminatedIndexes, eliminatedValues))
@@ -165,7 +165,37 @@ Analyzer::Step Analyzer::next()
                  eliminatedIndexes,
                  eliminatedValues,
                  Step::NAKED_PAIR,
-                 "two other squares in the box must have one of these two values, so no others can (naked pair)" };
+                 "two other squares in the box must be one of these two values, so no others can (naked pair)" };
+    }
+
+    if (hiddenPairRow(eliminatedIndexes, eliminatedValues))
+    {
+        eliminate(eliminatedIndexes, eliminatedValues);
+        return { Step::ELIMINATE,
+                 eliminatedIndexes,
+                 eliminatedValues,
+                 Step::HIDDEN_PAIR,
+                 "only these two squares in the row can be one of two values, so they cannot be any other value (hidden pair)" };
+    }
+
+    if (hiddenPairColumn(eliminatedIndexes, eliminatedValues))
+    {
+        eliminate(eliminatedIndexes, eliminatedValues);
+        return { Step::ELIMINATE,
+                 eliminatedIndexes,
+                 eliminatedValues,
+                 Step::HIDDEN_PAIR,
+                 "only these two squares in the column can be one of two values, so they cannot be any other value (hidden pair)" };
+    }
+
+    if (hiddenPairBox(eliminatedIndexes, eliminatedValues))
+    {
+        eliminate(eliminatedIndexes, eliminatedValues);
+        return { Step::ELIMINATE,
+                 eliminatedIndexes,
+                 eliminatedValues,
+                 Step::HIDDEN_PAIR,
+                 "only these two squares in the box can be one of two values, so they cannot be any other value (hidden pair)" };
     }
 
     if (nakedTripleRow(eliminatedIndexes, eliminatedValues))
@@ -174,8 +204,8 @@ Analyzer::Step Analyzer::next()
         return { Step::ELIMINATE,
                  eliminatedIndexes,
                  eliminatedValues,
-                 Step::NAKED_PAIR,
-                 "three other squares in the row must have one of these three values, so no others can (naked triple)" };
+                 Step::NAKED_TRIPLE,
+                 "three other squares in the row must be one of these three values, so no others can (naked triple)" };
     }
 
     if (nakedTripleColumn(eliminatedIndexes, eliminatedValues))
@@ -184,8 +214,8 @@ Analyzer::Step Analyzer::next()
         return { Step::ELIMINATE,
                  eliminatedIndexes,
                  eliminatedValues,
-                 Step::NAKED_PAIR,
-                 "three other squares in the column must have one of these three values, so no others can (naked triple)" };
+                 Step::NAKED_TRIPLE,
+                 "three other squares in the column must be one of these three values, so no others can (naked triple)" };
     }
 
     if (nakedTripleBox(eliminatedIndexes, eliminatedValues))
@@ -194,8 +224,38 @@ Analyzer::Step Analyzer::next()
         return { Step::ELIMINATE,
                  eliminatedIndexes,
                  eliminatedValues,
-                 Step::NAKED_PAIR,
-                 "three other squares in the box must have one of these three values, so no others can (naked triple)" };
+                 Step::NAKED_TRIPLE,
+                 "three other squares in the box must be one of these three values, so no others can (naked triple)" };
+    }
+
+    if (hiddenTripleRow(eliminatedIndexes, eliminatedValues))
+    {
+        eliminate(eliminatedIndexes, eliminatedValues);
+        return { Step::ELIMINATE,
+                 eliminatedIndexes,
+                 eliminatedValues,
+                 Step::HIDDEN_TRIPLE,
+                 "only these three squares in the box can be one of three values, so they cannot be any other value (hidden triple)" };
+    }
+
+    if (hiddenTripleColumn(eliminatedIndexes, eliminatedValues))
+    {
+        eliminate(eliminatedIndexes, eliminatedValues);
+        return { Step::ELIMINATE,
+                 eliminatedIndexes,
+                 eliminatedValues,
+                 Step::HIDDEN_TRIPLE,
+                 "only these three squares in the box can be one of three values, so they cannot be any other value (hidden triple)" };
+    }
+
+    if (hiddenTripleBox(eliminatedIndexes, eliminatedValues))
+    {
+        eliminate(eliminatedIndexes, eliminatedValues);
+        return { Step::ELIMINATE,
+                 eliminatedIndexes,
+                 eliminatedValues,
+                 Step::HIDDEN_TRIPLE,
+                 "only these three squares in the box can be one of three values, so they cannot be any other value (hidden triple)" };
     }
 
     if (nakedQuadRow(eliminatedIndexes, eliminatedValues))
@@ -204,8 +264,8 @@ Analyzer::Step Analyzer::next()
         return { Step::ELIMINATE,
                  eliminatedIndexes,
                  eliminatedValues,
-                 Step::NAKED_PAIR,
-                 "four other squares in the row must have one of these four values, so no others can (naked quad)" };
+                 Step::NAKED_QUAD,
+                 "four other squares in the row must be one of these four values, so no others can (naked quad)" };
     }
 
     if (nakedQuadColumn(eliminatedIndexes, eliminatedValues))
@@ -214,8 +274,8 @@ Analyzer::Step Analyzer::next()
         return { Step::ELIMINATE,
                  eliminatedIndexes,
                  eliminatedValues,
-                 Step::NAKED_PAIR,
-                 "four other squares in the column must have one of these four values, so no others can (naked quad)" };
+                 Step::NAKED_QUAD,
+                 "four other squares in the column must be one of these four values, so no others can (naked quad)" };
     }
 
     if (nakedQuadBox(eliminatedIndexes, eliminatedValues))
@@ -224,8 +284,38 @@ Analyzer::Step Analyzer::next()
         return { Step::ELIMINATE,
                  eliminatedIndexes,
                  eliminatedValues,
-                 Step::NAKED_PAIR,
-                 "four other squares in the box must have one of these four values, so no others can (naked quad)" };
+                 Step::NAKED_QUAD,
+                 "four other squares in the box must be one of these four values, so no others can (naked quad)" };
+    }
+
+    if (hiddenQuadRow(eliminatedIndexes, eliminatedValues))
+    {
+        eliminate(eliminatedIndexes, eliminatedValues);
+        return { Step::ELIMINATE,
+                 eliminatedIndexes,
+                 eliminatedValues,
+                 Step::HIDDEN_QUAD,
+                 "only these four squares in the row can be one of four values, so they cannot be any other value (hidden quad)" };
+    }
+
+    if (hiddenQuadColumn(eliminatedIndexes, eliminatedValues))
+    {
+        eliminate(eliminatedIndexes, eliminatedValues);
+        return { Step::ELIMINATE,
+                 eliminatedIndexes,
+                 eliminatedValues,
+                 Step::HIDDEN_QUAD,
+                 "only these four squares in the box can be one of four values, so they cannot be any other value (hidden quad)" };
+    }
+
+    if (hiddenQuadBox(eliminatedIndexes, eliminatedValues))
+    {
+        eliminate(eliminatedIndexes, eliminatedValues);
+        return { Step::ELIMINATE,
+                 eliminatedIndexes,
+                 eliminatedValues,
+                 Step::HIDDEN_QUAD,
+                 "only these four squares in the box can be one of four values, so they cannot be any other value (hidden quad)" };
     }
 
     done_ = true;
@@ -345,6 +435,153 @@ bool Analyzer::hiddenSingle(std::vector<int> const & indexes, int s, int * solve
     return true;
 }
 
+bool Analyzer::hiddenPairRow(std::vector<int> & indexes, std::vector<int> & values)
+{
+    // For each exclusive pair in a row, if they have additional candidates, then success.
+    for (int r = 0; r < Board::SIZE; ++r)
+    {
+        std::vector<int> row = Board::getRowIndexes(r);
+        if (nakedPair(row, indexes, values))
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool Analyzer::hiddenPairColumn(std::vector<int> & indexes, std::vector<int> & values)
+{
+    // For each exclusive pair in a column, if they have additional candidates, then success.
+    for (int r = 0; r < Board::SIZE; ++r)
+    {
+        std::vector<int> column = Board::getRowIndexes(r);
+        if (nakedPair(column, indexes, values))
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool Analyzer::hiddenPairBox(std::vector<int> & indexes, std::vector<int> & values)
+{
+    // For each exclusive pair in a box, if they have additional candidates, then success.
+    for (int r = 0; r < Board::SIZE; ++r)
+    {
+        std::vector<int> box = Board::getRowIndexes(r);
+        if (nakedPair(box, indexes, values))
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool Analyzer::hiddenPair(std::vector<int> const & indexes,
+                          std::vector<int> &       eliminatedIndexes,
+                          std::vector<int> &       eliminatedValues)
+{
+    return false;
+}
+
+bool Analyzer::hiddenTripleRow(std::vector<int> & indexes, std::vector<int> & values)
+{
+    // For each exclusive triple in a row, if they have additional candidates, then success.
+    for (int r = 0; r < Board::SIZE; ++r)
+    {
+        std::vector<int> row = Board::getRowIndexes(r);
+        if (nakedTriple(row, indexes, values))
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool Analyzer::hiddenTripleColumn(std::vector<int> & indexes, std::vector<int> & values)
+{
+    // For each exclusive triple in a column, if they have additional candidates, then success.
+    for (int r = 0; r < Board::SIZE; ++r)
+    {
+        std::vector<int> column = Board::getRowIndexes(r);
+        if (nakedTriple(column, indexes, values))
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool Analyzer::hiddenTripleBox(std::vector<int> & indexes, std::vector<int> & values)
+{
+    // For each exclusive triple in a box, if they have additional candidates, then success.
+    for (int r = 0; r < Board::SIZE; ++r)
+    {
+        std::vector<int> box = Board::getRowIndexes(r);
+        if (nakedTriple(box, indexes, values))
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool Analyzer::hiddenTriple(std::vector<int> const & indexes,
+                            std::vector<int> &       eliminatedIndexes,
+                            std::vector<int> &       eliminatedValues)
+{
+    return false;
+}
+
+bool Analyzer::hiddenQuadRow(std::vector<int> & indexes, std::vector<int> & values)
+{
+    // For each exclusive quad in a row, if they have additional candidates, then success.
+    for (int r = 0; r < Board::SIZE; ++r)
+    {
+        std::vector<int> row = Board::getRowIndexes(r);
+        if (nakedQuad(row, indexes, values))
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool Analyzer::hiddenQuadColumn(std::vector<int> & indexes, std::vector<int> & values)
+{
+    // For each exclusive quad in a column, if they have additional candidates, then success.
+    for (int r = 0; r < Board::SIZE; ++r)
+    {
+        std::vector<int> column = Board::getRowIndexes(r);
+        if (nakedQuad(column, indexes, values))
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool Analyzer::hiddenQuadBox(std::vector<int> & indexes, std::vector<int> & values)
+{
+    // For each exclusive quad in a box, if they have additional candidates, then success.
+    for (int r = 0; r < Board::SIZE; ++r)
+    {
+        std::vector<int> box = Board::getRowIndexes(r);
+        if (nakedQuad(box, indexes, values))
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool Analyzer::hiddenQuad(std::vector<int> const & indexes,
+                          std::vector<int> &       eliminatedIndexes,
+                          std::vector<int> &       eliminatedValues)
+{
+    return false;
+}
+
 bool Analyzer::nakedSingle(int * solvedR, int * solvedC, int * solvedValue)
 {
     // For each unsolved square, if it only has one candidate, then success
@@ -360,13 +597,13 @@ bool Analyzer::nakedSingle(int * solvedR, int * solvedC, int * solvedValue)
     return false;
 }
 
-bool Analyzer::nakedPairRow(std::vector<int> & indexes, std::vector<int> & eliminatedValues)
+bool Analyzer::nakedPairRow(std::vector<int> & indexes, std::vector<int> & values)
 {
-    // For each conjugate pair in a row, if there are other candidates that overlap, then success.
+    // For each exclusive pair in a row, if there are other candidates that overlap, then success.
     for (int r = 0; r < Board::SIZE; ++r)
     {
         std::vector<int> row = Board::getRowIndexes(r);
-        if (nakedPair(row, indexes, eliminatedValues))
+        if (nakedPair(row, indexes, values))
         {
             return true;
         }
@@ -374,13 +611,13 @@ bool Analyzer::nakedPairRow(std::vector<int> & indexes, std::vector<int> & elimi
     return false;
 }
 
-bool Analyzer::nakedPairColumn(std::vector<int> & indexes, std::vector<int> & eliminatedValues)
+bool Analyzer::nakedPairColumn(std::vector<int> & indexes, std::vector<int> & values)
 {
-    // For each conjugate pair in a column, if there are other candidates that overlap, then success.
+    // For each exclusive pair in a column, if there are other candidates that overlap, then success.
     for (int c = 0; c < Board::SIZE; ++c)
     {
         std::vector<int> column = Board::getColumnIndexes(c);
-        if (nakedPair(column, indexes, eliminatedValues))
+        if (nakedPair(column, indexes, values))
         {
             return true;
         }
@@ -388,15 +625,15 @@ bool Analyzer::nakedPairColumn(std::vector<int> & indexes, std::vector<int> & el
     return false;
 }
 
-bool Analyzer::nakedPairBox(std::vector<int> & indexes, std::vector<int> & eliminatedValues)
+bool Analyzer::nakedPairBox(std::vector<int> & indexes, std::vector<int> & values)
 {
-    // For each conjugate pair in a column, if there are other candidates that overlap, then success.
+    // For each exclusive pair in a column, if there are other candidates that overlap, then success.
     for (int r0 = 0; r0 < Board::SIZE; r0 += Board::BOX_SIZE)
     {
         for (int c0 = 0; c0 < Board::SIZE; c0 += Board::BOX_SIZE)
         {
             std::vector<int> box = Board::getBoxIndexes(r0, c0);
-            if (nakedPair(box, indexes, eliminatedValues))
+            if (nakedPair(box, indexes, values))
             {
                 return true;
             }
@@ -450,7 +687,7 @@ bool Analyzer::nakedPair(std::vector<int> const & indexes,
 
 bool Analyzer::nakedTripleRow(std::vector<int> & indexes, std::vector<int> & values)
 {
-    // For each conjugate triple in a row, if there are other candidates that overlap, then success.
+    // For each exclusive triple in a row, if there are other candidates that overlap, then success.
     for (int r = 0; r < Board::SIZE; ++r)
     {
         std::vector<int> row = Board::getRowIndexes(r);
@@ -462,7 +699,7 @@ bool Analyzer::nakedTripleRow(std::vector<int> & indexes, std::vector<int> & val
 
 bool Analyzer::nakedTripleColumn(std::vector<int> & indexes, std::vector<int> & values)
 {
-    // For each conjugate triple in a column, if there are other candidates that overlap, then success.
+    // For each exclusive triple in a column, if there are other candidates that overlap, then success.
     for (int c = 0; c < Board::SIZE; ++c)
     {
         std::vector<int> column = Board::getColumnIndexes(c);
@@ -474,7 +711,7 @@ bool Analyzer::nakedTripleColumn(std::vector<int> & indexes, std::vector<int> & 
 
 bool Analyzer::nakedTripleBox(std::vector<int> & indexes, std::vector<int> & values)
 {
-    // For each conjugate triple in a column, if there are other candidates that overlap, then success.
+    // For each exclusive triple in a column, if there are other candidates that overlap, then success.
     for (int r0 = 0; r0 < Board::SIZE; r0 += Board::BOX_SIZE)
     {
         for (int c0 = 0; c0 < Board::SIZE; c0 += Board::BOX_SIZE)
@@ -540,7 +777,7 @@ bool Analyzer::nakedTriple(std::vector<int> const & indexes,
 
 bool Analyzer::nakedQuadRow(std::vector<int> & indexes, std::vector<int> & values)
 {
-    // For each conjugate quad in a row, if there are other candidates that overlap, then success.
+    // For each exclusive quad in a row, if there are other candidates that overlap, then success.
     for (int r = 0; r < Board::SIZE; ++r)
     {
         std::vector<int> row = Board::getRowIndexes(r);
@@ -552,7 +789,7 @@ bool Analyzer::nakedQuadRow(std::vector<int> & indexes, std::vector<int> & value
 
 bool Analyzer::nakedQuadColumn(std::vector<int> & indexes, std::vector<int> & values)
 {
-    // For each conjugate quad in a column, if there are other candidates that overlap, then success.
+    // For each exclusive quad in a column, if there are other candidates that overlap, then success.
     for (int c = 0; c < Board::SIZE; ++c)
     {
         std::vector<int> column = Board::getColumnIndexes(c);
@@ -564,7 +801,7 @@ bool Analyzer::nakedQuadColumn(std::vector<int> & indexes, std::vector<int> & va
 
 bool Analyzer::nakedQuadBox(std::vector<int> & indexes, std::vector<int> & values)
 {
-    // For each conjugate quad in a column, if there are other candidates that overlap, then success.
+    // For each exclusive quad in a column, if there are other candidates that overlap, then success.
     for (int r0 = 0; r0 < Board::SIZE; r0 += Board::BOX_SIZE)
     {
         for (int c0 = 0; c0 < Board::SIZE; c0 += Board::BOX_SIZE)

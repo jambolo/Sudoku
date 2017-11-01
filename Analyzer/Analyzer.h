@@ -51,6 +51,18 @@ private:
     bool hiddenSingleColumn(int * r, int * c, int * x);
     bool hiddenSingleBox(int * r, int * c, int * x);
     bool hiddenSingle(std::vector<int> const & indexes, int s, int * solvedR, int * solvedC, int * & solvedValue);
+    bool hiddenPairRow(std::vector<int> & indexes, std::vector<int> & values);
+    bool hiddenPairColumn(std::vector<int> & indexes, std::vector<int> & values);
+    bool hiddenPairBox(std::vector<int> & indexes, std::vector<int> & values);
+    bool hiddenPair(std::vector<int> const & indexes, std::vector<int> &eliminatedIndexes, std::vector<int> &eliminatedValues);
+    bool hiddenTripleRow(std::vector<int> & indexes, std::vector<int> & values);
+    bool hiddenTripleColumn(std::vector<int> & indexes, std::vector<int> & values);
+    bool hiddenTripleBox(std::vector<int> & indexes, std::vector<int> & values);
+    bool hiddenTriple(std::vector<int> const & indexes, std::vector<int> &eliminatedIndexes, std::vector<int> &eliminatedValues);
+    bool hiddenQuadRow(std::vector<int> & indexes, std::vector<int> & values);
+    bool hiddenQuadColumn(std::vector<int> & indexes, std::vector<int> & values);
+    bool hiddenQuadBox(std::vector<int> & indexes, std::vector<int> & values);
+    bool hiddenQuad(std::vector<int> const & indexes, std::vector<int> &eliminatedIndexes, std::vector<int> &eliminatedValues);
     bool nakedSingle(int * r, int * c, int * x);
     bool nakedPairRow(std::vector<int> & indexes, std::vector<int> & values);
     bool nakedPairColumn(std::vector<int> & indexes, std::vector<int> & values);
