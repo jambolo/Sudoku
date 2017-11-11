@@ -191,19 +191,19 @@ bool Analyzer::hiddenSingleFound(std::vector<int> & indexes, std::vector<int> & 
 {
     if (hiddenSingleRow(indexes, values))
     {
-        *details = "only square in this row that can be this value (hidden single)";
+        *details = "this is the only square in this row that can be this value";
         return true;
     }
     
     if (hiddenSingleColumn(indexes, values))
     {
-        *details = "only square in this column that can be this value (hidden single)";
+        *details = "this is the only square in this column that can be this value";
         return true;
     }
     
     if (hiddenSingleBox(indexes, values))
     {
-        *details = "only square in this box that can be this value (hidden single)";
+        *details = "this is the only square in this box that can be this value";
         return true;
     }
     
@@ -509,7 +509,7 @@ bool Analyzer::nakedSingleFound(std::vector<int> & indexes, std::vector<int> & v
 {
     if (nakedSingle(indexes, values))
     {
-        *details = "there are no other possibilities for this square (naked single)";
+        *details = "there are no other possible values for this square";
         return true;
     }
     return false;
@@ -891,5 +891,6 @@ const char * Analyzer::Step::techniqueName(Analyzer::Step::TechniqueId technique
         "naked triple",
         "naked quad"
     };
+    assert((size_t)technique >= 0 && (size_t)technique < sizeof(NAMES) / sizeof(*NAMES));
     return NAMES[technique];
 }
