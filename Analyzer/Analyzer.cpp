@@ -93,237 +93,60 @@ Analyzer::Step Analyzer::next()
 
     std::vector<int> indexes;
     std::vector<int> values;
+    char const * details;
 
-    if (nakedSingle(indexes, values))
+    if (nakedSingleFound(indexes, values, &details))
     {
         int r;
         int c;
         Board::locationOf(indexes.front(), &r, &c);
         solve(r, c, values.front());
-        return { Step::SOLVE,
-                 indexes,
-                 values,
-                 Step::NAKED_SINGLE,
-                 "there are no other possibilities for this square (naked single)" };
+        return { Step::SOLVE, indexes, values, Step::NAKED_SINGLE, details };
     }
 
-    if (hiddenSingleRow(indexes, values))
+    if (hiddenSingleFound(indexes, values, &details))
     {
         int r;
         int c;
         Board::locationOf(indexes.front(), &r, &c);
         solve(r, c, values.front());
-        return { Step::SOLVE,
-                 indexes,
-                 values,
-                 Step::HIDDEN_SINGLE,
-                 "only square in this row that can be this value (hidden single)" };
+        return { Step::SOLVE, indexes, values, Step::HIDDEN_SINGLE, details };
     }
-
-    if (hiddenSingleColumn(indexes, values))
-    {
-        int r;
-        int c;
-        Board::locationOf(indexes.front(), &r, &c);
-        solve(r, c, values.front());
-        return { Step::SOLVE,
-                 indexes,
-                 values,
-                 Step::HIDDEN_SINGLE,
-                 "only square in this column that can be this value (hidden single)" };
-    }
-
-    if (hiddenSingleBox(indexes, values))
-    {
-        int r;
-        int c;
-        Board::locationOf(indexes.front(), &r, &c);
-        solve(r, c, values.front());
-        return { Step::SOLVE,
-                 indexes,
-                 values,
-                 Step::HIDDEN_SINGLE,
-                 "only square in this box that can be this value (hidden single)" };
-    }
-
-    if (nakedPairRow(indexes, values))
+    
+    if (nakedPairFound(indexes, values, &details))
     {
         eliminate(indexes, values);
-        return { Step::ELIMINATE,
-                 indexes,
-                 values,
-                 Step::NAKED_PAIR,
-                 "two other squares in the row must be one of these two values, so no others can (naked pair)" };
+        return { Step::ELIMINATE, indexes, values, Step::NAKED_PAIR, details };
     }
-
-    if (nakedPairColumn(indexes, values))
+    
+    if (hiddenPairFound(indexes, values, &details))
     {
         eliminate(indexes, values);
-        return { Step::ELIMINATE,
-                 indexes,
-                 values,
-                 Step::NAKED_PAIR,
-                 "two other squares in the column must be one of these two values, so no others can (naked pair)" };
+        return { Step::ELIMINATE, indexes, values, Step::HIDDEN_PAIR, details };
     }
-
-    if (nakedPairBox(indexes, values))
+    
+    if (nakedTripleFound(indexes, values, &details))
     {
         eliminate(indexes, values);
-        return { Step::ELIMINATE,
-                 indexes,
-                 values,
-                 Step::NAKED_PAIR,
-                 "two other squares in the box must be one of these two values, so no others can (naked pair)" };
+        return { Step::ELIMINATE, indexes, values, Step::NAKED_TRIPLE, details };
     }
-
-    if (hiddenPairRow(indexes, values))
+    
+    if (hiddenTripleFound(indexes, values, &details))
     {
         eliminate(indexes, values);
-        return { Step::ELIMINATE,
-                 indexes,
-                 values,
-                 Step::HIDDEN_PAIR,
-                 "only these two squares in the row can be one of two values, so they cannot be any other value (hidden pair)" };
+        return { Step::ELIMINATE, indexes, values, Step::HIDDEN_TRIPLE, details };
     }
-
-    if (hiddenPairColumn(indexes, values))
+    
+    if (nakedQuadFound(indexes, values, &details))
     {
         eliminate(indexes, values);
-        return { Step::ELIMINATE,
-                 indexes,
-                 values,
-                 Step::HIDDEN_PAIR,
-                 "only these two squares in the column can be one of two values, so they cannot be any other value (hidden pair)" };
+        return { Step::ELIMINATE, indexes, values, Step::NAKED_QUAD, details };
     }
-
-    if (hiddenPairBox(indexes, values))
+    
+    if (hiddenQuadFound(indexes, values, &details))
     {
         eliminate(indexes, values);
-        return { Step::ELIMINATE,
-                 indexes,
-                 values,
-                 Step::HIDDEN_PAIR,
-                 "only these two squares in the box can be one of two values, so they cannot be any other value (hidden pair)" };
-    }
-
-    if (nakedTripleRow(indexes, values))
-    {
-        eliminate(indexes, values);
-        return { Step::ELIMINATE,
-                 indexes,
-                 values,
-                 Step::NAKED_TRIPLE,
-                 "three other squares in the row must be one of these three values, so no others can (naked triple)" };
-    }
-
-    if (nakedTripleColumn(indexes, values))
-    {
-        eliminate(indexes, values);
-        return { Step::ELIMINATE,
-                 indexes,
-                 values,
-                 Step::NAKED_TRIPLE,
-                 "three other squares in the column must be one of these three values, so no others can (naked triple)" };
-    }
-
-    if (nakedTripleBox(indexes, values))
-    {
-        eliminate(indexes, values);
-        return { Step::ELIMINATE,
-                 indexes,
-                 values,
-                 Step::NAKED_TRIPLE,
-                 "three other squares in the box must be one of these three values, so no others can (naked triple)" };
-    }
-
-    if (hiddenTripleRow(indexes, values))
-    {
-        eliminate(indexes, values);
-        return { Step::ELIMINATE,
-                 indexes,
-                 values,
-                 Step::HIDDEN_TRIPLE,
-                 "only these three squares in the box can be one of three values, so they cannot be any other value (hidden triple)" };
-    }
-
-    if (hiddenTripleColumn(indexes, values))
-    {
-        eliminate(indexes, values);
-        return { Step::ELIMINATE,
-                 indexes,
-                 values,
-                 Step::HIDDEN_TRIPLE,
-                 "only these three squares in the box can be one of three values, so they cannot be any other value (hidden triple)" };
-    }
-
-    if (hiddenTripleBox(indexes, values))
-    {
-        eliminate(indexes, values);
-        return { Step::ELIMINATE,
-                 indexes,
-                 values,
-                 Step::HIDDEN_TRIPLE,
-                 "only these three squares in the box can be one of three values, so they cannot be any other value (hidden triple)" };
-    }
-
-    if (nakedQuadRow(indexes, values))
-    {
-        eliminate(indexes, values);
-        return { Step::ELIMINATE,
-                 indexes,
-                 values,
-                 Step::NAKED_QUAD,
-                 "four other squares in the row must be one of these four values, so no others can (naked quad)" };
-    }
-
-    if (nakedQuadColumn(indexes, values))
-    {
-        eliminate(indexes, values);
-        return { Step::ELIMINATE,
-                 indexes,
-                 values,
-                 Step::NAKED_QUAD,
-                 "four other squares in the column must be one of these four values, so no others can (naked quad)" };
-    }
-
-    if (nakedQuadBox(indexes, values))
-    {
-        eliminate(indexes, values);
-        return { Step::ELIMINATE,
-                 indexes,
-                 values,
-                 Step::NAKED_QUAD,
-                 "four other squares in the box must be one of these four values, so no others can (naked quad)" };
-    }
-
-    if (hiddenQuadRow(indexes, values))
-    {
-        eliminate(indexes, values);
-        return { Step::ELIMINATE,
-                 indexes,
-                 values,
-                 Step::HIDDEN_QUAD,
-                 "only these four squares in the row can be one of four values, so they cannot be any other value (hidden quad)" };
-    }
-
-    if (hiddenQuadColumn(indexes, values))
-    {
-        eliminate(indexes, values);
-        return { Step::ELIMINATE,
-                 indexes,
-                 values,
-                 Step::HIDDEN_QUAD,
-                 "only these four squares in the box can be one of four values, so they cannot be any other value (hidden quad)" };
-    }
-
-    if (hiddenQuadBox(indexes, values))
-    {
-        eliminate(indexes, values);
-        return { Step::ELIMINATE,
-                 indexes,
-                 values,
-                 Step::HIDDEN_QUAD,
-                 "only these four squares in the box can be one of four values, so they cannot be any other value (hidden quad)" };
+        return { Step::ELIMINATE, indexes, values, Step::HIDDEN_QUAD, details };
     }
 
     done_ = true;
@@ -362,6 +185,29 @@ void Analyzer::eliminate(std::vector<int> const & indexes, std::vector<int> cons
     {
         eliminate(indexes, v);
     }
+}
+
+bool Analyzer::hiddenSingleFound(std::vector<int> & indexes, std::vector<int> & values, char const ** details)
+{
+    if (hiddenSingleRow(indexes, values))
+    {
+        *details = "only square in this row that can be this value (hidden single)";
+        return true;
+    }
+    
+    if (hiddenSingleColumn(indexes, values))
+    {
+        *details = "only square in this column that can be this value (hidden single)";
+        return true;
+    }
+    
+    if (hiddenSingleBox(indexes, values))
+    {
+        *details = "only square in this box that can be this value (hidden single)";
+        return true;
+    }
+    
+    return false;
 }
 
 bool Analyzer::hiddenSingleRow(std::vector<int> & indexes, std::vector<int> & values)
@@ -443,6 +289,29 @@ bool Analyzer::hiddenSingle(std::vector<int> const & indexes, int s, std::vector
     return true;
 }
 
+bool Analyzer::hiddenPairFound(std::vector<int> & indexes, std::vector<int> & values, char const ** details)
+{
+    if (hiddenPairRow(indexes, values))
+    {
+        *details = "only these two squares in the row can be one of two values, so they cannot be any other value";
+        return true;
+    }
+    
+    if (hiddenPairColumn(indexes, values))
+    {
+        *details = "only these two squares in the column can be one of two values, so they cannot be any other value";
+        return true;
+    }
+    
+    if (hiddenPairBox(indexes, values))
+    {
+        *details = "only these two squares in the box can be one of two values, so they cannot be any other value";
+        return true;
+    }
+    
+    return false;
+}
+
 bool Analyzer::hiddenPairRow(std::vector<int> & indexes, std::vector<int> & values)
 {
     // For each exclusive pair in a row, if they have additional candidates, then success.
@@ -489,6 +358,29 @@ bool Analyzer::hiddenPair(std::vector<int> const & indexes,
                           std::vector<int> &       eliminatedIndexes,
                           std::vector<int> &       eliminatedValues)
 {
+    return false;
+}
+
+bool Analyzer::hiddenTripleFound(std::vector<int> & indexes, std::vector<int> & values, char const ** details)
+{
+    if (hiddenTripleRow(indexes, values))
+    {
+        *details = "only these three squares in the box can be one of three values, so they cannot be any other value";
+        return true;
+    }
+    
+    if (hiddenTripleColumn(indexes, values))
+    {
+        *details = "only these three squares in the box can be one of three values, so they cannot be any other value";
+        return true;
+    }
+    
+    if (hiddenTripleBox(indexes, values))
+    {
+        *details = "only these three squares in the box can be one of three values, so they cannot be any other value";
+        return true;
+    }
+    
     return false;
 }
 
@@ -541,6 +433,29 @@ bool Analyzer::hiddenTriple(std::vector<int> const & indexes,
     return false;
 }
 
+bool Analyzer::hiddenQuadFound(std::vector<int> & indexes, std::vector<int> & values, char const ** details)
+{
+    if (hiddenQuadRow(indexes, values))
+    {
+        *details = "only these four squares in the row can be one of four values, so they cannot be any other value";
+        return true;
+    }
+    
+    if (hiddenQuadColumn(indexes, values))
+    {
+        *details = "only these four squares in the box can be one of four values, so they cannot be any other value";
+        return true;
+    }
+    
+    if (hiddenQuadBox(indexes, values))
+    {
+        *details = "only these four squares in the box can be one of four values, so they cannot be any other value";
+        return true;
+    }
+    
+    return false;
+}
+
 bool Analyzer::hiddenQuadRow(std::vector<int> & indexes, std::vector<int> & values)
 {
     // For each exclusive quad in a row, if they have additional candidates, then success.
@@ -590,6 +505,16 @@ bool Analyzer::hiddenQuad(std::vector<int> const & indexes,
     return false;
 }
 
+bool Analyzer::nakedSingleFound(std::vector<int> & indexes, std::vector<int> & values, char const ** details)
+{
+    if (nakedSingle(indexes, values))
+    {
+        *details = "there are no other possibilities for this square (naked single)";
+        return true;
+    }
+    return false;
+}
+
 bool Analyzer::nakedSingle(std::vector<int> & indexes, std::vector<int> & values)
 {
     // For each unsolved square, if it only has one candidate, then success
@@ -603,6 +528,29 @@ bool Analyzer::nakedSingle(std::vector<int> & indexes, std::vector<int> & values
             return true;
         }
     }
+    return false;
+}
+
+bool Analyzer::nakedPairFound(std::vector<int> & indexes, std::vector<int> & values, char const ** details)
+{
+    if (nakedPairRow(indexes, values))
+    {
+        *details = "two other squares in the row must be one of these two values, so no others can";
+        return true;
+    }
+    
+    if (nakedPairColumn(indexes, values))
+    {
+        *details = "two other squares in the column must be one of these two values, so no others can";
+        return true;
+    }
+    
+    if (nakedPairBox(indexes, values))
+    {
+        *details = "two other squares in the box must be one of these two values, so no others can";
+        return true;
+    }
+    
     return false;
 }
 
@@ -694,6 +642,29 @@ bool Analyzer::nakedPair(std::vector<int> const & indexes,
     return false;
 }
 
+bool Analyzer::nakedTripleFound(std::vector<int> & indexes, std::vector<int> & values, char const ** details)
+{
+    if (nakedTripleRow(indexes, values))
+    {
+        *details = "three other squares in the row must be one of these three values, so no others can";
+        return true;
+    }
+    
+    if (nakedTripleColumn(indexes, values))
+    {
+        *details = "three other squares in the column must be one of these three values, so no others can";
+        return true;
+    }
+    
+    if (nakedTripleBox(indexes, values))
+    {
+        *details = "three other squares in the box must be one of these three values, so no others can";
+        return true;
+    }
+    
+    return false;
+}
+
 bool Analyzer::nakedTripleRow(std::vector<int> & indexes, std::vector<int> & values)
 {
     // For each exclusive triple in a row, if there are other candidates that overlap, then success.
@@ -781,6 +752,29 @@ bool Analyzer::nakedTriple(std::vector<int> const & indexes,
             }
         }
     }
+    return false;
+}
+
+bool Analyzer::nakedQuadFound(std::vector<int> & indexes, std::vector<int> & values, char const ** details)
+{
+    if (nakedQuadRow(indexes, values))
+    {
+        *details = "four other squares in the row must be one of these four values, so no others can";
+        return true;
+    }
+    
+    if (nakedQuadColumn(indexes, values))
+    {
+        *details = "four other squares in the column must be one of these four values, so no others can";
+        return true;
+    }
+    
+    if (nakedQuadBox(indexes, values))
+    {
+        *details = "four other squares in the box must be one of these four values, so no others can";
+        return true;
+    }
+    
     return false;
 }
 
@@ -880,4 +874,22 @@ bool Analyzer::nakedQuad(std::vector<int> const & indexes,
         }
     }
     return false;
+}
+
+
+const char * Analyzer::Step::techniqueName(Analyzer::Step::TechniqueId technique)
+{
+    static char const * const NAMES[] =
+    {
+        "none",
+        "hidden single",
+        "hidden pair",
+        "hidden triple",
+        "hidden quad",
+        "naked single",
+        "naked pair",
+        "naked triple",
+        "naked quad"
+    };
+    return NAMES[technique];
 }

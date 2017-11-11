@@ -29,7 +29,7 @@ static void printStep(Analyzer::Step const & step, bool verbose, int i = 0)
             printf("The value of %c%c is %d", Board::rowName(r), Board::columnName(c), step.values[0]);
             if (verbose)
             {
-                printf(" (%s)", step.reason.c_str());
+                printf("(%s: %s)", Analyzer::Step::techniqueName(step.technique), step.reason.c_str());
             }
             printf("\n");
             break;
@@ -50,7 +50,7 @@ static void printStep(Analyzer::Step const & step, bool verbose, int i = 0)
             }
             if (verbose)
             {
-                printf("(%s)", step.reason.c_str());
+                printf("(%s: %s)", Analyzer::Step::techniqueName(step.technique), step.reason.c_str());
             }
             printf("\n");
             break;
