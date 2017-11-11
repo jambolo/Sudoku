@@ -86,7 +86,8 @@ bool Board::consistent() const
     {
         for (int c0 = 0; c0 < SIZE; c0 += BOX_SIZE)
         {
-            return boxIsConsistent(r0, c0);
+            if (!boxIsConsistent(r0, c0))
+                return false;
         }
     }
     return true;

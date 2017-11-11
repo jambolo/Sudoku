@@ -47,10 +47,10 @@ private:
     void solve(int r, int c, int x);
     void eliminate(std::vector<int> const & indexes, int x);
     void eliminate(std::vector<int> const & indexes, std::vector<int> const & values);
-    bool hiddenSingleRow(int * r, int * c, int * x);
-    bool hiddenSingleColumn(int * r, int * c, int * x);
-    bool hiddenSingleBox(int * r, int * c, int * x);
-    bool hiddenSingle(std::vector<int> const & indexes, int s, int * solvedR, int * solvedC, int * & solvedValue);
+    bool hiddenSingleRow(std::vector<int> & indexes, std::vector<int> & values);
+    bool hiddenSingleColumn(std::vector<int> & indexes, std::vector<int> & values);
+    bool hiddenSingleBox(std::vector<int> & indexes, std::vector<int> & values);
+    bool hiddenSingle(std::vector<int> const & indexes, int s, std::vector<int> & eliminatedIndexes, std::vector<int> & eliminatedValues);
     bool hiddenPairRow(std::vector<int> & indexes, std::vector<int> & values);
     bool hiddenPairColumn(std::vector<int> & indexes, std::vector<int> & values);
     bool hiddenPairBox(std::vector<int> & indexes, std::vector<int> & values);
@@ -63,7 +63,7 @@ private:
     bool hiddenQuadColumn(std::vector<int> & indexes, std::vector<int> & values);
     bool hiddenQuadBox(std::vector<int> & indexes, std::vector<int> & values);
     bool hiddenQuad(std::vector<int> const & indexes, std::vector<int> & eliminatedIndexes, std::vector<int> & eliminatedValues);
-    bool nakedSingle(int * r, int * c, int * x);
+    bool nakedSingle(std::vector<int> & indexes, std::vector<int> & values);
     bool nakedPairRow(std::vector<int> & indexes, std::vector<int> & values);
     bool nakedPairColumn(std::vector<int> & indexes, std::vector<int> & values);
     bool nakedPairBox(std::vector<int> & indexes, std::vector<int> & values);
