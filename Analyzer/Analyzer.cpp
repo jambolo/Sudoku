@@ -112,37 +112,37 @@ Analyzer::Step Analyzer::next()
         solve(r, c, values.front());
         return { Step::SOLVE, indexes, values, Step::HIDDEN_SINGLE, details };
     }
-    
+
     if (nakedPairFound(indexes, values, &details))
     {
         eliminate(indexes, values);
         return { Step::ELIMINATE, indexes, values, Step::NAKED_PAIR, details };
     }
-    
+
     if (hiddenPairFound(indexes, values, &details))
     {
         eliminate(indexes, values);
         return { Step::ELIMINATE, indexes, values, Step::HIDDEN_PAIR, details };
     }
-    
+
     if (nakedTripleFound(indexes, values, &details))
     {
         eliminate(indexes, values);
         return { Step::ELIMINATE, indexes, values, Step::NAKED_TRIPLE, details };
     }
-    
+
     if (hiddenTripleFound(indexes, values, &details))
     {
         eliminate(indexes, values);
         return { Step::ELIMINATE, indexes, values, Step::HIDDEN_TRIPLE, details };
     }
-    
+
     if (nakedQuadFound(indexes, values, &details))
     {
         eliminate(indexes, values);
         return { Step::ELIMINATE, indexes, values, Step::NAKED_QUAD, details };
     }
-    
+
     if (hiddenQuadFound(indexes, values, &details))
     {
         eliminate(indexes, values);
@@ -189,168 +189,101 @@ void Analyzer::eliminate(std::vector<int> const & indexes, std::vector<int> cons
 
 bool Analyzer::hiddenSingleFound(std::vector<int> & indexes, std::vector<int> & values, char const ** details)
 {
-    if (hiddenSingleRow(indexes, values))
+    bool found;
+
+    found = !board_.for_each_row([&] (std::vector<int> const & row) {
+        return !hiddenSingle(row, indexes, values);
+    });
+    if (found)
     {
         *details = "this is the only square in this row that can be this value";
         return true;
     }
-    
-    if (hiddenSingleColumn(indexes, values))
+
+    found = !board_.for_each_column([&] (std::vector<int> const & column) {
+        return !hiddenSingle(column, indexes, values);
+    });
+    if (found)
     {
         *details = "this is the only square in this column that can be this value";
         return true;
     }
-    
-    if (hiddenSingleBox(indexes, values))
+
+    found = !board_.for_each_box([&] (std::vector<int> const & box) {
+        return !hiddenSingle(box, indexes, values);
+    });
+    if (found)
     {
         *details = "this is the only square in this box that can be this value";
         return true;
     }
-    
+
     return false;
 }
 
-bool Analyzer::hiddenSingleRow(std::vector<int> & indexes, std::vector<int> & values)
+bool Analyzer::hiddenSingle(std::vector<int> const & indexes,
+                            std::vector<int> &       eliminatedIndexes,
+                            std::vector<int> &       eliminatedValues)
 {
-    // For each unsolved square, if one of its candidates doesn't overlap with the others in its row, then success.
-    for (auto s : unsolved_)
+    for (int s : indexes)
     {
-        int r;
-        int c;
-        Board::locationOf(s, &r, &c);
-
-        std::vector<int> row = Board::getRowIndexes(r);
-        if (hiddenSingle(row, s, indexes, values))
+        if (board_.isEmpty(s))
         {
-            return true;
+            unsigned others = 0;
+            for (int i : indexes)
+            {
+                if (i != s)
+                {
+                    others |= candidates_[i];
+                }
+            }
+
+            unsigned exclusive = candidates_[s] & ~others;
+            if (exclusive)
+            {
+                assert(solved(exclusive));
+                eliminatedIndexes.push_back(s);
+                eliminatedValues.push_back(valueFromMask(exclusive));
+                return true;
+            }
         }
     }
     return false;
-}
-
-bool Analyzer::hiddenSingleColumn(std::vector<int> & indexes, std::vector<int> & values)
-{
-    // For each unsolved square, if one of its candidates doesn't overlap with the others in its column, then success.
-    for (auto s : unsolved_)
-    {
-        int r;
-        int c;
-        Board::locationOf(s, &r, &c);
-
-        std::vector<int> column = Board::getColumnIndexes(c);
-        if (hiddenSingle(column, s, indexes, values))
-        {
-            return true;
-        }
-    }
-    return false;
-}
-
-bool Analyzer::hiddenSingleBox(std::vector<int> & indexes, std::vector<int> & values)
-{
-    // For each unsolved square, if one of its candidates doesn't overlap with the others in its box, then success.
-    for (auto s : unsolved_)
-    {
-        int r;
-        int c;
-        Board::locationOf(s, &r, &c);
-
-        int r0 = r - (r % Board::BOX_SIZE);
-        int c0 = c - (c % Board::BOX_SIZE);
-        std::vector<int> box = Board::getBoxIndexes(r0, c0);
-        if (hiddenSingle(box, s, indexes, values))
-        {
-            return true;
-        }
-    }
-    return false;
-}
-
-bool Analyzer::hiddenSingle(std::vector<int> const & indexes, int s, std::vector<int> & eliminatedIndexes, std::vector<int> & eliminatedValues)
-{
-    unsigned others = 0;
-    for (auto i : indexes)
-    {
-        if (i != s)
-        {
-            others |= candidates_[i];
-        }
-    }
-
-    unsigned exclusive = candidates_[s] & ~others;
-    if (!exclusive)
-    {
-        return false;
-    }
-
-    assert(solved(exclusive));
-    eliminatedIndexes.push_back(s);
-    eliminatedValues.push_back(valueFromMask(exclusive));
-    return true;
 }
 
 bool Analyzer::hiddenPairFound(std::vector<int> & indexes, std::vector<int> & values, char const ** details)
 {
-    if (hiddenPairRow(indexes, values))
+    // For each exclusive pair in a unit, if they have additional candidates, then success.
+
+    bool found;
+
+    found = !board_.for_each_row([&] (std::vector<int> const & row) {
+        return !hiddenPair(row, indexes, values);
+    });
+    if (found)
     {
         *details = "only these two squares in the row can be one of two values, so they cannot be any other value";
         return true;
     }
-    
-    if (hiddenPairColumn(indexes, values))
+
+    found = !board_.for_each_column([&] (std::vector<int> const & column) {
+        return !hiddenPair(column, indexes, values);
+    });
+    if (found)
     {
         *details = "only these two squares in the column can be one of two values, so they cannot be any other value";
         return true;
     }
-    
-    if (hiddenPairBox(indexes, values))
+
+    found = !board_.for_each_box([&] (std::vector<int> const & box) {
+        return !hiddenPair(box, indexes, values);
+    });
+    if (found)
     {
         *details = "only these two squares in the box can be one of two values, so they cannot be any other value";
         return true;
     }
-    
-    return false;
-}
 
-bool Analyzer::hiddenPairRow(std::vector<int> & indexes, std::vector<int> & values)
-{
-    // For each exclusive pair in a row, if they have additional candidates, then success.
-    for (int r = 0; r < Board::SIZE; ++r)
-    {
-        std::vector<int> row = Board::getRowIndexes(r);
-        if (hiddenPair(row, indexes, values))
-        {
-            return true;
-        }
-    }
-    return false;
-}
-
-bool Analyzer::hiddenPairColumn(std::vector<int> & indexes, std::vector<int> & values)
-{
-    // For each exclusive pair in a column, if they have additional candidates, then success.
-    for (int r = 0; r < Board::SIZE; ++r)
-    {
-        std::vector<int> column = Board::getRowIndexes(r);
-        if (hiddenPair(column, indexes, values))
-        {
-            return true;
-        }
-    }
-    return false;
-}
-
-bool Analyzer::hiddenPairBox(std::vector<int> & indexes, std::vector<int> & values)
-{
-    // For each exclusive pair in a box, if they have additional candidates, then success.
-    for (int r = 0; r < Board::SIZE; ++r)
-    {
-        std::vector<int> box = Board::getRowIndexes(r);
-        if (hiddenPair(box, indexes, values))
-        {
-            return true;
-        }
-    }
     return false;
 }
 
@@ -363,66 +296,36 @@ bool Analyzer::hiddenPair(std::vector<int> const & indexes,
 
 bool Analyzer::hiddenTripleFound(std::vector<int> & indexes, std::vector<int> & values, char const ** details)
 {
-    if (hiddenTripleRow(indexes, values))
+    // For each exclusive triple in a unit, if they have additional candidates, then success.
+
+    bool found;
+    found = !board_.for_each_row([&] (std::vector<int> const & row) {
+        return !hiddenTriple(row, indexes, values);
+    });
+    if (found)
     {
         *details = "only these three squares in the box can be one of three values, so they cannot be any other value";
         return true;
     }
-    
-    if (hiddenTripleColumn(indexes, values))
+
+    found = !board_.for_each_column([&] (std::vector<int> const & column) {
+        return !hiddenTriple(column, indexes, values);
+    });
+    if (found)
     {
         *details = "only these three squares in the box can be one of three values, so they cannot be any other value";
         return true;
     }
-    
-    if (hiddenTripleBox(indexes, values))
+
+    found = !board_.for_each_box([&] (std::vector<int> const & box) {
+        return !hiddenTriple(box, indexes, values);
+    });
+    if (found)
     {
         *details = "only these three squares in the box can be one of three values, so they cannot be any other value";
         return true;
     }
-    
-    return false;
-}
 
-bool Analyzer::hiddenTripleRow(std::vector<int> & indexes, std::vector<int> & values)
-{
-    // For each exclusive triple in a row, if they have additional candidates, then success.
-    for (int r = 0; r < Board::SIZE; ++r)
-    {
-        std::vector<int> row = Board::getRowIndexes(r);
-        if (hiddenTriple(row, indexes, values))
-        {
-            return true;
-        }
-    }
-    return false;
-}
-
-bool Analyzer::hiddenTripleColumn(std::vector<int> & indexes, std::vector<int> & values)
-{
-    // For each exclusive triple in a column, if they have additional candidates, then success.
-    for (int r = 0; r < Board::SIZE; ++r)
-    {
-        std::vector<int> column = Board::getRowIndexes(r);
-        if (hiddenTriple(column, indexes, values))
-        {
-            return true;
-        }
-    }
-    return false;
-}
-
-bool Analyzer::hiddenTripleBox(std::vector<int> & indexes, std::vector<int> & values)
-{
-    // For each exclusive triple in a box, if they have additional candidates, then success.
-    for (int r = 0; r < Board::SIZE; ++r)
-    {
-        std::vector<int> box = Board::getRowIndexes(r);
-        if (hiddenTriple(box, indexes, values))
-        {
-            return true;
-        }
-    }
     return false;
 }
 
@@ -435,66 +338,34 @@ bool Analyzer::hiddenTriple(std::vector<int> const & indexes,
 
 bool Analyzer::hiddenQuadFound(std::vector<int> & indexes, std::vector<int> & values, char const ** details)
 {
-    if (hiddenQuadRow(indexes, values))
+    bool found;
+    found = !board_.for_each_row([&] (std::vector<int> const & row) {
+        return !hiddenQuad(row, indexes, values);
+    });
+    if (found)
     {
         *details = "only these four squares in the row can be one of four values, so they cannot be any other value";
         return true;
     }
-    
-    if (hiddenQuadColumn(indexes, values))
+
+    found = !board_.for_each_column([&] (std::vector<int> const & column) {
+        return !hiddenQuad(column, indexes, values);
+    });
+    if (found)
     {
         *details = "only these four squares in the box can be one of four values, so they cannot be any other value";
         return true;
     }
-    
-    if (hiddenQuadBox(indexes, values))
+
+    found = !board_.for_each_box([&] (std::vector<int> const & box) {
+        return !hiddenQuad(box, indexes, values);
+    });
+    if (found)
     {
         *details = "only these four squares in the box can be one of four values, so they cannot be any other value";
         return true;
     }
-    
-    return false;
-}
 
-bool Analyzer::hiddenQuadRow(std::vector<int> & indexes, std::vector<int> & values)
-{
-    // For each exclusive quad in a row, if they have additional candidates, then success.
-    for (int r = 0; r < Board::SIZE; ++r)
-    {
-        std::vector<int> row = Board::getRowIndexes(r);
-        if (hiddenQuad(row, indexes, values))
-        {
-            return true;
-        }
-    }
-    return false;
-}
-
-bool Analyzer::hiddenQuadColumn(std::vector<int> & indexes, std::vector<int> & values)
-{
-    // For each exclusive quad in a column, if they have additional candidates, then success.
-    for (int r = 0; r < Board::SIZE; ++r)
-    {
-        std::vector<int> column = Board::getRowIndexes(r);
-        if (hiddenQuad(column, indexes, values))
-        {
-            return true;
-        }
-    }
-    return false;
-}
-
-bool Analyzer::hiddenQuadBox(std::vector<int> & indexes, std::vector<int> & values)
-{
-    // For each exclusive quad in a box, if they have additional candidates, then success.
-    for (int r = 0; r < Board::SIZE; ++r)
-    {
-        std::vector<int> box = Board::getRowIndexes(r);
-        if (hiddenQuad(box, indexes, values))
-        {
-            return true;
-        }
-    }
     return false;
 }
 
@@ -533,69 +404,34 @@ bool Analyzer::nakedSingle(std::vector<int> & indexes, std::vector<int> & values
 
 bool Analyzer::nakedPairFound(std::vector<int> & indexes, std::vector<int> & values, char const ** details)
 {
-    if (nakedPairRow(indexes, values))
+    bool found;
+    found = !board_.for_each_row([&] (std::vector<int> const & row) {
+        return !nakedPair(row, indexes, values);
+    });
+    if (found)
     {
         *details = "two other squares in the row must be one of these two values, so no others can";
         return true;
     }
-    
-    if (nakedPairColumn(indexes, values))
+
+    found = !board_.for_each_column([&] (std::vector<int> const & column) {
+        return !nakedPair(column, indexes, values);
+    });
+    if (found)
     {
         *details = "two other squares in the column must be one of these two values, so no others can";
         return true;
     }
-    
-    if (nakedPairBox(indexes, values))
+
+    found = !board_.for_each_box([&] (std::vector<int> const & box) {
+        return !nakedPair(box, indexes, values);
+    });
+    if (found)
     {
         *details = "two other squares in the box must be one of these two values, so no others can";
         return true;
     }
-    
-    return false;
-}
 
-bool Analyzer::nakedPairRow(std::vector<int> & indexes, std::vector<int> & values)
-{
-    // For each exclusive pair in a row, if there are other candidates that overlap, then success.
-    for (int r = 0; r < Board::SIZE; ++r)
-    {
-        std::vector<int> row = Board::getRowIndexes(r);
-        if (nakedPair(row, indexes, values))
-        {
-            return true;
-        }
-    }
-    return false;
-}
-
-bool Analyzer::nakedPairColumn(std::vector<int> & indexes, std::vector<int> & values)
-{
-    // For each exclusive pair in a column, if there are other candidates that overlap, then success.
-    for (int c = 0; c < Board::SIZE; ++c)
-    {
-        std::vector<int> column = Board::getColumnIndexes(c);
-        if (nakedPair(column, indexes, values))
-        {
-            return true;
-        }
-    }
-    return false;
-}
-
-bool Analyzer::nakedPairBox(std::vector<int> & indexes, std::vector<int> & values)
-{
-    // For each exclusive pair in a column, if there are other candidates that overlap, then success.
-    for (int r0 = 0; r0 < Board::SIZE; r0 += Board::BOX_SIZE)
-    {
-        for (int c0 = 0; c0 < Board::SIZE; c0 += Board::BOX_SIZE)
-        {
-            std::vector<int> box = Board::getBoxIndexes(r0, c0);
-            if (nakedPair(box, indexes, values))
-            {
-                return true;
-            }
-        }
-    }
     return false;
 }
 
@@ -644,63 +480,35 @@ bool Analyzer::nakedPair(std::vector<int> const & indexes,
 
 bool Analyzer::nakedTripleFound(std::vector<int> & indexes, std::vector<int> & values, char const ** details)
 {
-    if (nakedTripleRow(indexes, values))
+    // For each exclusive triple in a unit, if there are other candidates that overlap, then success.
+    bool found;
+    found = !board_.for_each_row([&] (std::vector<int> const & row) {
+        return !nakedTriple(row, indexes, values);
+    });
+    if (found)
     {
         *details = "three other squares in the row must be one of these three values, so no others can";
         return true;
     }
-    
-    if (nakedTripleColumn(indexes, values))
+
+    found = !board_.for_each_column([&] (std::vector<int> const & column) {
+        return !nakedTriple(column, indexes, values);
+    });
+    if (found)
     {
         *details = "three other squares in the column must be one of these three values, so no others can";
         return true;
     }
-    
-    if (nakedTripleBox(indexes, values))
+
+    found = !board_.for_each_box([&] (std::vector<int> const & box) {
+        return !nakedTriple(box, indexes, values);
+    });
+    if (found)
     {
         *details = "three other squares in the box must be one of these three values, so no others can";
         return true;
     }
-    
-    return false;
-}
 
-bool Analyzer::nakedTripleRow(std::vector<int> & indexes, std::vector<int> & values)
-{
-    // For each exclusive triple in a row, if there are other candidates that overlap, then success.
-    for (int r = 0; r < Board::SIZE; ++r)
-    {
-        std::vector<int> row = Board::getRowIndexes(r);
-        if (nakedTriple(row, indexes, values))
-            return true;
-    }
-    return false;
-}
-
-bool Analyzer::nakedTripleColumn(std::vector<int> & indexes, std::vector<int> & values)
-{
-    // For each exclusive triple in a column, if there are other candidates that overlap, then success.
-    for (int c = 0; c < Board::SIZE; ++c)
-    {
-        std::vector<int> column = Board::getColumnIndexes(c);
-        if (nakedTriple(column, indexes, values))
-            return true;
-    }
-    return false;
-}
-
-bool Analyzer::nakedTripleBox(std::vector<int> & indexes, std::vector<int> & values)
-{
-    // For each exclusive triple in a column, if there are other candidates that overlap, then success.
-    for (int r0 = 0; r0 < Board::SIZE; r0 += Board::BOX_SIZE)
-    {
-        for (int c0 = 0; c0 < Board::SIZE; c0 += Board::BOX_SIZE)
-        {
-            std::vector<int> box = Board::getBoxIndexes(r0, c0);
-            if (nakedTriple(box, indexes, values))
-                return true;
-        }
-    }
     return false;
 }
 
@@ -757,63 +565,35 @@ bool Analyzer::nakedTriple(std::vector<int> const & indexes,
 
 bool Analyzer::nakedQuadFound(std::vector<int> & indexes, std::vector<int> & values, char const ** details)
 {
-    if (nakedQuadRow(indexes, values))
+    // For each exclusive quad in a unit, if there are other candidates that overlap, then success.
+    bool found;
+    found = !board_.for_each_row([&] (std::vector<int> const & row) {
+        return !nakedQuad(row, indexes, values);
+    });
+    if (found)
     {
         *details = "four other squares in the row must be one of these four values, so no others can";
         return true;
     }
-    
-    if (nakedQuadColumn(indexes, values))
+
+    found = !board_.for_each_column([&] (std::vector<int> const & column) {
+        return !nakedQuad(column, indexes, values);
+    });
+    if (found)
     {
         *details = "four other squares in the column must be one of these four values, so no others can";
         return true;
     }
-    
-    if (nakedQuadBox(indexes, values))
+
+    found = !board_.for_each_box([&] (std::vector<int> const & box) {
+        return !nakedQuad(box, indexes, values);
+    });
+    if (found)
     {
         *details = "four other squares in the box must be one of these four values, so no others can";
         return true;
     }
-    
-    return false;
-}
 
-bool Analyzer::nakedQuadRow(std::vector<int> & indexes, std::vector<int> & values)
-{
-    // For each exclusive quad in a row, if there are other candidates that overlap, then success.
-    for (int r = 0; r < Board::SIZE; ++r)
-    {
-        std::vector<int> row = Board::getRowIndexes(r);
-        if (nakedQuad(row, indexes, values))
-            return true;
-    }
-    return false;
-}
-
-bool Analyzer::nakedQuadColumn(std::vector<int> & indexes, std::vector<int> & values)
-{
-    // For each exclusive quad in a column, if there are other candidates that overlap, then success.
-    for (int c = 0; c < Board::SIZE; ++c)
-    {
-        std::vector<int> column = Board::getColumnIndexes(c);
-        if (nakedQuad(column, indexes, values))
-            return true;
-    }
-    return false;
-}
-
-bool Analyzer::nakedQuadBox(std::vector<int> & indexes, std::vector<int> & values)
-{
-    // For each exclusive quad in a column, if there are other candidates that overlap, then success.
-    for (int r0 = 0; r0 < Board::SIZE; r0 += Board::BOX_SIZE)
-    {
-        for (int c0 = 0; c0 < Board::SIZE; c0 += Board::BOX_SIZE)
-        {
-            std::vector<int> box = Board::getBoxIndexes(r0, c0);
-            if (nakedQuad(box, indexes, values))
-                return true;
-        }
-    }
     return false;
 }
 
@@ -875,7 +655,6 @@ bool Analyzer::nakedQuad(std::vector<int> const & indexes,
     }
     return false;
 }
-
 
 const char * Analyzer::Step::techniqueName(Analyzer::Step::TechniqueId technique)
 {

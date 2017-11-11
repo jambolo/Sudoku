@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <functional>
 
 class Board
 {
@@ -15,31 +16,37 @@ public:
     void set(int r, int c, int x) { board_[r][c] = x; }
 
     // Sets the value of a square by index (1 - 9, or EMPTY)
-    void set(int i, int x) { int r, c; locationOf(i, &r, &c); set(r, c, x); }
+    void set(int i, int x);
 
     // Returns the value of a square (1 - 9, or EMPTY)
     int get(int r, int c) const { return board_[r][c]; }
 
     // Returns the value of a square by index (1 - 9, or EMPTY)
-    int get(int i) const { int r, c; locationOf(i, &r, &c); return get(r, c); }
+    int get(int i) const;
 
     // Returns true if the square is empty
     bool isEmpty(int r, int c) const;
 
     // Returns true if the square by index is empty
-    bool isEmpty(int i) const { int r, c; locationOf(i, &r, &c); return isEmpty(r, c); }
+    bool isEmpty(int i) const;
 
     // Returns all possible values for the square
     std::vector<int> allPossible(int r, int c) const;
 
     // Returns all possible values for the square by index
-    std::vector<int> allPossible(int i) const { int r, c; locationOf(i, &r, &c); return allPossible(r, c); }
+    std::vector<int> allPossible(int i) const;
 
-    // Returns the coordinates of an empty square, or false if there are none
+    // Returns the coordinates of the first empty square (in row major order), or false if there are none
     bool firstEmpty(int * firstR, int * firstC) const;
+
+    // Returns the coordinates of the first empty square (in row major order), or false if there are none
+    bool firstEmpty(int * first) const;
 
     // Returns the coordinates of an empty square at or following the given square (in row major order), or false if there are none
     bool nextEmpty(int * nextR, int * nextC) const;
+
+    // Returns the coordinates of an empty square at or following the given square (in row major order), or false if there are none
+    bool nextEmpty(int * next) const;
 
     // Returns true if the board is solved
     bool solved() const;
@@ -56,11 +63,23 @@ public:
     // Draws the board to stdout
     void draw() const;
 
+    // Calls a function for each row on the board, passing in the indexes of the squares in the row. Returns true if all rows were processed successfully.
+    bool for_each_row(std::function<bool(std::vector<int> const &)> f) const;
+
+    // Calls a function for each column on the board, passing in the indexes of the squares in the column. Returns true if all rows were processed successfully.
+    bool for_each_column(std::function<bool(std::vector<int> const &)> f) const;
+
+    // Calls a function for each box on the board, passing in the indexes of the squares in the box. Returns true if all rows were processed successfully.
+    bool for_each_box(std::function<bool(std::vector<int> const &)> f) const;
+
     // Returns the next square (in row major order)
     static void increment(int * r, int * c);
 
     // Returns indexes of all squares that depend on this one
     static std::vector<int> getDependents(int r, int c);
+
+    // Returns indexes of all squares that depend on this one
+    static std::vector<int> getDependents(int i);
 
     // Returns the index of a row and column
     static int indexOf(int r, int c) { return r * SIZE + c; }

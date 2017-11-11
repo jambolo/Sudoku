@@ -10,9 +10,30 @@ Board::Board()
     memset(&board_, EMPTY, sizeof(board_));
 }
 
+void Board::set(int i, int x)
+{
+    int r, c;
+    locationOf(i, &r, &c);
+    set(r, c, x);
+}
+
+int Board::get(int i) const
+{
+    int r, c;
+    locationOf(i, &r, &c);
+    return get(r, c);
+}
+
 bool Board::isEmpty(int r, int c) const
 {
     return board_[r][c] == EMPTY;
+}
+
+bool Board::isEmpty(int i) const
+{
+    int r, c;
+    locationOf(i, &r, &c);
+    return isEmpty(r, c);
 }
 
 std::vector<int> Board::allPossible(int r, int c) const
@@ -21,11 +42,10 @@ std::vector<int> Board::allPossible(int r, int c) const
     std::vector<int> others = getDependents(r, c);
     for (auto i : others)
     {
-        int otherR;
-        int otherC;
+        int otherR, otherC;
         locationOf(i, &otherR, &otherC);
         int x = board_[otherR][otherC];
-        values[x] = 0;
+        values[x] = EMPTY;
     }
 
     // Remove EMPTYs
@@ -34,11 +54,29 @@ std::vector<int> Board::allPossible(int r, int c) const
     return values;
 }
 
+std::vector<int> Board::allPossible(int i) const
+{
+    int r, c;
+    locationOf(i, &r, &c);
+    return allPossible(r, c);
+}
+
 bool Board::firstEmpty(int * firstR, int * firstC) const
 {
     *firstR = 0;
     *firstC = 0;
     return nextEmpty(firstR, firstC);
+}
+
+bool Board::firstEmpty(int * first) const
+{
+    int r, c;
+    bool found = firstEmpty(&r, &c);
+    if (found)
+    {
+        *first = indexOf(r, c);
+    }
+    return found;
 }
 
 bool Board::nextEmpty(int * nextR, int * nextC) const
@@ -50,11 +88,25 @@ bool Board::nextEmpty(int * nextR, int * nextC) const
         increment(&r, &c);
     }
     if (r >= SIZE)
+    {
         return false;
+    }
 
     *nextR = r;
     *nextC = c;
     return true;
+}
+
+bool Board::nextEmpty(int * next) const
+{
+    int r, c;
+    locationOf(*next, &r, &c);
+    bool found = nextEmpty(&r, &c);
+    if (found)
+    {
+        *next = indexOf(r, c);
+    }
+    return found;
 }
 
 bool Board::solved() const
@@ -146,6 +198,45 @@ void Board::draw() const
     }
 }
 
+bool Board::for_each_row(std::function<bool(std::vector<int> const &)> f) const
+{
+    for (int r = 0; r < SIZE; ++r)
+    {
+        if (f(getRowIndexes(r)))
+        {
+            return false;
+        }
+    }
+    return true;
+}
+
+bool Board::for_each_column(std::function<bool(std::vector<int> const &)> f) const
+{
+    for (int c = 0; c < SIZE; ++c)
+    {
+        if (!f(getColumnIndexes(c)))
+        {
+            return false;
+        }
+    }
+    return true;
+}
+
+bool Board::for_each_box(std::function<bool(std::vector<int> const &)> f) const
+{
+    for (int r0 = 0; r0 < SIZE; r0 += BOX_SIZE)
+    {
+        for (int c0 = 0; c0 < SIZE; c0 += BOX_SIZE)
+        {
+            if (!f(getBoxIndexes(r0, c0)))
+            {
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
 void Board::increment(int * r, int * c)
 {
     locationOf(indexOf(*r, *c) + 1, r, c);
@@ -160,14 +251,18 @@ std::vector<int> Board::getDependents(int r, int c)
     for (int j = 0; j < SIZE; ++j)
     {
         if (j != c)
+        {
             dependents.push_back(indexOf(r, j));
+        }
     }
 
     // Add the column
     for (int i = 0; i < SIZE; ++i)
     {
         if (i != r)
+        {
             dependents.push_back(indexOf(i, c));
+        }
     }
 
     // Add the box
@@ -179,20 +274,31 @@ std::vector<int> Board::getDependents(int r, int c)
         for (int j = 0; j < BOX_SIZE; ++j)
         {
             if (r0 + i != r || c0 + j != c)
+            {
                 dependents.push_back(indexOf((r0 + i), (c0 + j)));
+            }
         }
     }
 
     return dependents;
 }
 
+std::vector<int> Board::getDependents(int i)
+{
+    int r, c;
+    locationOf(i, &r, &c);
+    return getDependents(r, c);
+}
+
 std::vector<int> Board::getRowIndexes(int r)
 {
     std::vector<int> indexes;
     indexes.reserve(SIZE);
+    int i = indexOf(r, 0);
     for (int c = 0; c < SIZE; ++c)
     {
-        indexes.push_back(indexOf(r, c));
+        indexes.push_back(i);
+        ++i;
     }
     return indexes;
 }
@@ -201,9 +307,11 @@ std::vector<int> Board::getColumnIndexes(int c)
 {
     std::vector<int> indexes;
     indexes.reserve(SIZE);
+    int i = indexOf(0, c);
     for (int r = 0; r < SIZE; ++r)
     {
-        indexes.push_back(indexOf(r, c));
+        indexes.push_back(i);
+        i += SIZE;
     }
     return indexes;
 }
@@ -214,12 +322,16 @@ std::vector<int> Board::getBoxIndexes(int r0, int c0)
     assert(c0 % BOX_SIZE == 0);
     std::vector<int> indexes;
     indexes.reserve(SIZE);
-    for (int i = 0; i < BOX_SIZE; ++i)
+    int i0 = indexOf(r0, c0);
+    for (int r = 0; r < BOX_SIZE; ++r)
     {
-        for (int j = 0; j < BOX_SIZE; ++j)
+        int i = i0;
+        for (int c = 0; c < BOX_SIZE; ++c)
         {
-            indexes.push_back(indexOf(r0 + i, c0 + j));
+            indexes.push_back(i);
+            ++i;
         }
+        i0 += SIZE;
     }
     return indexes;
 }
@@ -243,9 +355,9 @@ bool Board::boxIsConsistent(int r0, int c0) const
 bool Board::columnIsConsistent(int c) const
 {
     int values = 0;
-    for (int i = 0; i < SIZE; ++i)
+    for (auto const & row : board_)
     {
-        if (!consistent(board_[i][c], values))
+        if (!consistent(row[c], values))
             return false;
     }
     return true;
@@ -254,9 +366,10 @@ bool Board::columnIsConsistent(int c) const
 bool Board::rowIsConsistent(int r) const
 {
     int values = 0;
-    for (int j = 0; j < SIZE; ++j)
+    auto const & row = board_[r];
+    for (int c : row)
     {
-        if (!consistent(board_[r][j], values))
+        if (!consistent(c, values))
             return false;
     }
     return true;
