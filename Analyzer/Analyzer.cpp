@@ -15,7 +15,7 @@ static bool solved(unsigned candidates)
 }
 
 // Returns the value of the only candidate
-static int valueFromMask(unsigned candidates)
+static int valueFromCandidates(unsigned candidates)
 {
     int v = 0;
     while (candidates)
@@ -30,7 +30,8 @@ static int valueFromMask(unsigned candidates)
     return 0;
 }
 
-static std::vector<int> valuesFromMask(unsigned candidates)
+// Returns a list of of candidates
+static std::vector<int> valuesFromCandidates(unsigned candidates)
 {
     std::vector<int> values;
     int v = 0;
@@ -243,7 +244,7 @@ bool Analyzer::hiddenSingle(std::vector<int> const & indexes,
             {
                 assert(solved(exclusive));
                 eliminatedIndexes.push_back(s);
-                eliminatedValues.push_back(valueFromMask(exclusive));
+                eliminatedValues.push_back(valueFromCandidates(exclusive));
                 return true;
             }
         }
@@ -262,7 +263,7 @@ bool Analyzer::hiddenPairFound(std::vector<int> & indexes, std::vector<int> & va
     });
     if (found)
     {
-        *details = "only these two squares in the row can be one of two values, so they cannot be any other value";
+        *details = "only these two squares in the row can be one of two values, so they cannot be any other values";
         return true;
     }
 
@@ -271,7 +272,7 @@ bool Analyzer::hiddenPairFound(std::vector<int> & indexes, std::vector<int> & va
     });
     if (found)
     {
-        *details = "only these two squares in the column can be one of two values, so they cannot be any other value";
+        *details = "only these two squares in the column can be one of two values, so they cannot be any other values";
         return true;
     }
 
@@ -280,7 +281,7 @@ bool Analyzer::hiddenPairFound(std::vector<int> & indexes, std::vector<int> & va
     });
     if (found)
     {
-        *details = "only these two squares in the box can be one of two values, so they cannot be any other value";
+        *details = "only these two squares in the box can be one of two values, so they cannot be any other values";
         return true;
     }
 
@@ -291,6 +292,58 @@ bool Analyzer::hiddenPair(std::vector<int> const & indexes,
                           std::vector<int> &       eliminatedIndexes,
                           std::vector<int> &       eliminatedValues)
 {
+    // Go through each possible pair of candidates and search for exactly two cells containing the one or more of a pair
+    for (int x0 = 1; x0 <= Board::SIZE - 1; ++x0)
+    {
+        unsigned m0 = 1 << x0;
+        for (int x1 = x0 + 1; x1 <= Board::SIZE; ++x1)
+        {
+            unsigned m1 = 1 << x1;
+            unsigned m  = m0 | m1;
+
+            // Count the number of cells with either of these two candidates
+            int nFound    = 0;
+            int found[2];
+            int counts[2] = { 0 };
+            for (int i : indexes)
+            {
+                unsigned candidates = candidates_[i];
+                if (candidates & m)
+                {
+                    // Count the number of found indexes
+                    ++nFound;
+                    if (nFound > 2)
+                    {
+                        break;  // Give up, must be exactly 2
+                    }
+                    found[nFound - 1] = i;
+
+                    // Count the number of times the candidates occur
+                    if (candidates & m0)
+                    {
+                        ++counts[0];
+                    }
+                    if (candidates & m1)
+                    {
+                        ++counts[1];
+                    }
+                }
+            }
+            // If there are exactly 2 indexes, each candidate is seen at least twice, and there are other candidates to eliminate,
+            // then success
+            if (nFound == 2 && counts[0] >= 2 && counts[1] >= 2)
+            {
+                unsigned eliminatedCandidates = (candidates_[found[0]] | candidates_[found[1]]) & ~m;
+                if (eliminatedCandidates)
+                {
+                    eliminatedIndexes.assign(std::begin(found), std::end(found));
+                    eliminatedValues = valuesFromCandidates(eliminatedCandidates);
+                    return true;
+                }
+            }
+        }
+    }
+
     return false;
 }
 
@@ -304,7 +357,7 @@ bool Analyzer::hiddenTripleFound(std::vector<int> & indexes, std::vector<int> & 
     });
     if (found)
     {
-        *details = "only these three squares in the box can be one of three values, so they cannot be any other value";
+        *details = "only these three squares in the row can be one of three values, so they cannot be any other values";
         return true;
     }
 
@@ -313,7 +366,7 @@ bool Analyzer::hiddenTripleFound(std::vector<int> & indexes, std::vector<int> & 
     });
     if (found)
     {
-        *details = "only these three squares in the box can be one of three values, so they cannot be any other value";
+        *details = "only these three squares in the column can be one of three values, so they cannot be any other values";
         return true;
     }
 
@@ -322,7 +375,7 @@ bool Analyzer::hiddenTripleFound(std::vector<int> & indexes, std::vector<int> & 
     });
     if (found)
     {
-        *details = "only these three squares in the box can be one of three values, so they cannot be any other value";
+        *details = "only these three squares in the box can be one of three values, so they cannot be any other values";
         return true;
     }
 
@@ -333,6 +386,67 @@ bool Analyzer::hiddenTriple(std::vector<int> const & indexes,
                             std::vector<int> &       eliminatedIndexes,
                             std::vector<int> &       eliminatedValues)
 {
+    // Go through each possible triple of candidates and search for exactly three cells containing the one or more of a triple
+    for (int x0 = 1; x0 <= Board::SIZE - 2; ++x0)
+    {
+        unsigned m0 = 1 << x0;
+        for (int x1 = x0 + 1; x1 <= Board::SIZE - 1; ++x1)
+        {
+            unsigned m1 = 1 << x1;
+            for (int x2 = x1 + 1; x2 <= Board::SIZE; ++x2)
+            {
+                unsigned m2 = 1 << x2;
+                unsigned m  = m0 | m1 | m2;
+
+                // Count the number of cells with any of these three candidates
+                int nFound    = 0;
+                int found[3];
+                int counts[3] = { 0 };
+                for (int i : indexes)
+                {
+                    unsigned candidates = candidates_[i];
+                    if (candidates & m)
+                    {
+                        // Count the number of found indexes
+                        ++nFound;
+                        if (nFound > 3)
+                        {
+                            break;  // Give up, must be exactly 3
+                        }
+                        found[nFound - 1] = i;
+
+                        // Count the number of times the candidates occur
+                        if (candidates & m0)
+                        {
+                            ++counts[0];
+                        }
+                        if (candidates & m1)
+                        {
+                            ++counts[1];
+                        }
+                        if (candidates & m2)
+                        {
+                            ++counts[2];
+                        }
+                    }
+                }
+                // If there are exactly 3 indexes, each candidate is seen at least twice, and there are other candidates to
+                // eliminate,
+                // then success
+                if (nFound == 3 && counts[0] >= 2 && counts[1] >= 2 && counts[2] >= 2)
+                {
+                    unsigned eliminatedCandidates = (candidates_[found[0]] | candidates_[found[1]] | candidates_[found[2]]) & ~m;
+                    if (eliminatedCandidates)
+                    {
+                        eliminatedIndexes.assign(std::begin(found), std::end(found));
+                        eliminatedValues = valuesFromCandidates(eliminatedCandidates);
+                        return true;
+                    }
+                }
+            }
+        }
+    }
+
     return false;
 }
 
@@ -344,7 +458,7 @@ bool Analyzer::hiddenQuadFound(std::vector<int> & indexes, std::vector<int> & va
     });
     if (found)
     {
-        *details = "only these four squares in the row can be one of four values, so they cannot be any other value";
+        *details = "only these four squares in the row can be one of four values, so they cannot be any other values";
         return true;
     }
 
@@ -353,7 +467,7 @@ bool Analyzer::hiddenQuadFound(std::vector<int> & indexes, std::vector<int> & va
     });
     if (found)
     {
-        *details = "only these four squares in the box can be one of four values, so they cannot be any other value";
+        *details = "only these four squares in the column can be one of four values, so they cannot be any other values";
         return true;
     }
 
@@ -362,7 +476,7 @@ bool Analyzer::hiddenQuadFound(std::vector<int> & indexes, std::vector<int> & va
     });
     if (found)
     {
-        *details = "only these four squares in the box can be one of four values, so they cannot be any other value";
+        *details = "only these four squares in the box can be one of four values, so they cannot be any other values";
         return true;
     }
 
@@ -373,6 +487,76 @@ bool Analyzer::hiddenQuad(std::vector<int> const & indexes,
                           std::vector<int> &       eliminatedIndexes,
                           std::vector<int> &       eliminatedValues)
 {
+    // Go through each possible quad of candidates and search for exactly four cells containing the one or more of a quad
+    for (int x0 = 1; x0 <= Board::SIZE - 3; ++x0)
+    {
+        unsigned m0 = 1 << x0;
+        for (int x1 = x0 + 1; x1 <= Board::SIZE - 2; ++x1)
+        {
+            unsigned m1 = 1 << x1;
+            for (int x2 = x1 + 1; x2 <= Board::SIZE - 1; ++x2)
+            {
+                unsigned m2 = 1 << x2;
+                for (int x3 = x2 + 1; x3 <= Board::SIZE; ++x3)
+                {
+                    unsigned m3 = 1 << x3;
+                    unsigned m  = m0 | m1 | m2 | m3;
+
+                    // Count the number of cells with any of these four candidates
+                    int nFound    = 0;
+                    int found[4];
+                    int counts[4] = { 0 };
+                    for (int i : indexes)
+                    {
+                        unsigned candidates = candidates_[i];
+                        if (candidates & m)
+                        {
+                            // Count the number of found indexes
+                            ++nFound;
+                            if (nFound > 4)
+                            {
+                                break;  // Give up, must be exactly 4
+                            }
+                            found[nFound - 1] = i;
+
+                            // Count the number of times the candidates occur
+                            if (candidates & m0)
+                            {
+                                ++counts[0];
+                            }
+                            if (candidates & m1)
+                            {
+                                ++counts[1];
+                            }
+                            if (candidates & m2)
+                            {
+                                ++counts[2];
+                            }
+                            if (candidates & m3)
+                            {
+                                ++counts[3];
+                            }
+                        }
+                    }
+                    // If there are exactly 4 indexes, each candidate is seen at least twice, and there are other candidates to
+                    // eliminate,
+                    // then success
+                    if (nFound == 4 && counts[0] >= 2 && counts[1] >= 2 && counts[2] >= 2 && counts[3] >= 2)
+                    {
+                        unsigned eliminatedCandidates =
+                            (candidates_[found[0]] | candidates_[found[1]] | candidates_[found[2]] | candidates_[found[3]]) & ~m;
+                        if (eliminatedCandidates)
+                        {
+                            eliminatedIndexes.assign(std::begin(found), std::end(found));
+                            eliminatedValues = valuesFromCandidates(eliminatedCandidates);
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     return false;
 }
 
@@ -395,7 +579,7 @@ bool Analyzer::nakedSingle(std::vector<int> & indexes, std::vector<int> & values
         if (solved(candidates))
         {
             indexes.push_back(i);
-            values.push_back(valueFromMask(candidates));
+            values.push_back(valueFromCandidates(candidates));
             return true;
         }
     }
@@ -467,7 +651,7 @@ bool Analyzer::nakedPair(std::vector<int> const & indexes,
                         }
                         if (!eliminatedIndexes.empty())
                         {
-                            eliminatedValues = valuesFromMask(candidates);
+                            eliminatedValues = valuesFromCandidates(candidates);
                             return true;
                         }
                     }
@@ -550,7 +734,7 @@ bool Analyzer::nakedTriple(std::vector<int> const & indexes,
                                 }
                                 if (!eliminatedIndexes.empty())
                                 {
-                                    eliminatedValues = valuesFromMask(candidates);
+                                    eliminatedValues = valuesFromCandidates(candidates);
                                     return true;
                                 }
                             }
@@ -641,7 +825,7 @@ bool Analyzer::nakedQuad(std::vector<int> const & indexes,
                                         }
                                         if (!eliminatedIndexes.empty())
                                         {
-                                            eliminatedValues = valuesFromMask(candidates);
+                                            eliminatedValues = valuesFromCandidates(candidates);
                                             return true;
                                         }
                                     }
