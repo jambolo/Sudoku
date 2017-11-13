@@ -40,7 +40,7 @@ std::vector<int> Board::allPossible(int r, int c) const
 {
     std::vector<int> values { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
     std::vector<int> others = getDependents(r, c);
-    for (auto i : others)
+    for (int i : others)
     {
         int otherR, otherC;
         locationOf(i, &otherR, &otherC);
@@ -49,7 +49,7 @@ std::vector<int> Board::allPossible(int r, int c) const
     }
 
     // Remove EMPTYs
-    values.erase(std::remove(values.begin(), values.end(), 0), values.end());
+    values.erase(std::remove(values.begin(), values.end(), EMPTY), values.end());
 
     return values;
 }
@@ -224,14 +224,11 @@ bool Board::for_each_column(std::function<bool(std::vector<int> const &)> f) con
 
 bool Board::for_each_box(std::function<bool(std::vector<int> const &)> f) const
 {
-    for (int r0 = 0; r0 < SIZE; r0 += BOX_SIZE)
+    for (int b = 0; b < SIZE; ++b)
     {
-        for (int c0 = 0; c0 < SIZE; c0 += BOX_SIZE)
+        if (!f(getBoxIndexes(b)))
         {
-            if (!f(getBoxIndexes(r0, c0)))
-            {
-                return false;
-            }
+            return false;
         }
     }
     return true;
@@ -316,13 +313,11 @@ std::vector<int> Board::getColumnIndexes(int c)
     return indexes;
 }
 
-std::vector<int> Board::getBoxIndexes(int r0, int c0)
+std::vector<int> Board::getBoxIndexes(int b)
 {
-    assert(r0 % BOX_SIZE == 0);
-    assert(c0 % BOX_SIZE == 0);
     std::vector<int> indexes;
     indexes.reserve(SIZE);
-    int i0 = indexOf(r0, c0);
+    int i0 = (b / 3 * 6 + b) * 3;
     for (int r = 0; r < BOX_SIZE; ++r)
     {
         int i = i0;

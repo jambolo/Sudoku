@@ -100,7 +100,7 @@ public:
     static std::vector<int> getColumnIndexes(int c);
 
     // Returns the indexes for the box at the given location
-    static std::vector<int> getBoxIndexes(int r, int c);
+    static std::vector<int> getBoxIndexes(int b);
 
 private:
 
