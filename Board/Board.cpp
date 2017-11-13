@@ -134,13 +134,10 @@ bool Board::consistent() const
             return false;
     }
 
-    for (int r0 = 0; r0 < SIZE; r0 += BOX_SIZE)
+    for (int b = 0; b < SIZE; ++b)
     {
-        for (int c0 = 0; c0 < SIZE; c0 += BOX_SIZE)
-        {
-            if (!boxIsConsistent(r0, c0))
-                return false;
-        }
+        if (!boxIsConsistent(b))
+            return false;
     }
     return true;
 }
@@ -315,9 +312,11 @@ std::vector<int> Board::getColumnIndexes(int c)
 
 std::vector<int> Board::getBoxIndexes(int b)
 {
+    int r0 = b / BOX_SIZE * BOX_SIZE;
+    int c0 = b % BOX_SIZE * BOX_SIZE;
     std::vector<int> indexes;
     indexes.reserve(SIZE);
-    int i0 = (b / 3 * 6 + b) * 3;
+    int i0 = r0 * SIZE + c0 * BOX_SIZE;
     for (int r = 0; r < BOX_SIZE; ++r)
     {
         int i = i0;
@@ -331,10 +330,10 @@ std::vector<int> Board::getBoxIndexes(int b)
     return indexes;
 }
 
-bool Board::boxIsConsistent(int r0, int c0) const
+bool Board::boxIsConsistent(int b) const
 {
-    assert(r0 % BOX_SIZE == 0);
-    assert(c0 % BOX_SIZE == 0);
+    int r0     = b / BOX_SIZE * BOX_SIZE;
+    int c0     = b % BOX_SIZE * BOX_SIZE;
     int values = 0;
     for (int i = 0; i < BOX_SIZE; ++i)
     {

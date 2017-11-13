@@ -1,7 +1,7 @@
 #pragma once
 
-#include <vector>
 #include <functional>
+#include <vector>
 
 class Board
 {
@@ -63,13 +63,16 @@ public:
     // Draws the board to stdout
     void draw() const;
 
-    // Calls a function for each row on the board, passing in the indexes of the squares in the row. Returns true if all rows were processed successfully.
+    // Calls a function for each row on the board, passing in the indexes of the squares in the row. Returns true if all rows were
+    // processed successfully.
     bool for_each_row(std::function<bool(std::vector<int> const &)> f) const;
 
-    // Calls a function for each column on the board, passing in the indexes of the squares in the column. Returns true if all rows were processed successfully.
+    // Calls a function for each column on the board, passing in the indexes of the squares in the column. Returns true if all rows
+    // were processed successfully.
     bool for_each_column(std::function<bool(std::vector<int> const &)> f) const;
 
-    // Calls a function for each box on the board, passing in the indexes of the squares in the box. Returns true if all rows were processed successfully.
+    // Calls a function for each box on the board, passing in the indexes of the squares in the box. Returns true if all rows were
+    // processed successfully.
     bool for_each_box(std::function<bool(std::vector<int> const &)> f) const;
 
     // Returns the next square (in row major order)
@@ -104,7 +107,7 @@ public:
 
 private:
 
-    bool        boxIsConsistent(int r0, int c0) const;
+    bool        boxIsConsistent(int b) const;
     bool        columnIsConsistent(int c) const;
     bool        rowIsConsistent(int r) const;
     static bool consistent(int x, int & values);
