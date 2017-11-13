@@ -202,7 +202,7 @@ bool Board::for_each_row(std::function<bool(std::vector<int> const &)> f) const
 {
     for (int r = 0; r < SIZE; ++r)
     {
-        if (f(getRowIndexes(r)))
+        if (!f(getRowIndexes(r)))
         {
             return false;
         }
@@ -365,7 +365,7 @@ bool Board::columnIsConsistent(int c) const
 
 bool Board::rowIsConsistent(int r) const
 {
-    int values = 0;
+    int values       = 0;
     auto const & row = board_[r];
     for (int c : row)
     {
