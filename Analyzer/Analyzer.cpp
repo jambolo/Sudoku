@@ -840,6 +840,128 @@ bool Analyzer::nakedQuad(std::vector<int> const & indexes,
     return false;
 }
 
+bool Analyzer::lockedCandidatesFound(std::vector<int>& indexes, std::vector<int>& values, char const ** details)
+{
+    // For the intersection of each row or column with a box, if there are candidates that exist within the
+    // intersection but not in the rest of the row/column, then success if those candidates exist in the box, or
+    // vice-versa.
+    bool found;
+
+    found = !board_.for_each_row([&](std::vector<int> const & row) {
+        for (int i = 0; i < Board::SIZE / Board::BOX_SIZE; ++i)
+        {
+            int r, c;
+            Board::locationOf(row[i * Board::BOX_SIZE], &r, &c);
+            std::vector<int> box = Board::getBoxIndexes(Board::indexOfBox(r, c));
+            if (lockedCandidates(row, box, indexes, values))
+                return false;
+        }
+        return true;
+    });
+    if (found)
+    {
+        *details = "since the part of the row within the box must contain these values, they cannot be anywhere else in the box, and vice versa";
+        return true;
+    }
+
+    found = !board_.for_each_column([&](std::vector<int> const & column) {
+        for (int i = 0; i < Board::SIZE / Board::BOX_SIZE; ++i)
+        {
+            int r, c;
+            Board::locationOf(column[i * Board::BOX_SIZE], &r, &c);
+            std::vector<int> box = Board::getBoxIndexes(Board::indexOfBox(r, c));
+            if (lockedCandidates(column, box, indexes, values))
+                return false;
+        }
+        return true;
+    });
+    if (found)
+    {
+        *details = "since the part of the column within the box must contain these values, they cannot be anywhere else in the box, and vice versa";
+        return true;
+    }
+
+
+    return false;
+}
+
+bool Analyzer::lockedCandidates(std::vector<int> const & indexes1,
+                                std::vector<int> const & indexes2,
+                                std::vector<int> & eliminatedIndexes,
+                                std::vector<int> & eliminatedValues)
+{
+    // Indexes in the intersection
+    std::vector<int> intersection(Board::BOX_SIZE);
+    std::set_intersection(indexes1.begin(), indexes1.end(), indexes2.begin(), indexes2.end(), intersection.begin());
+
+    // Indexes not in the intersection
+    std::vector<int> others1(Board::SIZE - Board::BOX_SIZE);
+    std::set_difference(indexes1.begin(), indexes1.end(), intersection.begin(), intersection.end(), others1.begin());
+    std::vector<int> others2(Board::SIZE - Board::BOX_SIZE);
+    std::set_difference(indexes2.begin(), indexes2.end(), intersection.begin(), intersection.end(), others2.begin());
+
+    // Candidates in the intersection
+    unsigned intersectionCandidates = 0;
+    for (int i : intersection)
+        intersectionCandidates |= candidates_[i];
+
+    // Candidates in set 1, not in intersection
+    unsigned otherCandidates1 = 0;
+    for (int i : others1)
+        otherCandidates1 |= candidates_[i];
+
+    // If any of the candidates in the intersection don't exist in the rest of set 1, then eliminate them from set 2
+    unsigned unique1 = intersectionCandidates & ~otherCandidates1;
+    if (unique1)
+    {
+        bool found = false;
+        for (int i : others2)
+        {
+            if (candidates_[i] & unique1)
+            {
+                eliminatedIndexes.push_back(i);
+                found = true;
+            }
+        }
+        if (found)
+        {
+            std::vector<int> uniqueCandidates = valuesFromCandidates(unique1);
+            eliminatedValues.insert(eliminatedValues.end(), uniqueCandidates.begin(), uniqueCandidates.end());
+        }
+    }
+
+    // Candidates in set 2, not in intersection
+    unsigned otherCandidates2 = 0;
+    for (int i : others2)
+        otherCandidates2 |= candidates_[i];
+
+    // If any of the candidates in the intersection don't exist in the rest of set 2, then eliminate them from set 1
+    unsigned unique2 = intersectionCandidates & ~otherCandidates2;
+    if (unique2)
+    {
+        bool found = false;
+        for (int i : others1)
+        {
+            if (candidates_[i] & unique2)
+            {
+                eliminatedIndexes.push_back(i);
+                found = true;
+            }
+        }
+        if (found)
+        {
+            std::vector<int> uniqueCandidates = valuesFromCandidates(unique2);
+            eliminatedValues.insert(eliminatedValues.end(), uniqueCandidates.begin(), uniqueCandidates.end());
+        }
+    }
+    std::sort(eliminatedIndexes.begin(), eliminatedIndexes.end());
+    eliminatedIndexes.erase(std::unique(eliminatedIndexes.begin(), eliminatedIndexes.end()), eliminatedIndexes.end());
+    std::sort(eliminatedValues.begin(), eliminatedValues.end());
+    eliminatedValues.erase(std::unique(eliminatedValues.begin(), eliminatedValues.end()), eliminatedValues.end());
+
+    return !eliminatedIndexes.empty();
+}
+
 const char * Analyzer::Step::techniqueName(Analyzer::Step::TechniqueId technique)
 {
     static char const * const NAMES[] =

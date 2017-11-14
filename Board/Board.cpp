@@ -274,6 +274,10 @@ std::vector<int> Board::getDependents(int r, int c)
         }
     }
 
+    // Sort and remove duplicates
+    std::sort(dependents.begin(), dependents.end());
+    dependents.erase(std::unique(dependents.begin(), dependents.end()), dependents.end());
+
     return dependents;
 }
 

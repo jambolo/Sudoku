@@ -73,6 +73,12 @@ private:
     bool nakedQuadFound(std::vector<int> & indexes, std::vector<int> & values, char const ** details);
     bool nakedQuad(std::vector<int> const & indexes, std::vector<int> & eliminatedIndexes, std::vector<int> & eliminatedValues);
 
+    bool lockedCandidatesFound(std::vector<int> & indexes, std::vector<int> & values, char const ** details);
+    bool lockedCandidates(std::vector<int> const & indexes1,
+                          std::vector<int> const & indexes2,
+                          std::vector<int> & eliminatedIndexes,
+                          std::vector<int> & eliminatedValues);
+
     Board board_;                       // Current state of the board
     std::vector<int> unsolved_;         // Indexes of unsolved squares
     std::vector<unsigned> candidates_;  // Masks of possible values for each square

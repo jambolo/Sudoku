@@ -90,6 +90,12 @@ public:
     // Returns the location corresponding to a given index
     static void locationOf(int index, int * r, int * c) { *r = index / SIZE; *c = index % SIZE; }
 
+    // Returns the box containing the square
+    static int indexOfBox(int r, int c) { return r / BOX_SIZE * BOX_SIZE + c / BOX_SIZE; }
+
+    // Returns the location corresponding to the upper-right corner of a given box
+    static void locationOfBox(int index, int * r, int * c) { *r = (index / SIZE) / BOX_SIZE; *c = (index % SIZE) / BOX_SIZE; }
+
     // Returns the name of the give row
     static char rowName(int r) { return "ABCDEFGHJ"[r]; }
 
@@ -102,7 +108,7 @@ public:
     // Returns the indexes for the given column
     static std::vector<int> getColumnIndexes(int c);
 
-    // Returns the indexes for the box at the given location
+    // Returns the indexes for the given box
     static std::vector<int> getBoxIndexes(int b);
 
 private:
