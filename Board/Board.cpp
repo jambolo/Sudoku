@@ -320,7 +320,7 @@ std::vector<int> Board::getBoxIndexes(int b)
     int c0 = b % BOX_SIZE * BOX_SIZE;
     std::vector<int> indexes;
     indexes.reserve(SIZE);
-    int i0 = r0 * SIZE + c0 * BOX_SIZE;
+    int i0 = r0 * SIZE + c0;
     for (int r = 0; r < BOX_SIZE; ++r)
     {
         int i = i0;
