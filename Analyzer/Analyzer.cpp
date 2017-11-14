@@ -120,10 +120,16 @@ Analyzer::Step Analyzer::next()
         return { Step::ELIMINATE, indexes, values, Step::NAKED_PAIR, details };
     }
 
-    if (hiddenPairFound(indexes, values, &details))
+    if (nakedTripleFound(indexes, values, &details))
     {
         eliminate(indexes, values);
-        return { Step::ELIMINATE, indexes, values, Step::HIDDEN_PAIR, details };
+        return { Step::ELIMINATE, indexes, values, Step::NAKED_TRIPLE, details };
+    }
+
+    if (nakedQuadFound(indexes, values, &details))
+    {
+        eliminate(indexes, values);
+        return { Step::ELIMINATE, indexes, values, Step::NAKED_QUAD, details };
     }
 
     if (lockedCandidatesFound(indexes, values, &details))
@@ -132,22 +138,16 @@ Analyzer::Step Analyzer::next()
         return { Step::ELIMINATE, indexes, values, Step::LOCKED_CANDIDATES, details };
     }
 
-    if (nakedTripleFound(indexes, values, &details))
+    if (hiddenPairFound(indexes, values, &details))
     {
         eliminate(indexes, values);
-        return { Step::ELIMINATE, indexes, values, Step::NAKED_TRIPLE, details };
+        return { Step::ELIMINATE, indexes, values, Step::HIDDEN_PAIR, details };
     }
 
     if (hiddenTripleFound(indexes, values, &details))
     {
         eliminate(indexes, values);
         return { Step::ELIMINATE, indexes, values, Step::HIDDEN_TRIPLE, details };
-    }
-
-    if (nakedQuadFound(indexes, values, &details))
-    {
-        eliminate(indexes, values);
-        return { Step::ELIMINATE, indexes, values, Step::NAKED_QUAD, details };
     }
 
     if (hiddenQuadFound(indexes, values, &details))
