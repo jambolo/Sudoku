@@ -126,6 +126,12 @@ Analyzer::Step Analyzer::next()
         return { Step::ELIMINATE, indexes, values, Step::HIDDEN_PAIR, details };
     }
 
+    if (lockedCandidatesFound(indexes, values, &details))
+    {
+        eliminate(indexes, values);
+        return { Step::ELIMINATE, indexes, values, Step::LOCKED_CANDIDATES, details };
+    }
+
     if (nakedTripleFound(indexes, values, &details))
     {
         eliminate(indexes, values);
@@ -903,12 +909,18 @@ bool Analyzer::lockedCandidates(std::vector<int> const & indexes1,
     // Candidates in the intersection
     unsigned intersectionCandidates = 0;
     for (int i : intersection)
-        intersectionCandidates |= candidates_[i];
+    {
+        if (!solved(candidates_[i]))
+            intersectionCandidates |= candidates_[i];
+    }
 
     // Candidates in set 1, not in intersection
     unsigned otherCandidates1 = 0;
     for (int i : others1)
-        otherCandidates1 |= candidates_[i];
+    {
+        if (!solved(candidates_[i]))
+            otherCandidates1 |= candidates_[i];
+    }
 
     // If any of the candidates in the intersection don't exist in the rest of set 1, then eliminate them from set 2
     unsigned unique1 = intersectionCandidates & ~otherCandidates1;
@@ -933,7 +945,10 @@ bool Analyzer::lockedCandidates(std::vector<int> const & indexes1,
     // Candidates in set 2, not in intersection
     unsigned otherCandidates2 = 0;
     for (int i : others2)
-        otherCandidates2 |= candidates_[i];
+    {
+        if (!solved(candidates_[i]))
+            otherCandidates2 |= candidates_[i];
+    }
 
     // If any of the candidates in the intersection don't exist in the rest of set 2, then eliminate them from set 1
     unsigned unique2 = intersectionCandidates & ~otherCandidates2;
@@ -974,7 +989,8 @@ const char * Analyzer::Step::techniqueName(Analyzer::Step::TechniqueId technique
         "naked single",
         "naked pair",
         "naked triple",
-        "naked quad"
+        "naked quad",
+        "locked candidates"
     };
     assert((size_t)technique >= 0 && (size_t)technique < sizeof(NAMES) / sizeof(*NAMES));
     return NAMES[technique];

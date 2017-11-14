@@ -23,6 +23,7 @@ public:
             NAKED_PAIR,
             NAKED_TRIPLE,
             NAKED_QUAD,
+            LOCKED_CANDIDATES
         };
         ActionId         action;
         std::vector<int> indexes;
