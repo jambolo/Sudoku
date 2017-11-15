@@ -133,11 +133,11 @@ int main(int argc, char ** argv)
     if (all)
     {
         int i = 1;
-        while (!analyzer.done())
+        do
         {
             Analyzer::Step step = analyzer.next();
             printStep(step, verbose, i++);
-        }
+        } while (!analyzer.done());
         printf("\n");
         analyzer.board().draw();
         printf("\n");
