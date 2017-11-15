@@ -23,7 +23,8 @@ public:
             NAKED_PAIR,
             NAKED_TRIPLE,
             NAKED_QUAD,
-            LOCKED_CANDIDATES
+            LOCKED_CANDIDATES,
+            X_WING
         };
 
         ActionId action;
@@ -98,6 +99,9 @@ private:
                           std::vector<int> const & indexes2,
                           std::vector<int> &       eliminatedIndexes,
                           std::vector<int> &       eliminatedValues);
+
+    bool xWingFound(std::vector<int> & indexes, std::vector<int> & values, std::string & reason);
+    bool xWing(std::vector<int> const & indexes, std::vector<int> & eliminatedIndexes, std::vector<int> & eliminatedValues);
 
     Board board_;                       // Current state of the board
     bool verbose_;                      // If true, then generate explanations

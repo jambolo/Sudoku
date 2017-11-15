@@ -151,6 +151,12 @@ Analyzer::Step Analyzer::next()
         return { Step::ELIMINATE, indexes, values, Step::HIDDEN_QUAD, reason };
     }
 
+    if (xWingFound(indexes, values, reason))
+    {
+        eliminate(indexes, values);
+        return { Step::ELIMINATE, indexes, values, Step::X_WING, reason };
+    }
+
     done_ = true;
     return { Step::STUCK };
 }
@@ -1262,6 +1268,47 @@ bool Analyzer::lockedCandidates(std::vector<int> const & indexes1,
     return !eliminatedIndexes.empty();
 }
 
+bool Analyzer::xWingFound(std::vector<int> & indexes, std::vector<int> & values, std::string & reason)
+{
+    // For each exclusive pair in a unit, if they have additional candidates, then success.
+
+    bool found;
+
+    found = !board_.for_each_row([&](int r, std::vector<int> const & row) {
+        return !xWing(row, indexes, values);
+    });
+    if (found)
+    {
+        reason = "two squares in a row have exclusive candidate pairs that correspond to candidates in another row in the same columns, so other squares in those columns cannot have these values";
+        return true;
+    }
+
+    found = !board_.for_each_column([&](int c, std::vector<int> const & column) {
+        return !xWing(column, indexes, values);
+    });
+    if (found)
+    {
+        reason = "two squares in a column have exclusive candidate pairs that correspond to candidates in another column in the same rows, so other squares in those rows cannot have these values";
+        return true;
+    }
+
+    found = !board_.for_each_box([&](int b, std::vector<int> const & box) {
+        return !xWing(box, indexes, values);
+    });
+    if (found)
+    {
+        reason = "two squares in a box have exclusive candidate pairs that correspond to candidates in another box, so other squares in those boxes cannot have these values";
+        return true;
+    }
+
+    return false;
+}
+
+bool Analyzer::xWing(std::vector<int> const & indexes, std::vector<int> & eliminatedIndexes, std::vector<int> & eliminatedValues)
+{
+    return false;
+}
+
 const char * Analyzer::Step::techniqueName(Analyzer::Step::TechniqueId technique)
 {
     static char const * const NAMES[] =
@@ -1275,7 +1322,8 @@ const char * Analyzer::Step::techniqueName(Analyzer::Step::TechniqueId technique
         "naked pair",
         "naked triple",
         "naked quad",
-        "locked candidates"
+        "locked candidates",
+        "x wing"
     };
     assert((size_t)technique >= 0 && (size_t)technique < sizeof(NAMES) / sizeof(*NAMES));
     return NAMES[technique];
