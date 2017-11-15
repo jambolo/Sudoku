@@ -63,17 +63,17 @@ public:
     // Draws the board to stdout
     void draw() const;
 
-    // Calls a function for each row on the board, passing in the indexes of the squares in the row. Returns true if all rows were
+    // Calls a function for each row on the board, passing in the row number and the indexes of the squares in the row. Returns true if all rows were
     // processed successfully.
-    bool for_each_row(std::function<bool(int r, std::vector<int> const &)> f) const;
+    bool for_each_row(std::function<bool(int, std::vector<int> const &)> f) const;
 
-    // Calls a function for each column on the board, passing in the indexes of the squares in the column. Returns true if all rows
+    // Calls a function for each column on the board, passing in the column number and the indexes of the squares in the column. Returns true if all rows
     // were processed successfully.
-    bool for_each_column(std::function<bool(int c, std::vector<int> const &)> f) const;
+    bool for_each_column(std::function<bool(int, std::vector<int> const &)> f) const;
 
-    // Calls a function for each box on the board, passing in the indexes of the squares in the box. Returns true if all rows were
+    // Calls a function for each box on the board, passing in the box number and the indexes of the squares in the box. Returns true if all rows were
     // processed successfully.
-    bool for_each_box(std::function<bool(int b, std::vector<int> const &)> f) const;
+    bool for_each_box(std::function<bool(int, std::vector<int> const &)> f) const;
 
     // Returns the next square (in row major order)
     static void increment(int * r, int * c);

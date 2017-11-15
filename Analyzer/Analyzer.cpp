@@ -1115,7 +1115,7 @@ bool Analyzer::lockedCandidatesFound(std::vector<int> & indexes, std::vector<int
     int which1, which2;
 
     found = !board_.for_each_row([&](int r, std::vector<int> const & row) {
-        for (int c = 0; c < Board::SIZE / Board::BOX_SIZE; ++c)
+        for (int c = 0; c < Board::SIZE; c += Board::BOX_SIZE)
         {
             int b = Board::indexOfBox(r, c);
             std::vector<int> box = Board::getBoxIndexes(b);
@@ -1135,7 +1135,7 @@ bool Analyzer::lockedCandidatesFound(std::vector<int> & indexes, std::vector<int
     }
 
     found = !board_.for_each_column([&](int c, std::vector<int> const & column) {
-        for (int r = 0; r < Board::SIZE / Board::BOX_SIZE; ++r)
+        for (int r = 0; r < Board::SIZE; r += Board::BOX_SIZE)
         {
             int b = Board::indexOfBox(r, c);
             std::vector<int> box = Board::getBoxIndexes(b);
@@ -1159,7 +1159,7 @@ bool Analyzer::lockedCandidatesFound(std::vector<int> & indexes, std::vector<int
     // intersection but not in the rest of the box, then success if those candidates exist in the row/column.
 
     found = !board_.for_each_row([&](int r, std::vector<int> const & row) {
-        for (int c = 0; c < Board::SIZE / Board::BOX_SIZE; ++c)
+        for (int c = 0; c < Board::SIZE; c += Board::BOX_SIZE)
         {
             int b = Board::indexOfBox(r, c);
             std::vector<int> box = Board::getBoxIndexes(b);
@@ -1180,7 +1180,7 @@ bool Analyzer::lockedCandidatesFound(std::vector<int> & indexes, std::vector<int
     }
 
     found = !board_.for_each_column([&](int c, std::vector<int> const & column) {
-        for (int r = 0; r < Board::SIZE / Board::BOX_SIZE; ++r)
+        for (int r = 0; r < Board::SIZE; r += Board::BOX_SIZE)
         {
             int b = Board::indexOfBox(r, c);
             std::vector<int> box = Board::getBoxIndexes(b);
