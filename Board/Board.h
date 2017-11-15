@@ -79,10 +79,10 @@ public:
     static void increment(int * r, int * c);
 
     // Returns indexes of all squares that depend on this one
-    static std::vector<int> getDependents(int r, int c);
+    static std::vector<int> const & getDependents(int r, int c);
 
     // Returns indexes of all squares that depend on this one
-    static std::vector<int> getDependents(int i);
+    static std::vector<int> const & getDependents(int i);
 
     // Returns the index of a row and column
     static int indexOf(int r, int c) { return r * SIZE + c; }
@@ -103,13 +103,13 @@ public:
     static char columnName(int c) { return "123456789"[c]; }
 
     // Returns the indexes for the given row
-    static std::vector<int> getRowIndexes(int r);
+    static std::vector<int> const & getRowIndexes(int r);
 
     // Returns the indexes for the given column
-    static std::vector<int> getColumnIndexes(int c);
+    static std::vector<int> const & getColumnIndexes(int c);
 
     // Returns the indexes for the given box
-    static std::vector<int> getBoxIndexes(int b);
+    static std::vector<int> const & getBoxIndexes(int b);
 
 private:
 
