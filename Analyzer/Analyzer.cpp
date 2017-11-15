@@ -849,8 +849,7 @@ bool Analyzer::nakedQuad(std::vector<int> const & indexes,
 bool Analyzer::lockedCandidatesFound(std::vector<int>& indexes, std::vector<int>& values, char const ** details)
 {
     // For the intersection of each row or column with a box, if there are candidates that exist within the
-    // intersection but not in the rest of the row/column, then success if those candidates exist in the box, or
-    // vice-versa.
+    // intersection but not in the rest of the row/column, then success if those candidates exist in the box.
     bool found;
 
     found = !board_.for_each_row([&](std::vector<int> const & row) {
@@ -866,7 +865,7 @@ bool Analyzer::lockedCandidatesFound(std::vector<int>& indexes, std::vector<int>
     });
     if (found)
     {
-        *details = "since the part of the row within the box must contain these values, they cannot be anywhere else in the box, and vice versa";
+        *details = "since the part of the box within the row must contain these values, they cannot be anywhere else in the box";
         return true;
     }
 
@@ -883,7 +882,44 @@ bool Analyzer::lockedCandidatesFound(std::vector<int>& indexes, std::vector<int>
     });
     if (found)
     {
-        *details = "since the part of the column within the box must contain these values, they cannot be anywhere else in the box, and vice versa";
+        *details = "since the part of the box within the column must contain these values, they cannot be anywhere else in the box";
+        return true;
+    }
+
+    // For the intersection of each row or column with a box, if there are candidates that exist within the
+    // intersection but not in the rest of the box, then success if those candidates exist in the row/column.
+
+    found = !board_.for_each_row([&](std::vector<int> const & row) {
+        for (int i = 0; i < Board::SIZE / Board::BOX_SIZE; ++i)
+        {
+            int r, c;
+            Board::locationOf(row[i * Board::BOX_SIZE], &r, &c);
+            std::vector<int> box = Board::getBoxIndexes(Board::indexOfBox(r, c));
+            if (lockedCandidates(box, row, indexes, values))
+                return false;
+        }
+        return true;
+    });
+    if (found)
+    {
+        *details = "since the part of the row within the box must contain these values, they cannot be anywhere else in the row";
+        return true;
+    }
+
+    found = !board_.for_each_column([&](std::vector<int> const & column) {
+        for (int i = 0; i < Board::SIZE / Board::BOX_SIZE; ++i)
+        {
+            int r, c;
+            Board::locationOf(column[i * Board::BOX_SIZE], &r, &c);
+            std::vector<int> box = Board::getBoxIndexes(Board::indexOfBox(r, c));
+            if (lockedCandidates(box, column, indexes, values))
+                return false;
+        }
+        return true;
+    });
+    if (found)
+    {
+        *details = "since the part of the column within the box must contain these values, they cannot be anywhere else in the column";
         return true;
     }
 
@@ -942,33 +978,6 @@ bool Analyzer::lockedCandidates(std::vector<int> const & indexes1,
         }
     }
 
-    // Candidates in set 2, not in intersection
-    unsigned otherCandidates2 = 0;
-    for (int i : others2)
-    {
-        if (!solved(candidates_[i]))
-            otherCandidates2 |= candidates_[i];
-    }
-
-    // If any of the candidates in the intersection don't exist in the rest of set 2, then eliminate them from set 1
-    unsigned unique2 = intersectionCandidates & ~otherCandidates2;
-    if (unique2)
-    {
-        bool found = false;
-        for (int i : others1)
-        {
-            if (candidates_[i] & unique2)
-            {
-                eliminatedIndexes.push_back(i);
-                found = true;
-            }
-        }
-        if (found)
-        {
-            std::vector<int> uniqueCandidates = valuesFromCandidates(unique2);
-            eliminatedValues.insert(eliminatedValues.end(), uniqueCandidates.begin(), uniqueCandidates.end());
-        }
-    }
     std::sort(eliminatedIndexes.begin(), eliminatedIndexes.end());
     eliminatedIndexes.erase(std::unique(eliminatedIndexes.begin(), eliminatedIndexes.end()), eliminatedIndexes.end());
     std::sort(eliminatedValues.begin(), eliminatedValues.end());
