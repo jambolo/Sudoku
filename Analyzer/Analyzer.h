@@ -25,11 +25,12 @@ public:
             NAKED_QUAD,
             LOCKED_CANDIDATES
         };
-        ActionId         action;
-        std::vector<int> indexes;
-        std::vector<int> values;
-        TechniqueId      technique;
-        std::string      reason;
+
+        ActionId action;
+        std::vector<int>    indexes;
+        std::vector<int>    values;
+        TechniqueId         technique;
+        std::string         reason;
         static char const * techniqueName(TechniqueId technique);
     };
 
@@ -49,36 +50,36 @@ private:
     void solve(int r, int c, int x);
     void eliminate(std::vector<int> const & indexes, int x);
     void eliminate(std::vector<int> const & indexes, std::vector<int> const & values);
-    
+
     bool hiddenSingleFound(std::vector<int> & indexes, std::vector<int> & values, std::string & reason);
     bool hiddenSingle(std::vector<int> const & indexes, std::vector<int> & eliminatedIndexes, std::vector<int> & eliminatedValues);
-    
+
     bool hiddenPairFound(std::vector<int> & indexes, std::vector<int> & values, std::string & reason);
     bool hiddenPair(std::vector<int> const & indexes, std::vector<int> & eliminatedIndexes, std::vector<int> & eliminatedValues);
-    
+
     bool hiddenTripleFound(std::vector<int> & indexes, std::vector<int> & values, std::string & reason);
     bool hiddenTriple(std::vector<int> const & indexes, std::vector<int> & eliminatedIndexes, std::vector<int> & eliminatedValues);
-    
+
     bool hiddenQuadFound(std::vector<int> & indexes, std::vector<int> & values, std::string & reason);
     bool hiddenQuad(std::vector<int> const & indexes, std::vector<int> & eliminatedIndexes, std::vector<int> & eliminatedValues);
-    
+
     bool nakedSingleFound(std::vector<int> & indexes, std::vector<int> & values, std::string & reason);
     bool nakedSingle(std::vector<int> & indexes, std::vector<int> & values);
-    
+
     bool nakedPairFound(std::vector<int> & indexes, std::vector<int> & values, std::string & reason);
     bool nakedPair(std::vector<int> const & indexes, std::vector<int> & eliminatedIndexes, std::vector<int> & eliminatedValues);
-    
+
     bool nakedTripleFound(std::vector<int> & indexes, std::vector<int> & values, std::string & reason);
     bool nakedTriple(std::vector<int> const & indexes, std::vector<int> & eliminatedIndexes, std::vector<int> & eliminatedValues);
-    
+
     bool nakedQuadFound(std::vector<int> & indexes, std::vector<int> & values, std::string & reason);
     bool nakedQuad(std::vector<int> const & indexes, std::vector<int> & eliminatedIndexes, std::vector<int> & eliminatedValues);
 
     bool lockedCandidatesFound(std::vector<int> & indexes, std::vector<int> & values, std::string & reason);
     bool lockedCandidates(std::vector<int> const & indexes1,
                           std::vector<int> const & indexes2,
-                          std::vector<int> & eliminatedIndexes,
-                          std::vector<int> & eliminatedValues);
+                          std::vector<int> &       eliminatedIndexes,
+                          std::vector<int> &       eliminatedValues);
 
     Board board_;                       // Current state of the board
     std::vector<int> unsolved_;         // Indexes of unsolved squares

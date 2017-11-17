@@ -15,9 +15,7 @@ static void syntax()
 static void printStep(Analyzer::Step const & step, bool verbose, int i = 0)
 {
     if (i > 0)
-    {
         printf("%3d. ", i);
-    }
 
     switch (step.action)
     {
@@ -28,9 +26,7 @@ static void printStep(Analyzer::Step const & step, bool verbose, int i = 0)
             Board::locationOf(step.indexes[0], &r, &c);
             printf("The value of %c%c is %d", Board::rowName(r), Board::columnName(c), step.values[0]);
             if (verbose)
-            {
                 printf(" (%s: %s)", Analyzer::Step::techniqueName(step.technique), step.reason.c_str());
-            }
             printf("\n");
             break;
         }
@@ -49,9 +45,7 @@ static void printStep(Analyzer::Step const & step, bool verbose, int i = 0)
                 printf("%c%c ", Board::rowName(r), Board::columnName(c));
             }
             if (verbose)
-            {
                 printf("(%s: %s)", Analyzer::Step::techniqueName(step.technique), step.reason.c_str());
-            }
             printf("\n");
             break;
         }

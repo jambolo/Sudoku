@@ -23,9 +23,7 @@ static int valueFromCandidates(unsigned candidates)
         candidates >>= 1;
         ++v;
         if (candidates & 1)
-        {
             return v;
-        }
     }
     return 0;
 }
@@ -40,9 +38,7 @@ static std::vector<int> valuesFromCandidates(unsigned candidates)
         candidates >>= 1;
         ++v;
         if (candidates & 1)
-        {
             values.push_back(v);
-        }
     }
     return values;
 }
@@ -54,9 +50,7 @@ static int candidateCount(unsigned candidates)
     {
         candidates >>= 1;
         if (candidates & 1)
-        {
             ++count;
-        }
     }
     return count;
 }
@@ -240,9 +234,7 @@ bool Analyzer::hiddenSingle(std::vector<int> const & indexes,
             for (int i : indexes)
             {
                 if (i != s)
-                {
                     others |= candidates_[i];
-                }
             }
 
             unsigned exclusive = candidates_[s] & ~others;
@@ -319,20 +311,14 @@ bool Analyzer::hiddenPair(std::vector<int> const & indexes,
                     // Count the number of found indexes
                     ++nFound;
                     if (nFound > 2)
-                    {
                         break;  // Give up, must be exactly 2
-                    }
                     found[nFound - 1] = i;
 
                     // Count the number of times the candidates occur
                     if (candidates & m0)
-                    {
                         ++counts[0];
-                    }
                     if (candidates & m1)
-                    {
                         ++counts[1];
-                    }
                 }
             }
             // If there are exactly 2 indexes, each candidate is seen at least twice, and there are other candidates to eliminate,
@@ -416,24 +402,16 @@ bool Analyzer::hiddenTriple(std::vector<int> const & indexes,
                         // Count the number of found indexes
                         ++nFound;
                         if (nFound > 3)
-                        {
                             break;  // Give up, must be exactly 3
-                        }
                         found[nFound - 1] = i;
 
                         // Count the number of times the candidates occur
                         if (candidates & m0)
-                        {
                             ++counts[0];
-                        }
                         if (candidates & m1)
-                        {
                             ++counts[1];
-                        }
                         if (candidates & m2)
-                        {
                             ++counts[2];
-                        }
                     }
                 }
                 // If there are exactly 3 indexes, each candidate is seen at least twice, and there are other candidates to
@@ -520,28 +498,18 @@ bool Analyzer::hiddenQuad(std::vector<int> const & indexes,
                             // Count the number of found indexes
                             ++nFound;
                             if (nFound > 4)
-                            {
                                 break;  // Give up, must be exactly 4
-                            }
                             found[nFound - 1] = i;
 
                             // Count the number of times the candidates occur
                             if (candidates & m0)
-                            {
                                 ++counts[0];
-                            }
                             if (candidates & m1)
-                            {
                                 ++counts[1];
-                            }
                             if (candidates & m2)
-                            {
                                 ++counts[2];
-                            }
                             if (candidates & m3)
-                            {
                                 ++counts[3];
-                            }
                         }
                     }
                     // If there are exactly 4 indexes, each candidate is seen at least twice, and there are other candidates to
@@ -650,9 +618,7 @@ bool Analyzer::nakedPair(std::vector<int> const & indexes,
                             {
                                 unsigned eliminated = candidates_[i] & candidates;
                                 if (eliminated)
-                                {
                                     eliminatedIndexes.push_back(i);
-                                }
                             }
                         }
                         if (!eliminatedIndexes.empty())
@@ -733,9 +699,7 @@ bool Analyzer::nakedTriple(std::vector<int> const & indexes,
                                     {
                                         unsigned eliminated = candidates_[i] & candidates;
                                         if (eliminated)
-                                        {
                                             eliminatedIndexes.push_back(i);
-                                        }
                                     }
                                 }
                                 if (!eliminatedIndexes.empty())
@@ -824,9 +788,7 @@ bool Analyzer::nakedQuad(std::vector<int> const & indexes,
                                             {
                                                 unsigned eliminated = candidates_[i] & candidates;
                                                 if (eliminated)
-                                                {
                                                     eliminatedIndexes.push_back(i);
-                                                }
                                             }
                                         }
                                         if (!eliminatedIndexes.empty())
@@ -846,7 +808,7 @@ bool Analyzer::nakedQuad(std::vector<int> const & indexes,
     return false;
 }
 
-bool Analyzer::lockedCandidatesFound(std::vector<int>& indexes, std::vector<int>& values, std::string & reason)
+bool Analyzer::lockedCandidatesFound(std::vector<int> & indexes, std::vector<int> & values, std::string & reason)
 {
     // For the intersection of each row or column with a box, if there are candidates that exist within the
     // intersection but not in the rest of the row/column, then success if those candidates exist in the box.
@@ -919,18 +881,18 @@ bool Analyzer::lockedCandidatesFound(std::vector<int>& indexes, std::vector<int>
     });
     if (found)
     {
-        reason = "since the part of the column within the box must contain these values, they cannot be anywhere else in the column";
+        reason =
+            "since the part of the column within the box must contain these values, they cannot be anywhere else in the column";
         return true;
     }
-
 
     return false;
 }
 
 bool Analyzer::lockedCandidates(std::vector<int> const & indexes1,
                                 std::vector<int> const & indexes2,
-                                std::vector<int> & eliminatedIndexes,
-                                std::vector<int> & eliminatedValues)
+                                std::vector<int> &       eliminatedIndexes,
+                                std::vector<int> &       eliminatedValues)
 {
     // Indexes in the intersection
     std::vector<int> intersection(Board::BOX_SIZE);
