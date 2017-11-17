@@ -195,11 +195,11 @@ void Board::draw() const
     }
 }
 
-bool Board::for_each_row(std::function<bool(std::vector<int> const &)> f) const
+bool Board::for_each_row(std::function<bool(int r, std::vector<int> const &)> f) const
 {
     for (int r = 0; r < SIZE; ++r)
     {
-        if (!f(getRowIndexes(r)))
+        if (!f(r, getRowIndexes(r)))
         {
             return false;
         }
@@ -207,11 +207,11 @@ bool Board::for_each_row(std::function<bool(std::vector<int> const &)> f) const
     return true;
 }
 
-bool Board::for_each_column(std::function<bool(std::vector<int> const &)> f) const
+bool Board::for_each_column(std::function<bool(int c, std::vector<int> const &)> f) const
 {
     for (int c = 0; c < SIZE; ++c)
     {
-        if (!f(getColumnIndexes(c)))
+        if (!f(c, getColumnIndexes(c)))
         {
             return false;
         }
@@ -219,11 +219,11 @@ bool Board::for_each_column(std::function<bool(std::vector<int> const &)> f) con
     return true;
 }
 
-bool Board::for_each_box(std::function<bool(std::vector<int> const &)> f) const
+bool Board::for_each_box(std::function<bool(int b, std::vector<int> const &)> f) const
 {
     for (int b = 0; b < SIZE; ++b)
     {
-        if (!f(getBoxIndexes(b)))
+        if (!f(b, getBoxIndexes(b)))
         {
             return false;
         }

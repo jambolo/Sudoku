@@ -198,7 +198,7 @@ bool Analyzer::hiddenSingleFound(std::vector<int> & indexes, std::vector<int> & 
 {
     bool found;
 
-    found = !board_.for_each_row([&] (std::vector<int> const & row) {
+    found = !board_.for_each_row([&] (int r, std::vector<int> const & row) {
         return !hiddenSingle(row, indexes, values);
     });
     if (found)
@@ -207,7 +207,7 @@ bool Analyzer::hiddenSingleFound(std::vector<int> & indexes, std::vector<int> & 
         return true;
     }
 
-    found = !board_.for_each_column([&] (std::vector<int> const & column) {
+    found = !board_.for_each_column([&] (int c, std::vector<int> const & column) {
         return !hiddenSingle(column, indexes, values);
     });
     if (found)
@@ -216,7 +216,7 @@ bool Analyzer::hiddenSingleFound(std::vector<int> & indexes, std::vector<int> & 
         return true;
     }
 
-    found = !board_.for_each_box([&] (std::vector<int> const & box) {
+    found = !board_.for_each_box([&] (int b, std::vector<int> const & box) {
         return !hiddenSingle(box, indexes, values);
     });
     if (found)
@@ -264,7 +264,7 @@ bool Analyzer::hiddenPairFound(std::vector<int> & indexes, std::vector<int> & va
 
     bool found;
 
-    found = !board_.for_each_row([&] (std::vector<int> const & row) {
+    found = !board_.for_each_row([&] (int r, std::vector<int> const & row) {
         return !hiddenPair(row, indexes, values);
     });
     if (found)
@@ -273,7 +273,7 @@ bool Analyzer::hiddenPairFound(std::vector<int> & indexes, std::vector<int> & va
         return true;
     }
 
-    found = !board_.for_each_column([&] (std::vector<int> const & column) {
+    found = !board_.for_each_column([&] (int c, std::vector<int> const & column) {
         return !hiddenPair(column, indexes, values);
     });
     if (found)
@@ -282,7 +282,7 @@ bool Analyzer::hiddenPairFound(std::vector<int> & indexes, std::vector<int> & va
         return true;
     }
 
-    found = !board_.for_each_box([&] (std::vector<int> const & box) {
+    found = !board_.for_each_box([&] (int b, std::vector<int> const & box) {
         return !hiddenPair(box, indexes, values);
     });
     if (found)
@@ -358,7 +358,7 @@ bool Analyzer::hiddenTripleFound(std::vector<int> & indexes, std::vector<int> & 
     // For each exclusive triple in a unit, if they have additional candidates, then success.
 
     bool found;
-    found = !board_.for_each_row([&] (std::vector<int> const & row) {
+    found = !board_.for_each_row([&] (int r, std::vector<int> const & row) {
         return !hiddenTriple(row, indexes, values);
     });
     if (found)
@@ -367,7 +367,7 @@ bool Analyzer::hiddenTripleFound(std::vector<int> & indexes, std::vector<int> & 
         return true;
     }
 
-    found = !board_.for_each_column([&] (std::vector<int> const & column) {
+    found = !board_.for_each_column([&] (int c, std::vector<int> const & column) {
         return !hiddenTriple(column, indexes, values);
     });
     if (found)
@@ -376,7 +376,7 @@ bool Analyzer::hiddenTripleFound(std::vector<int> & indexes, std::vector<int> & 
         return true;
     }
 
-    found = !board_.for_each_box([&] (std::vector<int> const & box) {
+    found = !board_.for_each_box([&] (int b, std::vector<int> const & box) {
         return !hiddenTriple(box, indexes, values);
     });
     if (found)
@@ -459,7 +459,7 @@ bool Analyzer::hiddenTriple(std::vector<int> const & indexes,
 bool Analyzer::hiddenQuadFound(std::vector<int> & indexes, std::vector<int> & values, std::string & reason)
 {
     bool found;
-    found = !board_.for_each_row([&] (std::vector<int> const & row) {
+    found = !board_.for_each_row([&] (int r, std::vector<int> const & row) {
         return !hiddenQuad(row, indexes, values);
     });
     if (found)
@@ -468,7 +468,7 @@ bool Analyzer::hiddenQuadFound(std::vector<int> & indexes, std::vector<int> & va
         return true;
     }
 
-    found = !board_.for_each_column([&] (std::vector<int> const & column) {
+    found = !board_.for_each_column([&] (int c, std::vector<int> const & column) {
         return !hiddenQuad(column, indexes, values);
     });
     if (found)
@@ -477,7 +477,7 @@ bool Analyzer::hiddenQuadFound(std::vector<int> & indexes, std::vector<int> & va
         return true;
     }
 
-    found = !board_.for_each_box([&] (std::vector<int> const & box) {
+    found = !board_.for_each_box([&] (int b, std::vector<int> const & box) {
         return !hiddenQuad(box, indexes, values);
     });
     if (found)
@@ -595,7 +595,7 @@ bool Analyzer::nakedSingle(std::vector<int> & indexes, std::vector<int> & values
 bool Analyzer::nakedPairFound(std::vector<int> & indexes, std::vector<int> & values, std::string & reason)
 {
     bool found;
-    found = !board_.for_each_row([&] (std::vector<int> const & row) {
+    found = !board_.for_each_row([&] (int r, std::vector<int> const & row) {
         return !nakedPair(row, indexes, values);
     });
     if (found)
@@ -604,7 +604,7 @@ bool Analyzer::nakedPairFound(std::vector<int> & indexes, std::vector<int> & val
         return true;
     }
 
-    found = !board_.for_each_column([&] (std::vector<int> const & column) {
+    found = !board_.for_each_column([&] (int c, std::vector<int> const & column) {
         return !nakedPair(column, indexes, values);
     });
     if (found)
@@ -613,7 +613,7 @@ bool Analyzer::nakedPairFound(std::vector<int> & indexes, std::vector<int> & val
         return true;
     }
 
-    found = !board_.for_each_box([&] (std::vector<int> const & box) {
+    found = !board_.for_each_box([&] (int b, std::vector<int> const & box) {
         return !nakedPair(box, indexes, values);
     });
     if (found)
@@ -672,7 +672,7 @@ bool Analyzer::nakedTripleFound(std::vector<int> & indexes, std::vector<int> & v
 {
     // For each exclusive triple in a unit, if there are other candidates that overlap, then success.
     bool found;
-    found = !board_.for_each_row([&] (std::vector<int> const & row) {
+    found = !board_.for_each_row([&] (int r, std::vector<int> const & row) {
         return !nakedTriple(row, indexes, values);
     });
     if (found)
@@ -681,7 +681,7 @@ bool Analyzer::nakedTripleFound(std::vector<int> & indexes, std::vector<int> & v
         return true;
     }
 
-    found = !board_.for_each_column([&] (std::vector<int> const & column) {
+    found = !board_.for_each_column([&] (int c, std::vector<int> const & column) {
         return !nakedTriple(column, indexes, values);
     });
     if (found)
@@ -690,7 +690,7 @@ bool Analyzer::nakedTripleFound(std::vector<int> & indexes, std::vector<int> & v
         return true;
     }
 
-    found = !board_.for_each_box([&] (std::vector<int> const & box) {
+    found = !board_.for_each_box([&] (int b, std::vector<int> const & box) {
         return !nakedTriple(box, indexes, values);
     });
     if (found)
@@ -757,7 +757,7 @@ bool Analyzer::nakedQuadFound(std::vector<int> & indexes, std::vector<int> & val
 {
     // For each exclusive quad in a unit, if there are other candidates that overlap, then success.
     bool found;
-    found = !board_.for_each_row([&] (std::vector<int> const & row) {
+    found = !board_.for_each_row([&] (int r, std::vector<int> const & row) {
         return !nakedQuad(row, indexes, values);
     });
     if (found)
@@ -766,7 +766,7 @@ bool Analyzer::nakedQuadFound(std::vector<int> & indexes, std::vector<int> & val
         return true;
     }
 
-    found = !board_.for_each_column([&] (std::vector<int> const & column) {
+    found = !board_.for_each_column([&] (int c, std::vector<int> const & column) {
         return !nakedQuad(column, indexes, values);
     });
     if (found)
@@ -775,7 +775,7 @@ bool Analyzer::nakedQuadFound(std::vector<int> & indexes, std::vector<int> & val
         return true;
     }
 
-    found = !board_.for_each_box([&] (std::vector<int> const & box) {
+    found = !board_.for_each_box([&] (int b, std::vector<int> const & box) {
         return !nakedQuad(box, indexes, values);
     });
     if (found)
@@ -852,7 +852,7 @@ bool Analyzer::lockedCandidatesFound(std::vector<int>& indexes, std::vector<int>
     // intersection but not in the rest of the row/column, then success if those candidates exist in the box.
     bool found;
 
-    found = !board_.for_each_row([&](std::vector<int> const & row) {
+    found = !board_.for_each_row([&](int r, std::vector<int> const & row) {
         for (int i = 0; i < Board::SIZE / Board::BOX_SIZE; ++i)
         {
             int r, c;
@@ -869,7 +869,7 @@ bool Analyzer::lockedCandidatesFound(std::vector<int>& indexes, std::vector<int>
         return true;
     }
 
-    found = !board_.for_each_column([&](std::vector<int> const & column) {
+    found = !board_.for_each_column([&](int c, std::vector<int> const & column) {
         for (int i = 0; i < Board::SIZE / Board::BOX_SIZE; ++i)
         {
             int r, c;
@@ -889,7 +889,7 @@ bool Analyzer::lockedCandidatesFound(std::vector<int>& indexes, std::vector<int>
     // For the intersection of each row or column with a box, if there are candidates that exist within the
     // intersection but not in the rest of the box, then success if those candidates exist in the row/column.
 
-    found = !board_.for_each_row([&](std::vector<int> const & row) {
+    found = !board_.for_each_row([&](int r, std::vector<int> const & row) {
         for (int i = 0; i < Board::SIZE / Board::BOX_SIZE; ++i)
         {
             int r, c;
@@ -906,7 +906,7 @@ bool Analyzer::lockedCandidatesFound(std::vector<int>& indexes, std::vector<int>
         return true;
     }
 
-    found = !board_.for_each_column([&](std::vector<int> const & column) {
+    found = !board_.for_each_column([&](int c, std::vector<int> const & column) {
         for (int i = 0; i < Board::SIZE / Board::BOX_SIZE; ++i)
         {
             int r, c;
