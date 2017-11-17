@@ -102,6 +102,12 @@ public:
     // Returns the name of the given column
     static char columnName(int c) { return "123456789"[c]; }
 
+    // Returns the name of the given square
+    static std::string locationName(int index);
+
+    // Returns the name of the given square
+    static std::string locationName(int r, int c);
+
     // Returns the indexes for the given row
     static std::vector<int> const & getRowIndexes(int r);
 

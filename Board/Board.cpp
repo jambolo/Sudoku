@@ -306,6 +306,18 @@ std::vector<int> const & Board::getDependents(int i)
     return DEPENDENTS_BY_INDEX[i];
 }
 
+std::string Board::locationName(int index)
+{
+    int r, c;
+    locationOf(index, &r, &c);
+    return locationName(r, c);
+}
+
+std::string Board::locationName(int r, int c)
+{
+    return std::string(1, rowName(r)) + columnName(c);
+}
+
 std::vector<int> const & Board::getRowIndexes(int r)
 {
     static std::vector<int> const INDEXES_BY_ROW[SIZE] =
