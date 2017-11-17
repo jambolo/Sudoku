@@ -55,8 +55,9 @@ static int candidateCount(unsigned candidates)
     return count;
 }
 
-Analyzer::Analyzer(Board const & board)
+Analyzer::Analyzer(Board const & board, bool verbose /*= false*/)
     : board_(board)
+    , verbose_(verbose)
     , unsolved_(Board::SIZE * Board::SIZE)
     , candidates_(Board::SIZE * Board::SIZE, ALL_CANDIDATES)
     , done_(false)
@@ -197,7 +198,8 @@ bool Analyzer::hiddenSingleFound(std::vector<int> & indexes, std::vector<int> & 
     });
     if (found)
     {
-        reason = "this is the only square in this row that can be this value";
+        if (verbose_)
+            reason = "this is the only square in this row that can be this value";
         return true;
     }
 
@@ -206,7 +208,8 @@ bool Analyzer::hiddenSingleFound(std::vector<int> & indexes, std::vector<int> & 
     });
     if (found)
     {
-        reason = "this is the only square in this column that can be this value";
+        if (verbose_)
+            reason = "this is the only square in this column that can be this value";
         return true;
     }
 
@@ -215,7 +218,8 @@ bool Analyzer::hiddenSingleFound(std::vector<int> & indexes, std::vector<int> & 
     });
     if (found)
     {
-        reason = "this is the only square in this box that can be this value";
+        if (verbose_)
+            reason = "this is the only square in this box that can be this value";
         return true;
     }
 
@@ -261,7 +265,8 @@ bool Analyzer::hiddenPairFound(std::vector<int> & indexes, std::vector<int> & va
     });
     if (found)
     {
-        reason = "only these two squares in the row can be one of two values, so they cannot be any other values";
+        if (verbose_)
+            reason = "only these two squares in the row can be one of two values, so they cannot be any other values";
         return true;
     }
 
@@ -270,7 +275,8 @@ bool Analyzer::hiddenPairFound(std::vector<int> & indexes, std::vector<int> & va
     });
     if (found)
     {
-        reason = "only these two squares in the column can be one of two values, so they cannot be any other values";
+        if (verbose_)
+            reason = "only these two squares in the column can be one of two values, so they cannot be any other values";
         return true;
     }
 
@@ -279,7 +285,8 @@ bool Analyzer::hiddenPairFound(std::vector<int> & indexes, std::vector<int> & va
     });
     if (found)
     {
-        reason = "only these two squares in the box can be one of two values, so they cannot be any other values";
+        if (verbose_)
+            reason = "only these two squares in the box can be one of two values, so they cannot be any other values";
         return true;
     }
 
@@ -349,7 +356,8 @@ bool Analyzer::hiddenTripleFound(std::vector<int> & indexes, std::vector<int> & 
     });
     if (found)
     {
-        reason = "only these three squares in the row can be one of three values, so they cannot be any other values";
+        if (verbose_)
+            reason = "only these three squares in the row can be one of three values, so they cannot be any other values";
         return true;
     }
 
@@ -358,7 +366,8 @@ bool Analyzer::hiddenTripleFound(std::vector<int> & indexes, std::vector<int> & 
     });
     if (found)
     {
-        reason = "only these three squares in the column can be one of three values, so they cannot be any other values";
+        if (verbose_)
+            reason = "only these three squares in the column can be one of three values, so they cannot be any other values";
         return true;
     }
 
@@ -367,7 +376,8 @@ bool Analyzer::hiddenTripleFound(std::vector<int> & indexes, std::vector<int> & 
     });
     if (found)
     {
-        reason = "only these three squares in the box can be one of three values, so they cannot be any other values";
+        if (verbose_)
+            reason = "only these three squares in the box can be one of three values, so they cannot be any other values";
         return true;
     }
 
@@ -442,7 +452,8 @@ bool Analyzer::hiddenQuadFound(std::vector<int> & indexes, std::vector<int> & va
     });
     if (found)
     {
-        reason = "only these four squares in the row can be one of four values, so they cannot be any other values";
+        if (verbose_)
+            reason = "only these four squares in the row can be one of four values, so they cannot be any other values";
         return true;
     }
 
@@ -451,7 +462,8 @@ bool Analyzer::hiddenQuadFound(std::vector<int> & indexes, std::vector<int> & va
     });
     if (found)
     {
-        reason = "only these four squares in the column can be one of four values, so they cannot be any other values";
+        if (verbose_)
+            reason = "only these four squares in the column can be one of four values, so they cannot be any other values";
         return true;
     }
 
@@ -460,7 +472,8 @@ bool Analyzer::hiddenQuadFound(std::vector<int> & indexes, std::vector<int> & va
     });
     if (found)
     {
-        reason = "only these four squares in the box can be one of four values, so they cannot be any other values";
+        if (verbose_)
+            reason = "only these four squares in the box can be one of four values, so they cannot be any other values";
         return true;
     }
 
@@ -568,7 +581,8 @@ bool Analyzer::nakedPairFound(std::vector<int> & indexes, std::vector<int> & val
     });
     if (found)
     {
-        reason = "two other squares in the row must be one of these two values, so no others can";
+        if (verbose_)
+            reason = "two other squares in the row must be one of these two values, so no others can";
         return true;
     }
 
@@ -577,7 +591,8 @@ bool Analyzer::nakedPairFound(std::vector<int> & indexes, std::vector<int> & val
     });
     if (found)
     {
-        reason = "two other squares in the column must be one of these two values, so no others can";
+        if (verbose_)
+            reason = "two other squares in the column must be one of these two values, so no others can";
         return true;
     }
 
@@ -586,7 +601,8 @@ bool Analyzer::nakedPairFound(std::vector<int> & indexes, std::vector<int> & val
     });
     if (found)
     {
-        reason = "two other squares in the box must be one of these two values, so no others can";
+        if (verbose_)
+            reason = "two other squares in the box must be one of these two values, so no others can";
         return true;
     }
 
@@ -643,7 +659,8 @@ bool Analyzer::nakedTripleFound(std::vector<int> & indexes, std::vector<int> & v
     });
     if (found)
     {
-        reason = "three other squares in the row must be one of these three values, so no others can";
+        if (verbose_)
+            reason = "three other squares in the row must be one of these three values, so no others can";
         return true;
     }
 
@@ -652,7 +669,8 @@ bool Analyzer::nakedTripleFound(std::vector<int> & indexes, std::vector<int> & v
     });
     if (found)
     {
-        reason = "three other squares in the column must be one of these three values, so no others can";
+        if (verbose_)
+            reason = "three other squares in the column must be one of these three values, so no others can";
         return true;
     }
 
@@ -661,7 +679,8 @@ bool Analyzer::nakedTripleFound(std::vector<int> & indexes, std::vector<int> & v
     });
     if (found)
     {
-        reason = "three other squares in the box must be one of these three values, so no others can";
+        if (verbose_)
+            reason = "three other squares in the box must be one of these three values, so no others can";
         return true;
     }
 
@@ -726,7 +745,8 @@ bool Analyzer::nakedQuadFound(std::vector<int> & indexes, std::vector<int> & val
     });
     if (found)
     {
-        reason = "four other squares in the row must be one of these four values, so no others can";
+        if (verbose_)
+            reason = "four other squares in the row must be one of these four values, so no others can";
         return true;
     }
 
@@ -735,7 +755,8 @@ bool Analyzer::nakedQuadFound(std::vector<int> & indexes, std::vector<int> & val
     });
     if (found)
     {
-        reason = "four other squares in the column must be one of these four values, so no others can";
+        if (verbose_)
+            reason = "four other squares in the column must be one of these four values, so no others can";
         return true;
     }
 
@@ -744,7 +765,8 @@ bool Analyzer::nakedQuadFound(std::vector<int> & indexes, std::vector<int> & val
     });
     if (found)
     {
-        reason = "four other squares in the box must be one of these four values, so no others can";
+        if (verbose_)
+            reason = "four other squares in the box must be one of these four values, so no others can";
         return true;
     }
 
@@ -844,7 +866,8 @@ bool Analyzer::lockedCandidatesFound(std::vector<int> & indexes, std::vector<int
     });
     if (found)
     {
-        reason = "since the part of the box within the column must contain these values, they cannot be anywhere else in the box";
+        if (verbose_)
+            reason = "since the part of the box within the column must contain these values, they cannot be anywhere else in the box";
         return true;
     }
 
@@ -864,7 +887,8 @@ bool Analyzer::lockedCandidatesFound(std::vector<int> & indexes, std::vector<int
     });
     if (found)
     {
-        reason = "since the part of the row within the box must contain these values, they cannot be anywhere else in the row";
+        if (verbose_)
+            reason = "since the part of the row within the box must contain these values, they cannot be anywhere else in the row";
         return true;
     }
 
@@ -881,8 +905,11 @@ bool Analyzer::lockedCandidatesFound(std::vector<int> & indexes, std::vector<int
     });
     if (found)
     {
-        reason =
-            "since the part of the column within the box must contain these values, they cannot be anywhere else in the column";
+        if (verbose_)
+        {
+            reason =
+                "since the part of the column within the box must contain these values, they cannot be anywhere else in the column";
+        }
         return true;
     }
 

@@ -34,7 +34,7 @@ public:
         static char const * techniqueName(TechniqueId technique);
     };
 
-    Analyzer(Board const & board);
+    Analyzer(Board const & board, bool verbose = false);
 
     // Determines the next solution step
     Step next();
@@ -82,6 +82,7 @@ private:
                           std::vector<int> &       eliminatedValues);
 
     Board board_;                       // Current state of the board
+    bool verbose_;                      // If true, then generate explanations
     std::vector<int> unsolved_;         // Indexes of unsolved squares
     std::vector<unsigned> candidates_;  // Masks of possible values for each square
     bool done_;                         // True if the analyzer can do no more, either because it is stumped or the board is solved

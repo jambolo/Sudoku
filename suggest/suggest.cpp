@@ -115,7 +115,7 @@ int main(int argc, char ** argv)
         return 3;
     }
 
-    Analyzer analyzer(board);
+    Analyzer analyzer(board, verbose);
 
     if (verbose)
     {
