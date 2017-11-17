@@ -50,31 +50,31 @@ private:
     void eliminate(std::vector<int> const & indexes, int x);
     void eliminate(std::vector<int> const & indexes, std::vector<int> const & values);
     
-    bool hiddenSingleFound(std::vector<int> & indexes, std::vector<int> & values, char const ** details);
+    bool hiddenSingleFound(std::vector<int> & indexes, std::vector<int> & values, std::string & reason);
     bool hiddenSingle(std::vector<int> const & indexes, std::vector<int> & eliminatedIndexes, std::vector<int> & eliminatedValues);
     
-    bool hiddenPairFound(std::vector<int> & indexes, std::vector<int> & values, char const ** details);
+    bool hiddenPairFound(std::vector<int> & indexes, std::vector<int> & values, std::string & reason);
     bool hiddenPair(std::vector<int> const & indexes, std::vector<int> & eliminatedIndexes, std::vector<int> & eliminatedValues);
     
-    bool hiddenTripleFound(std::vector<int> & indexes, std::vector<int> & values, char const ** details);
+    bool hiddenTripleFound(std::vector<int> & indexes, std::vector<int> & values, std::string & reason);
     bool hiddenTriple(std::vector<int> const & indexes, std::vector<int> & eliminatedIndexes, std::vector<int> & eliminatedValues);
     
-    bool hiddenQuadFound(std::vector<int> & indexes, std::vector<int> & values, char const ** details);
+    bool hiddenQuadFound(std::vector<int> & indexes, std::vector<int> & values, std::string & reason);
     bool hiddenQuad(std::vector<int> const & indexes, std::vector<int> & eliminatedIndexes, std::vector<int> & eliminatedValues);
     
-    bool nakedSingleFound(std::vector<int> & indexes, std::vector<int> & values, char const ** details);
+    bool nakedSingleFound(std::vector<int> & indexes, std::vector<int> & values, std::string & reason);
     bool nakedSingle(std::vector<int> & indexes, std::vector<int> & values);
     
-    bool nakedPairFound(std::vector<int> & indexes, std::vector<int> & values, char const ** details);
+    bool nakedPairFound(std::vector<int> & indexes, std::vector<int> & values, std::string & reason);
     bool nakedPair(std::vector<int> const & indexes, std::vector<int> & eliminatedIndexes, std::vector<int> & eliminatedValues);
     
-    bool nakedTripleFound(std::vector<int> & indexes, std::vector<int> & values, char const ** details);
+    bool nakedTripleFound(std::vector<int> & indexes, std::vector<int> & values, std::string & reason);
     bool nakedTriple(std::vector<int> const & indexes, std::vector<int> & eliminatedIndexes, std::vector<int> & eliminatedValues);
     
-    bool nakedQuadFound(std::vector<int> & indexes, std::vector<int> & values, char const ** details);
+    bool nakedQuadFound(std::vector<int> & indexes, std::vector<int> & values, std::string & reason);
     bool nakedQuad(std::vector<int> const & indexes, std::vector<int> & eliminatedIndexes, std::vector<int> & eliminatedValues);
 
-    bool lockedCandidatesFound(std::vector<int> & indexes, std::vector<int> & values, char const ** details);
+    bool lockedCandidatesFound(std::vector<int> & indexes, std::vector<int> & values, std::string & reason);
     bool lockedCandidates(std::vector<int> const & indexes1,
                           std::vector<int> const & indexes2,
                           std::vector<int> & eliminatedIndexes,

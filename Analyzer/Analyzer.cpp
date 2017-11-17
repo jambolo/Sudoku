@@ -94,66 +94,66 @@ Analyzer::Step Analyzer::next()
 
     std::vector<int> indexes;
     std::vector<int> values;
-    char const * details;
+    std::string reason;
 
-    if (nakedSingleFound(indexes, values, &details))
+    if (nakedSingleFound(indexes, values, reason))
     {
         int r;
         int c;
         Board::locationOf(indexes.front(), &r, &c);
         solve(r, c, values.front());
-        return { Step::SOLVE, indexes, values, Step::NAKED_SINGLE, details };
+        return { Step::SOLVE, indexes, values, Step::NAKED_SINGLE, reason };
     }
 
-    if (hiddenSingleFound(indexes, values, &details))
+    if (hiddenSingleFound(indexes, values, reason))
     {
         int r;
         int c;
         Board::locationOf(indexes.front(), &r, &c);
         solve(r, c, values.front());
-        return { Step::SOLVE, indexes, values, Step::HIDDEN_SINGLE, details };
+        return { Step::SOLVE, indexes, values, Step::HIDDEN_SINGLE, reason };
     }
 
-    if (nakedPairFound(indexes, values, &details))
+    if (nakedPairFound(indexes, values, reason))
     {
         eliminate(indexes, values);
-        return { Step::ELIMINATE, indexes, values, Step::NAKED_PAIR, details };
+        return { Step::ELIMINATE, indexes, values, Step::NAKED_PAIR, reason };
     }
 
-    if (nakedTripleFound(indexes, values, &details))
+    if (nakedTripleFound(indexes, values, reason))
     {
         eliminate(indexes, values);
-        return { Step::ELIMINATE, indexes, values, Step::NAKED_TRIPLE, details };
+        return { Step::ELIMINATE, indexes, values, Step::NAKED_TRIPLE, reason };
     }
 
-    if (nakedQuadFound(indexes, values, &details))
+    if (nakedQuadFound(indexes, values, reason))
     {
         eliminate(indexes, values);
-        return { Step::ELIMINATE, indexes, values, Step::NAKED_QUAD, details };
+        return { Step::ELIMINATE, indexes, values, Step::NAKED_QUAD, reason };
     }
 
-    if (lockedCandidatesFound(indexes, values, &details))
+    if (lockedCandidatesFound(indexes, values, reason))
     {
         eliminate(indexes, values);
-        return { Step::ELIMINATE, indexes, values, Step::LOCKED_CANDIDATES, details };
+        return { Step::ELIMINATE, indexes, values, Step::LOCKED_CANDIDATES, reason };
     }
 
-    if (hiddenPairFound(indexes, values, &details))
+    if (hiddenPairFound(indexes, values, reason))
     {
         eliminate(indexes, values);
-        return { Step::ELIMINATE, indexes, values, Step::HIDDEN_PAIR, details };
+        return { Step::ELIMINATE, indexes, values, Step::HIDDEN_PAIR, reason };
     }
 
-    if (hiddenTripleFound(indexes, values, &details))
+    if (hiddenTripleFound(indexes, values, reason))
     {
         eliminate(indexes, values);
-        return { Step::ELIMINATE, indexes, values, Step::HIDDEN_TRIPLE, details };
+        return { Step::ELIMINATE, indexes, values, Step::HIDDEN_TRIPLE, reason };
     }
 
-    if (hiddenQuadFound(indexes, values, &details))
+    if (hiddenQuadFound(indexes, values, reason))
     {
         eliminate(indexes, values);
-        return { Step::ELIMINATE, indexes, values, Step::HIDDEN_QUAD, details };
+        return { Step::ELIMINATE, indexes, values, Step::HIDDEN_QUAD, reason };
     }
 
     done_ = true;
@@ -194,7 +194,7 @@ void Analyzer::eliminate(std::vector<int> const & indexes, std::vector<int> cons
     }
 }
 
-bool Analyzer::hiddenSingleFound(std::vector<int> & indexes, std::vector<int> & values, char const ** details)
+bool Analyzer::hiddenSingleFound(std::vector<int> & indexes, std::vector<int> & values, std::string & reason)
 {
     bool found;
 
@@ -203,7 +203,7 @@ bool Analyzer::hiddenSingleFound(std::vector<int> & indexes, std::vector<int> & 
     });
     if (found)
     {
-        *details = "this is the only square in this row that can be this value";
+        reason = "this is the only square in this row that can be this value";
         return true;
     }
 
@@ -212,7 +212,7 @@ bool Analyzer::hiddenSingleFound(std::vector<int> & indexes, std::vector<int> & 
     });
     if (found)
     {
-        *details = "this is the only square in this column that can be this value";
+        reason = "this is the only square in this column that can be this value";
         return true;
     }
 
@@ -221,7 +221,7 @@ bool Analyzer::hiddenSingleFound(std::vector<int> & indexes, std::vector<int> & 
     });
     if (found)
     {
-        *details = "this is the only square in this box that can be this value";
+        reason = "this is the only square in this box that can be this value";
         return true;
     }
 
@@ -258,7 +258,7 @@ bool Analyzer::hiddenSingle(std::vector<int> const & indexes,
     return false;
 }
 
-bool Analyzer::hiddenPairFound(std::vector<int> & indexes, std::vector<int> & values, char const ** details)
+bool Analyzer::hiddenPairFound(std::vector<int> & indexes, std::vector<int> & values, std::string & reason)
 {
     // For each exclusive pair in a unit, if they have additional candidates, then success.
 
@@ -269,7 +269,7 @@ bool Analyzer::hiddenPairFound(std::vector<int> & indexes, std::vector<int> & va
     });
     if (found)
     {
-        *details = "only these two squares in the row can be one of two values, so they cannot be any other values";
+        reason = "only these two squares in the row can be one of two values, so they cannot be any other values";
         return true;
     }
 
@@ -278,7 +278,7 @@ bool Analyzer::hiddenPairFound(std::vector<int> & indexes, std::vector<int> & va
     });
     if (found)
     {
-        *details = "only these two squares in the column can be one of two values, so they cannot be any other values";
+        reason = "only these two squares in the column can be one of two values, so they cannot be any other values";
         return true;
     }
 
@@ -287,7 +287,7 @@ bool Analyzer::hiddenPairFound(std::vector<int> & indexes, std::vector<int> & va
     });
     if (found)
     {
-        *details = "only these two squares in the box can be one of two values, so they cannot be any other values";
+        reason = "only these two squares in the box can be one of two values, so they cannot be any other values";
         return true;
     }
 
@@ -353,7 +353,7 @@ bool Analyzer::hiddenPair(std::vector<int> const & indexes,
     return false;
 }
 
-bool Analyzer::hiddenTripleFound(std::vector<int> & indexes, std::vector<int> & values, char const ** details)
+bool Analyzer::hiddenTripleFound(std::vector<int> & indexes, std::vector<int> & values, std::string & reason)
 {
     // For each exclusive triple in a unit, if they have additional candidates, then success.
 
@@ -363,7 +363,7 @@ bool Analyzer::hiddenTripleFound(std::vector<int> & indexes, std::vector<int> & 
     });
     if (found)
     {
-        *details = "only these three squares in the row can be one of three values, so they cannot be any other values";
+        reason = "only these three squares in the row can be one of three values, so they cannot be any other values";
         return true;
     }
 
@@ -372,7 +372,7 @@ bool Analyzer::hiddenTripleFound(std::vector<int> & indexes, std::vector<int> & 
     });
     if (found)
     {
-        *details = "only these three squares in the column can be one of three values, so they cannot be any other values";
+        reason = "only these three squares in the column can be one of three values, so they cannot be any other values";
         return true;
     }
 
@@ -381,7 +381,7 @@ bool Analyzer::hiddenTripleFound(std::vector<int> & indexes, std::vector<int> & 
     });
     if (found)
     {
-        *details = "only these three squares in the box can be one of three values, so they cannot be any other values";
+        reason = "only these three squares in the box can be one of three values, so they cannot be any other values";
         return true;
     }
 
@@ -456,7 +456,7 @@ bool Analyzer::hiddenTriple(std::vector<int> const & indexes,
     return false;
 }
 
-bool Analyzer::hiddenQuadFound(std::vector<int> & indexes, std::vector<int> & values, char const ** details)
+bool Analyzer::hiddenQuadFound(std::vector<int> & indexes, std::vector<int> & values, std::string & reason)
 {
     bool found;
     found = !board_.for_each_row([&] (std::vector<int> const & row) {
@@ -464,7 +464,7 @@ bool Analyzer::hiddenQuadFound(std::vector<int> & indexes, std::vector<int> & va
     });
     if (found)
     {
-        *details = "only these four squares in the row can be one of four values, so they cannot be any other values";
+        reason = "only these four squares in the row can be one of four values, so they cannot be any other values";
         return true;
     }
 
@@ -473,7 +473,7 @@ bool Analyzer::hiddenQuadFound(std::vector<int> & indexes, std::vector<int> & va
     });
     if (found)
     {
-        *details = "only these four squares in the column can be one of four values, so they cannot be any other values";
+        reason = "only these four squares in the column can be one of four values, so they cannot be any other values";
         return true;
     }
 
@@ -482,7 +482,7 @@ bool Analyzer::hiddenQuadFound(std::vector<int> & indexes, std::vector<int> & va
     });
     if (found)
     {
-        *details = "only these four squares in the box can be one of four values, so they cannot be any other values";
+        reason = "only these four squares in the box can be one of four values, so they cannot be any other values";
         return true;
     }
 
@@ -566,11 +566,11 @@ bool Analyzer::hiddenQuad(std::vector<int> const & indexes,
     return false;
 }
 
-bool Analyzer::nakedSingleFound(std::vector<int> & indexes, std::vector<int> & values, char const ** details)
+bool Analyzer::nakedSingleFound(std::vector<int> & indexes, std::vector<int> & values, std::string & reason)
 {
     if (nakedSingle(indexes, values))
     {
-        *details = "there are no other possible values for this square";
+        reason = "there are no other possible values for this square";
         return true;
     }
     return false;
@@ -592,7 +592,7 @@ bool Analyzer::nakedSingle(std::vector<int> & indexes, std::vector<int> & values
     return false;
 }
 
-bool Analyzer::nakedPairFound(std::vector<int> & indexes, std::vector<int> & values, char const ** details)
+bool Analyzer::nakedPairFound(std::vector<int> & indexes, std::vector<int> & values, std::string & reason)
 {
     bool found;
     found = !board_.for_each_row([&] (std::vector<int> const & row) {
@@ -600,7 +600,7 @@ bool Analyzer::nakedPairFound(std::vector<int> & indexes, std::vector<int> & val
     });
     if (found)
     {
-        *details = "two other squares in the row must be one of these two values, so no others can";
+        reason = "two other squares in the row must be one of these two values, so no others can";
         return true;
     }
 
@@ -609,7 +609,7 @@ bool Analyzer::nakedPairFound(std::vector<int> & indexes, std::vector<int> & val
     });
     if (found)
     {
-        *details = "two other squares in the column must be one of these two values, so no others can";
+        reason = "two other squares in the column must be one of these two values, so no others can";
         return true;
     }
 
@@ -618,7 +618,7 @@ bool Analyzer::nakedPairFound(std::vector<int> & indexes, std::vector<int> & val
     });
     if (found)
     {
-        *details = "two other squares in the box must be one of these two values, so no others can";
+        reason = "two other squares in the box must be one of these two values, so no others can";
         return true;
     }
 
@@ -668,7 +668,7 @@ bool Analyzer::nakedPair(std::vector<int> const & indexes,
     return false;
 }
 
-bool Analyzer::nakedTripleFound(std::vector<int> & indexes, std::vector<int> & values, char const ** details)
+bool Analyzer::nakedTripleFound(std::vector<int> & indexes, std::vector<int> & values, std::string & reason)
 {
     // For each exclusive triple in a unit, if there are other candidates that overlap, then success.
     bool found;
@@ -677,7 +677,7 @@ bool Analyzer::nakedTripleFound(std::vector<int> & indexes, std::vector<int> & v
     });
     if (found)
     {
-        *details = "three other squares in the row must be one of these three values, so no others can";
+        reason = "three other squares in the row must be one of these three values, so no others can";
         return true;
     }
 
@@ -686,7 +686,7 @@ bool Analyzer::nakedTripleFound(std::vector<int> & indexes, std::vector<int> & v
     });
     if (found)
     {
-        *details = "three other squares in the column must be one of these three values, so no others can";
+        reason = "three other squares in the column must be one of these three values, so no others can";
         return true;
     }
 
@@ -695,7 +695,7 @@ bool Analyzer::nakedTripleFound(std::vector<int> & indexes, std::vector<int> & v
     });
     if (found)
     {
-        *details = "three other squares in the box must be one of these three values, so no others can";
+        reason = "three other squares in the box must be one of these three values, so no others can";
         return true;
     }
 
@@ -753,7 +753,7 @@ bool Analyzer::nakedTriple(std::vector<int> const & indexes,
     return false;
 }
 
-bool Analyzer::nakedQuadFound(std::vector<int> & indexes, std::vector<int> & values, char const ** details)
+bool Analyzer::nakedQuadFound(std::vector<int> & indexes, std::vector<int> & values, std::string & reason)
 {
     // For each exclusive quad in a unit, if there are other candidates that overlap, then success.
     bool found;
@@ -762,7 +762,7 @@ bool Analyzer::nakedQuadFound(std::vector<int> & indexes, std::vector<int> & val
     });
     if (found)
     {
-        *details = "four other squares in the row must be one of these four values, so no others can";
+        reason = "four other squares in the row must be one of these four values, so no others can";
         return true;
     }
 
@@ -771,7 +771,7 @@ bool Analyzer::nakedQuadFound(std::vector<int> & indexes, std::vector<int> & val
     });
     if (found)
     {
-        *details = "four other squares in the column must be one of these four values, so no others can";
+        reason = "four other squares in the column must be one of these four values, so no others can";
         return true;
     }
 
@@ -780,7 +780,7 @@ bool Analyzer::nakedQuadFound(std::vector<int> & indexes, std::vector<int> & val
     });
     if (found)
     {
-        *details = "four other squares in the box must be one of these four values, so no others can";
+        reason = "four other squares in the box must be one of these four values, so no others can";
         return true;
     }
 
@@ -846,7 +846,7 @@ bool Analyzer::nakedQuad(std::vector<int> const & indexes,
     return false;
 }
 
-bool Analyzer::lockedCandidatesFound(std::vector<int>& indexes, std::vector<int>& values, char const ** details)
+bool Analyzer::lockedCandidatesFound(std::vector<int>& indexes, std::vector<int>& values, std::string & reason)
 {
     // For the intersection of each row or column with a box, if there are candidates that exist within the
     // intersection but not in the rest of the row/column, then success if those candidates exist in the box.
@@ -865,7 +865,7 @@ bool Analyzer::lockedCandidatesFound(std::vector<int>& indexes, std::vector<int>
     });
     if (found)
     {
-        *details = "since the part of the box within the row must contain these values, they cannot be anywhere else in the box";
+        reason = "since the part of the box within the row must contain these values, they cannot be anywhere else in the box";
         return true;
     }
 
@@ -882,7 +882,7 @@ bool Analyzer::lockedCandidatesFound(std::vector<int>& indexes, std::vector<int>
     });
     if (found)
     {
-        *details = "since the part of the box within the column must contain these values, they cannot be anywhere else in the box";
+        reason = "since the part of the box within the column must contain these values, they cannot be anywhere else in the box";
         return true;
     }
 
@@ -902,7 +902,7 @@ bool Analyzer::lockedCandidatesFound(std::vector<int>& indexes, std::vector<int>
     });
     if (found)
     {
-        *details = "since the part of the row within the box must contain these values, they cannot be anywhere else in the row";
+        reason = "since the part of the row within the box must contain these values, they cannot be anywhere else in the row";
         return true;
     }
 
@@ -919,7 +919,7 @@ bool Analyzer::lockedCandidatesFound(std::vector<int>& indexes, std::vector<int>
     });
     if (found)
     {
-        *details = "since the part of the column within the box must contain these values, they cannot be anywhere else in the column";
+        reason = "since the part of the column within the box must contain these values, they cannot be anywhere else in the column";
         return true;
     }
 
