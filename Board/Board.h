@@ -102,6 +102,9 @@ public:
     // Returns the name of the given column
     static char columnName(int c) { return "123456789"[c]; }
 
+    // Returns the name of the given column
+    static char boxName(int b) { return "123456789"[b]; }
+
     // Returns the name of the given square
     static std::string locationName(int index);
 

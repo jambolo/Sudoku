@@ -8,11 +8,12 @@ static void syntax()
 {
     fprintf(stderr, "syntax: suggest [-v][-a] <81 values, 0-9>\n");
     fprintf(stderr, "Options:\n");
-    fprintf(stderr, "  -v: outputs additional information\n");
-    fprintf(stderr, "  -a: output the complete solution.\n");
+    fprintf(stderr, "  -v:  outputs additional information\n");
+    fprintf(stderr, "  -vv: outputs a detailed explanation for each step\n");
+    fprintf(stderr, "  -a:  outputs the complete solution.\n");
 }
 
-static void printStep(Analyzer::Step const & step, bool verbose, int i = 0)
+static void printStep(Analyzer::Step const & step, bool verbose, bool detailed, int i = 0)
 {
     if (i > 0)
         printf("%3d. ", i);
@@ -21,12 +22,13 @@ static void printStep(Analyzer::Step const & step, bool verbose, int i = 0)
     {
         case Analyzer::Step::SOLVE:
         {
-            int r;
-            int c;
-            Board::locationOf(step.indexes[0], &r, &c);
-            printf("The value of %c%c is %d", Board::rowName(r), Board::columnName(c), step.values[0]);
-            if (verbose)
-                printf(" (%s: %s)", Analyzer::Step::techniqueName(step.technique), step.reason.c_str());
+            printf("The value of %s is %d", Board::locationName(step.indexes[0]).c_str(), step.values[0]);
+            if (verbose || detailed)
+            {
+                printf(" (%s)", Analyzer::Step::techniqueName(step.technique));
+                if (detailed)
+                    printf("\n     %s", step.reason.c_str());
+            }
             printf("\n");
             break;
         }
@@ -42,10 +44,14 @@ static void printStep(Analyzer::Step const & step, bool verbose, int i = 0)
                 int r;
                 int c;
                 Board::locationOf(v, &r, &c);
-                printf("%c%c ", Board::rowName(r), Board::columnName(c));
+                printf("%s ", Board::locationName(v).c_str());
             }
-            if (verbose)
-                printf("(%s: %s)", Analyzer::Step::techniqueName(step.technique), step.reason.c_str());
+            if (verbose || detailed)
+            {
+                printf(" (%s)", Analyzer::Step::techniqueName(step.technique));
+                if (detailed)
+                    printf("\n     %s", step.reason.c_str());
+            }
             printf("\n");
             break;
         }
@@ -60,8 +66,9 @@ static void printStep(Analyzer::Step const & step, bool verbose, int i = 0)
 
 int main(int argc, char ** argv)
 {
-    bool verbose = false;
-    bool all     = false;
+    bool verbose  = false;
+    bool all      = false;
+    bool detailed = false;
 
     --argc;
     ++argv;
@@ -81,6 +88,13 @@ int main(int argc, char ** argv)
     if (strcmp(*argv, "-v") == 0)
     {
         verbose = true;
+        ++argv;
+        --argc;
+    }
+    if (strcmp(*argv, "-vv") == 0)
+    {
+        verbose  = true;
+        detailed = true;
         ++argv;
         --argc;
     }
@@ -130,7 +144,7 @@ int main(int argc, char ** argv)
         do
         {
             Analyzer::Step step = analyzer.next();
-            printStep(step, verbose, i++);
+            printStep(step, verbose, detailed, i++);
         } while (!analyzer.done());
         printf("\n");
         analyzer.board().draw();
@@ -138,13 +152,13 @@ int main(int argc, char ** argv)
     }
     else
     {
-        Analyzer analyzer(board);
+        Analyzer analyzer(board, verbose);
         Analyzer::Step step;
         int i = 1;
         do
         {
             step = analyzer.next();
-            printStep(step, verbose, i++);
+            printStep(step, verbose, detailed, i++);
         } while (step.action != Analyzer::Step::SOLVE && !analyzer.done());
     }
 

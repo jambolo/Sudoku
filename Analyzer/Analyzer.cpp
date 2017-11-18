@@ -192,34 +192,59 @@ void Analyzer::eliminate(std::vector<int> const & indexes, std::vector<int> cons
 bool Analyzer::hiddenSingleFound(std::vector<int> & indexes, std::vector<int> & values, std::string & reason)
 {
     bool found;
+    int which;
 
     found = !board_.for_each_row([&] (int r, std::vector<int> const & row) {
-        return !hiddenSingle(row, indexes, values);
+        if (hiddenSingle(row, indexes, values))
+        {
+            which = r;
+            return false;   // done
+        }
+        else
+        {
+            return true;
+        }
     });
     if (found)
     {
         if (verbose_)
-            reason = "this is the only square in this row that can be this value";
+            reason = std::string("This is the only square in row ") + Board::rowName(which) + " that can have this value.";
         return true;
     }
 
     found = !board_.for_each_column([&] (int c, std::vector<int> const & column) {
-        return !hiddenSingle(column, indexes, values);
+        if (hiddenSingle(column, indexes, values))
+        {
+            which = c;
+            return false;   // done
+        }
+        else
+        {
+            return true;
+        }
     });
     if (found)
     {
         if (verbose_)
-            reason = "this is the only square in this column that can be this value";
+            reason = std::string("This is the only square in column ") + Board::columnName(which) + " that can have this value.";
         return true;
     }
 
     found = !board_.for_each_box([&] (int b, std::vector<int> const & box) {
-        return !hiddenSingle(box, indexes, values);
+        if (hiddenSingle(box, indexes, values))
+        {
+            which = b;
+            return false;   // done
+        }
+        else
+        {
+            return true;
+        }
     });
     if (found)
     {
         if (verbose_)
-            reason = "this is the only square in this box that can be this value";
+            reason = std::string("This is the only square in box ") + Board::boxName(which) + " that can have this value.";
         return true;
     }
 
@@ -254,39 +279,74 @@ bool Analyzer::hiddenSingle(std::vector<int> const & indexes,
     return false;
 }
 
+static std::string generateHiddenPairReason(std::string const & unitType, char which, std::vector<int> const & hiddenValues)
+{
+    std::string reason = "Only these two squares in " + unitType + " " + which +
+                         " can be " + std::to_string(hiddenValues[0]) +
+                         " or " + std::to_string(hiddenValues[1]) +
+                         ", so they cannot be any other values.";
+    return reason;
+}
+
 bool Analyzer::hiddenPairFound(std::vector<int> & indexes, std::vector<int> & values, std::string & reason)
 {
     // For each exclusive pair in a unit, if they have additional candidates, then success.
 
     bool found;
+    int which;
+    std::vector<int> hidden;
 
     found = !board_.for_each_row([&] (int r, std::vector<int> const & row) {
-        return !hiddenPair(row, indexes, values);
+        if (hiddenPair(row, indexes, values, hidden))
+        {
+            which = r;
+            return false;   // done
+        }
+        else
+        {
+            return true;
+        }
     });
     if (found)
     {
         if (verbose_)
-            reason = "only these two squares in the row can be one of two values, so they cannot be any other values";
+            reason = generateHiddenPairReason("row", Board::rowName(which), hidden);
         return true;
     }
 
     found = !board_.for_each_column([&] (int c, std::vector<int> const & column) {
-        return !hiddenPair(column, indexes, values);
+        if (hiddenPair(column, indexes, values, hidden))
+        {
+            which = c;
+            return false;   // done
+        }
+        else
+        {
+            return true;
+        }
     });
     if (found)
     {
         if (verbose_)
-            reason = "only these two squares in the column can be one of two values, so they cannot be any other values";
+            reason = generateHiddenPairReason("column", Board::columnName(which), hidden);
         return true;
     }
 
     found = !board_.for_each_box([&] (int b, std::vector<int> const & box) {
-        return !hiddenPair(box, indexes, values);
+        if (hiddenPair(box, indexes, values, hidden))
+        {
+            which = b;
+            return false;   // done
+        }
+        else
+        {
+            return true;
+        }
     });
     if (found)
     {
         if (verbose_)
-            reason = "only these two squares in the box can be one of two values, so they cannot be any other values";
+            reason = generateHiddenPairReason("box", Board::boxName(which), hidden);
         return true;
     }
 
@@ -295,7 +355,8 @@ bool Analyzer::hiddenPairFound(std::vector<int> & indexes, std::vector<int> & va
 
 bool Analyzer::hiddenPair(std::vector<int> const & indexes,
                           std::vector<int> &       eliminatedIndexes,
-                          std::vector<int> &       eliminatedValues)
+                          std::vector<int> &       eliminatedValues,
+                          std::vector<int> &       hiddenValues)
 {
     // Go through each possible pair of candidates and search for exactly two cells containing the one or more of a pair
     for (int x0 = 1; x0 <= Board::SIZE - 1; ++x0)
@@ -337,6 +398,7 @@ bool Analyzer::hiddenPair(std::vector<int> const & indexes,
                 {
                     eliminatedIndexes.assign(std::begin(found), std::end(found));
                     eliminatedValues = valuesFromCandidates(eliminatedCandidates);
+                    hiddenValues     = valuesFromCandidates(m);
                     return true;
                 }
             }
@@ -346,38 +408,75 @@ bool Analyzer::hiddenPair(std::vector<int> const & indexes,
     return false;
 }
 
+static std::string generateHiddenTripleReason(std::string const & unitType, char which, std::vector<int> const & hiddenValues)
+{
+    std::string reason = "Only these three squares in " + unitType + " " + which +
+                         " can be " + std::to_string(hiddenValues[0]) +
+                         ", " + std::to_string(hiddenValues[1]) +
+                         ", or " + std::to_string(hiddenValues[2]) +
+                         ", so they cannot be any other values.";
+    return reason;
+}
+
 bool Analyzer::hiddenTripleFound(std::vector<int> & indexes, std::vector<int> & values, std::string & reason)
 {
     // For each exclusive triple in a unit, if they have additional candidates, then success.
 
     bool found;
+    int which;
+    std::vector<int> hidden;
+
     found = !board_.for_each_row([&] (int r, std::vector<int> const & row) {
-        return !hiddenTriple(row, indexes, values);
+        if (hiddenTriple(row, indexes, values, hidden))
+        {
+            which = r;
+            return false;   // done
+        }
+        else
+        {
+            return true;
+        }
     });
     if (found)
     {
         if (verbose_)
-            reason = "only these three squares in the row can be one of three values, so they cannot be any other values";
+            reason = generateHiddenTripleReason("row", Board::rowName(which), hidden);
         return true;
     }
 
     found = !board_.for_each_column([&] (int c, std::vector<int> const & column) {
-        return !hiddenTriple(column, indexes, values);
+        if (hiddenTriple(column, indexes, values, hidden))
+        {
+            which = c;
+            return false;   // done
+        }
+        else
+        {
+            return true;
+        }
     });
     if (found)
     {
         if (verbose_)
-            reason = "only these three squares in the column can be one of three values, so they cannot be any other values";
+            reason = generateHiddenTripleReason("column", Board::columnName(which), hidden);
         return true;
     }
 
     found = !board_.for_each_box([&] (int b, std::vector<int> const & box) {
-        return !hiddenTriple(box, indexes, values);
+        if (hiddenTriple(box, indexes, values, hidden))
+        {
+            which = b;
+            return false;   // done
+        }
+        else
+        {
+            return true;
+        }
     });
     if (found)
     {
         if (verbose_)
-            reason = "only these three squares in the box can be one of three values, so they cannot be any other values";
+            reason = generateHiddenTripleReason("box", Board::boxName(which), hidden);
         return true;
     }
 
@@ -386,7 +485,8 @@ bool Analyzer::hiddenTripleFound(std::vector<int> & indexes, std::vector<int> & 
 
 bool Analyzer::hiddenTriple(std::vector<int> const & indexes,
                             std::vector<int> &       eliminatedIndexes,
-                            std::vector<int> &       eliminatedValues)
+                            std::vector<int> &       eliminatedValues,
+                            std::vector<int> &       hiddenValues)
 {
     // Go through each possible triple of candidates and search for exactly three cells containing the one or more of a triple
     for (int x0 = 1; x0 <= Board::SIZE - 2; ++x0)
@@ -434,6 +534,7 @@ bool Analyzer::hiddenTriple(std::vector<int> const & indexes,
                     {
                         eliminatedIndexes.assign(std::begin(found), std::end(found));
                         eliminatedValues = valuesFromCandidates(eliminatedCandidates);
+                        hiddenValues     = valuesFromCandidates(m);
                         return true;
                     }
                 }
@@ -444,36 +545,76 @@ bool Analyzer::hiddenTriple(std::vector<int> const & indexes,
     return false;
 }
 
+static std::string generateHiddenQuadReason(std::string const & unitType, char which, std::vector<int> const & hiddenValues)
+{
+    std::string reason = "Only these four squares in " + unitType + " " + which +
+                         " can be " + std::to_string(hiddenValues[0]) +
+                         ", " + std::to_string(hiddenValues[1]) +
+                         ", " + std::to_string(hiddenValues[2]) +
+                         ", or " + std::to_string(hiddenValues[3]) +
+                         ", so they cannot be any other values.";
+    return reason;
+}
+
 bool Analyzer::hiddenQuadFound(std::vector<int> & indexes, std::vector<int> & values, std::string & reason)
 {
+    // For each exclusive quad in a unit, if they have additional candidates, then success.
+
     bool found;
+    int which;
+    std::vector<int> hidden;
+
     found = !board_.for_each_row([&] (int r, std::vector<int> const & row) {
-        return !hiddenQuad(row, indexes, values);
+        if (hiddenQuad(row, indexes, values, hidden))
+        {
+            which = r;
+            return false;   // done
+        }
+        else
+        {
+            return true;
+        }
     });
     if (found)
     {
         if (verbose_)
-            reason = "only these four squares in the row can be one of four values, so they cannot be any other values";
+            reason = generateHiddenQuadReason("row", Board::rowName(which), hidden);
         return true;
     }
 
     found = !board_.for_each_column([&] (int c, std::vector<int> const & column) {
-        return !hiddenQuad(column, indexes, values);
+        if (hiddenQuad(column, indexes, values, hidden))
+        {
+            which = c;
+            return false;   // done
+        }
+        else
+        {
+            return true;
+        }
     });
     if (found)
     {
         if (verbose_)
-            reason = "only these four squares in the column can be one of four values, so they cannot be any other values";
+            reason = generateHiddenQuadReason("column", Board::columnName(which), hidden);
         return true;
     }
 
     found = !board_.for_each_box([&] (int b, std::vector<int> const & box) {
-        return !hiddenQuad(box, indexes, values);
+        if (hiddenQuad(box, indexes, values, hidden))
+        {
+            which = b;
+            return false;   // done
+        }
+        else
+        {
+            return true;
+        }
     });
     if (found)
     {
         if (verbose_)
-            reason = "only these four squares in the box can be one of four values, so they cannot be any other values";
+            reason = generateHiddenQuadReason("box", Board::boxName(which), hidden);
         return true;
     }
 
@@ -482,7 +623,8 @@ bool Analyzer::hiddenQuadFound(std::vector<int> & indexes, std::vector<int> & va
 
 bool Analyzer::hiddenQuad(std::vector<int> const & indexes,
                           std::vector<int> &       eliminatedIndexes,
-                          std::vector<int> &       eliminatedValues)
+                          std::vector<int> &       eliminatedValues,
+                          std::vector<int> &       hiddenValues)
 {
     // Go through each possible quad of candidates and search for exactly four cells containing the one or more of a quad
     for (int x0 = 1; x0 <= Board::SIZE - 3; ++x0)
@@ -536,6 +678,7 @@ bool Analyzer::hiddenQuad(std::vector<int> const & indexes,
                         {
                             eliminatedIndexes.assign(std::begin(found), std::end(found));
                             eliminatedValues = valuesFromCandidates(eliminatedCandidates);
+                            hiddenValues     = valuesFromCandidates(m);
                             return true;
                         }
                     }
@@ -551,7 +694,8 @@ bool Analyzer::nakedSingleFound(std::vector<int> & indexes, std::vector<int> & v
 {
     if (nakedSingle(indexes, values))
     {
-        reason = "there are no other possible values for this square";
+        if (verbose_)
+            reason = "There are no other possible values for this square.";
         return true;
     }
     return false;
@@ -573,36 +717,74 @@ bool Analyzer::nakedSingle(std::vector<int> & indexes, std::vector<int> & values
     return false;
 }
 
+static std::string generateNakedPairReason(std::string const & unitType, char which, std::vector<int> const & nakedIndexes)
+{
+    std::string reason = "Two other squares (" + Board::locationName(nakedIndexes[0]) +
+                         " and " + Board::locationName(nakedIndexes[1]) +
+                         ") in " + unitType + " " + which +
+                         " must be one of these two values, so these squares cannot";
+    return reason;
+}
+
 bool Analyzer::nakedPairFound(std::vector<int> & indexes, std::vector<int> & values, std::string & reason)
 {
+    // For each exclusive pair in a unit, if there are other candidates that overlap, then success.
+
     bool found;
+    int which;
+    std::vector<int> nakedIndexes;
+
     found = !board_.for_each_row([&] (int r, std::vector<int> const & row) {
-        return !nakedPair(row, indexes, values);
+        if (nakedPair(row, indexes, values, nakedIndexes))
+        {
+            which = r;
+            return false;   // done
+        }
+        else
+        {
+            return true;
+        }
     });
     if (found)
     {
         if (verbose_)
-            reason = "two other squares in the row must be one of these two values, so no others can";
+            reason = generateNakedPairReason("row", Board::rowName(which), nakedIndexes);
         return true;
     }
 
     found = !board_.for_each_column([&] (int c, std::vector<int> const & column) {
-        return !nakedPair(column, indexes, values);
+        if (nakedPair(column, indexes, values, nakedIndexes))
+        {
+            which = c;
+            return false;   // done
+        }
+        else
+        {
+            return true;
+        }
     });
     if (found)
     {
         if (verbose_)
-            reason = "two other squares in the column must be one of these two values, so no others can";
+            reason = generateNakedPairReason("column", Board::columnName(which), nakedIndexes);
         return true;
     }
 
     found = !board_.for_each_box([&] (int b, std::vector<int> const & box) {
-        return !nakedPair(box, indexes, values);
+        if (nakedPair(box, indexes, values, nakedIndexes))
+        {
+            which = b;
+            return false;   // done
+        }
+        else
+        {
+            return true;
+        }
     });
     if (found)
     {
         if (verbose_)
-            reason = "two other squares in the box must be one of these two values, so no others can";
+            reason = generateNakedPairReason("box", Board::boxName(which), nakedIndexes);
         return true;
     }
 
@@ -611,7 +793,8 @@ bool Analyzer::nakedPairFound(std::vector<int> & indexes, std::vector<int> & val
 
 bool Analyzer::nakedPair(std::vector<int> const & indexes,
                          std::vector<int> &       eliminatedIndexes,
-                         std::vector<int> &       eliminatedValues)
+                         std::vector<int> &       eliminatedValues,
+                         std::vector<int> &       nakedIndexes)
 {
     for (int b0 = 0; b0 < Board::SIZE - 1; ++b0)
     {
@@ -640,6 +823,7 @@ bool Analyzer::nakedPair(std::vector<int> const & indexes,
                         if (!eliminatedIndexes.empty())
                         {
                             eliminatedValues = valuesFromCandidates(candidates);
+                            nakedIndexes     = { i0, i1 };
                             return true;
                         }
                     }
@@ -650,37 +834,75 @@ bool Analyzer::nakedPair(std::vector<int> const & indexes,
     return false;
 }
 
+static std::string generateNakedTripleReason(std::string const & unitType, char which, std::vector<int> const & nakedIndexes)
+{
+    std::string reason = std::string("Three other squares (") + Board::locationName(nakedIndexes[0]) +
+                         ", " + Board::locationName(nakedIndexes[1]) +
+                         " and " + Board::locationName(nakedIndexes[2]) +
+                         ") in " + unitType + " " + which +
+                         " must be one of these three values, so these squares cannot";
+    return reason;
+}
+
 bool Analyzer::nakedTripleFound(std::vector<int> & indexes, std::vector<int> & values, std::string & reason)
 {
     // For each exclusive triple in a unit, if there are other candidates that overlap, then success.
+
     bool found;
+    int which;
+    std::vector<int> nakedIndexes;
+
     found = !board_.for_each_row([&] (int r, std::vector<int> const & row) {
-        return !nakedTriple(row, indexes, values);
+        if (nakedTriple(row, indexes, values, nakedIndexes))
+        {
+            which = r;
+            return false;   // done
+        }
+        else
+        {
+            return true;
+        }
     });
     if (found)
     {
         if (verbose_)
-            reason = "three other squares in the row must be one of these three values, so no others can";
+            reason = generateNakedTripleReason("row", Board::rowName(which), nakedIndexes);
         return true;
     }
 
     found = !board_.for_each_column([&] (int c, std::vector<int> const & column) {
-        return !nakedTriple(column, indexes, values);
+        if (nakedTriple(column, indexes, values, nakedIndexes))
+        {
+            which = c;
+            return false;   // done
+        }
+        else
+        {
+            return true;
+        }
     });
     if (found)
     {
         if (verbose_)
-            reason = "three other squares in the column must be one of these three values, so no others can";
+            reason = generateNakedTripleReason("column", Board::columnName(which), nakedIndexes);
         return true;
     }
 
     found = !board_.for_each_box([&] (int b, std::vector<int> const & box) {
-        return !nakedTriple(box, indexes, values);
+        if (nakedTriple(box, indexes, values, nakedIndexes))
+        {
+            which = b;
+            return false;   // done
+        }
+        else
+        {
+            return true;
+        }
     });
     if (found)
     {
         if (verbose_)
-            reason = "three other squares in the box must be one of these three values, so no others can";
+            reason = generateNakedTripleReason("box", Board::boxName(which), nakedIndexes);
         return true;
     }
 
@@ -689,7 +911,8 @@ bool Analyzer::nakedTripleFound(std::vector<int> & indexes, std::vector<int> & v
 
 bool Analyzer::nakedTriple(std::vector<int> const & indexes,
                            std::vector<int> &       eliminatedIndexes,
-                           std::vector<int> &       eliminatedValues)
+                           std::vector<int> &       eliminatedValues,
+                           std::vector<int> &       nakedIndexes)
 {
     for (int b0 = 0; b0 < Board::SIZE - 2; ++b0)
     {
@@ -724,6 +947,7 @@ bool Analyzer::nakedTriple(std::vector<int> const & indexes,
                                 if (!eliminatedIndexes.empty())
                                 {
                                     eliminatedValues = valuesFromCandidates(candidates);
+                                    nakedIndexes     = { i0, i1, i2 };
                                     return true;
                                 }
                             }
@@ -736,37 +960,76 @@ bool Analyzer::nakedTriple(std::vector<int> const & indexes,
     return false;
 }
 
+static std::string generateNakedQuadReason(std::string const & unitType, char which, std::vector<int> const & nakedIndexes)
+{
+    std::string reason = "Four other squares (" + Board::locationName(nakedIndexes[0]) +
+                         ", " + Board::locationName(nakedIndexes[1]) +
+                         ", " + Board::locationName(nakedIndexes[2]) +
+                         " and " + Board::locationName(nakedIndexes[3]) +
+                         ") in " + unitType + " " + which +
+                         " must be one of these four values, so these squares cannot";
+    return reason;
+}
+
 bool Analyzer::nakedQuadFound(std::vector<int> & indexes, std::vector<int> & values, std::string & reason)
 {
     // For each exclusive quad in a unit, if there are other candidates that overlap, then success.
+
     bool found;
+    int which;
+    std::vector<int> nakedIndexes;
+
     found = !board_.for_each_row([&] (int r, std::vector<int> const & row) {
-        return !nakedQuad(row, indexes, values);
+        if (nakedQuad(row, indexes, values, nakedIndexes))
+        {
+            which = r;
+            return false;   // done
+        }
+        else
+        {
+            return true;
+        }
     });
     if (found)
     {
         if (verbose_)
-            reason = "four other squares in the row must be one of these four values, so no others can";
+            reason = generateNakedQuadReason("row", Board::rowName(which), nakedIndexes);
         return true;
     }
 
     found = !board_.for_each_column([&] (int c, std::vector<int> const & column) {
-        return !nakedQuad(column, indexes, values);
+        if (nakedQuad(column, indexes, values, nakedIndexes))
+        {
+            which = c;
+            return false;   // done
+        }
+        else
+        {
+            return true;
+        }
     });
     if (found)
     {
         if (verbose_)
-            reason = "four other squares in the column must be one of these four values, so no others can";
+            reason = generateNakedQuadReason("column", Board::columnName(which), nakedIndexes);
         return true;
     }
 
     found = !board_.for_each_box([&] (int b, std::vector<int> const & box) {
-        return !nakedQuad(box, indexes, values);
+        if (nakedQuad(box, indexes, values, nakedIndexes))
+        {
+            which = b;
+            return false;   // done
+        }
+        else
+        {
+            return true;
+        }
     });
     if (found)
     {
         if (verbose_)
-            reason = "four other squares in the box must be one of these four values, so no others can";
+            reason = generateNakedQuadReason("box", Board::boxName(which), nakedIndexes);
         return true;
     }
 
@@ -775,7 +1038,8 @@ bool Analyzer::nakedQuadFound(std::vector<int> & indexes, std::vector<int> & val
 
 bool Analyzer::nakedQuad(std::vector<int> const & indexes,
                          std::vector<int> &       eliminatedIndexes,
-                         std::vector<int> &       eliminatedValues)
+                         std::vector<int> &       eliminatedValues,
+                         std::vector<int> &       nakedIndexes)
 {
     for (int b0 = 0; b0 < Board::SIZE - 3; ++b0)
     {
@@ -816,6 +1080,7 @@ bool Analyzer::nakedQuad(std::vector<int> const & indexes,
                                         if (!eliminatedIndexes.empty())
                                         {
                                             eliminatedValues = valuesFromCandidates(candidates);
+                                            nakedIndexes     = { i0, i1, i2, i3 };
                                             return true;
                                         }
                                     }
@@ -830,44 +1095,63 @@ bool Analyzer::nakedQuad(std::vector<int> const & indexes,
     return false;
 }
 
+static std::string generateLockedCandidatesReason(std::string const & unitType1,
+                                                  char                which1,
+                                                  std::string const & unitType2,
+                                                  char                which2)
+{
+    std::string reason = "Since the portion of " + unitType2 + " " + which2 +
+                         " within " + unitType1 + " " + which1 +
+                         " must contain these values, they cannot be anywhere else in " + unitType2 + " " + which2;
+    return reason;
+}
+
 bool Analyzer::lockedCandidatesFound(std::vector<int> & indexes, std::vector<int> & values, std::string & reason)
 {
     // For the intersection of each row or column with a box, if there are candidates that exist within the
     // intersection but not in the rest of the row/column, then success if those candidates exist in the box.
+
     bool found;
+    int which1, which2;
 
     found = !board_.for_each_row([&](int r, std::vector<int> const & row) {
-        for (int i = 0; i < Board::SIZE / Board::BOX_SIZE; ++i)
+        for (int c = 0; c < Board::SIZE / Board::BOX_SIZE; ++c)
         {
-            int r, c;
-            Board::locationOf(row[i * Board::BOX_SIZE], &r, &c);
-            std::vector<int> box = Board::getBoxIndexes(Board::indexOfBox(r, c));
+            int b = Board::indexOfBox(r, c);
+            std::vector<int> box = Board::getBoxIndexes(b);
             if (lockedCandidates(row, box, indexes, values))
-                return false;
+            {
+                which1 = r;
+                which2 = b;
+                return false;   // done
+            }
         }
         return true;
     });
     if (found)
     {
-        reason = "since the part of the box within the row must contain these values, they cannot be anywhere else in the box";
+        reason = generateLockedCandidatesReason("row", Board::rowName(which1), "box", Board::boxName(which2));
         return true;
     }
 
     found = !board_.for_each_column([&](int c, std::vector<int> const & column) {
-        for (int i = 0; i < Board::SIZE / Board::BOX_SIZE; ++i)
+        for (int r = 0; r < Board::SIZE / Board::BOX_SIZE; ++r)
         {
-            int r, c;
-            Board::locationOf(column[i * Board::BOX_SIZE], &r, &c);
-            std::vector<int> box = Board::getBoxIndexes(Board::indexOfBox(r, c));
+            int b = Board::indexOfBox(r, c);
+            std::vector<int> box = Board::getBoxIndexes(b);
             if (lockedCandidates(column, box, indexes, values))
-                return false;
+            {
+                which1 = c;
+                which2 = b;
+                return false;   // done
+            }
         }
         return true;
     });
     if (found)
     {
         if (verbose_)
-            reason = "since the part of the box within the column must contain these values, they cannot be anywhere else in the box";
+            reason = generateLockedCandidatesReason("column", Board::columnName(which1), "box", Board::boxName(which2));
         return true;
     }
 
@@ -875,41 +1159,44 @@ bool Analyzer::lockedCandidatesFound(std::vector<int> & indexes, std::vector<int
     // intersection but not in the rest of the box, then success if those candidates exist in the row/column.
 
     found = !board_.for_each_row([&](int r, std::vector<int> const & row) {
-        for (int i = 0; i < Board::SIZE / Board::BOX_SIZE; ++i)
+        for (int c = 0; c < Board::SIZE / Board::BOX_SIZE; ++c)
         {
-            int r, c;
-            Board::locationOf(row[i * Board::BOX_SIZE], &r, &c);
-            std::vector<int> box = Board::getBoxIndexes(Board::indexOfBox(r, c));
+            int b = Board::indexOfBox(r, c);
+            std::vector<int> box = Board::getBoxIndexes(b);
             if (lockedCandidates(box, row, indexes, values))
-                return false;
+            {
+                which1 = b;
+                which2 = r;
+                return false;   // done
+            }
         }
         return true;
     });
     if (found)
     {
         if (verbose_)
-            reason = "since the part of the row within the box must contain these values, they cannot be anywhere else in the row";
+            reason = generateLockedCandidatesReason("box", Board::boxName(which1), "row", Board::rowName(which2));
         return true;
     }
 
     found = !board_.for_each_column([&](int c, std::vector<int> const & column) {
-        for (int i = 0; i < Board::SIZE / Board::BOX_SIZE; ++i)
+        for (int r = 0; r < Board::SIZE / Board::BOX_SIZE; ++r)
         {
-            int r, c;
-            Board::locationOf(column[i * Board::BOX_SIZE], &r, &c);
-            std::vector<int> box = Board::getBoxIndexes(Board::indexOfBox(r, c));
+            int b = Board::indexOfBox(r, c);
+            std::vector<int> box = Board::getBoxIndexes(b);
             if (lockedCandidates(box, column, indexes, values))
-                return false;
+            {
+                which1 = b;
+                which2 = c;
+                return false;   // done
+            }
         }
         return true;
     });
     if (found)
     {
         if (verbose_)
-        {
-            reason =
-                "since the part of the column within the box must contain these values, they cannot be anywhere else in the column";
-        }
+            reason = generateLockedCandidatesReason("box", Board::boxName(which1), "row", Board::columnName(which2));
         return true;
     }
 
