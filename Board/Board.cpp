@@ -187,6 +187,45 @@ bool Board::for_each_row(std::function<bool(int, std::vector<int> const &)> f) c
     return true;
 }
 
+bool Board::for_each_row_except(int x0, std::function<bool(int, std::vector<int> const &)> f) const
+{
+    for (int r = 0; r < SIZE; ++r)
+    {
+        if (r != x0)
+        {
+            if (!f(r, getRowIndexes(r)))
+                return false;
+        }
+    }
+    return true;
+}
+
+bool Board::for_each_row_except(int x0, int x1, std::function<bool(int, std::vector<int> const &)> f) const
+{
+    for (int r = 0; r < SIZE; ++r)
+    {
+        if (r != x0 && r != x1)
+        {
+            if (!f(r, getRowIndexes(r)))
+                return false;
+        }
+    }
+    return true;
+}
+
+bool Board::for_each_row_except(int x0, int x1, int x2, std::function<bool(int, std::vector<int> const &)> f) const
+{
+    for (int r = 0; r < SIZE; ++r)
+    {
+        if (r != x0 && r != x1 && r != x2)
+        {
+            if (!f(r, getRowIndexes(r)))
+                return false;
+        }
+    }
+    return true;
+}
+
 bool Board::for_each_column(std::function<bool(int, std::vector<int> const &)> f) const
 {
     for (int c = 0; c < SIZE; ++c)
@@ -197,12 +236,90 @@ bool Board::for_each_column(std::function<bool(int, std::vector<int> const &)> f
     return true;
 }
 
+bool Board::for_each_column_except(int x0, std::function<bool(int, std::vector<int> const &)> f) const
+{
+    for (int c = 0; c < SIZE; ++c)
+    {
+        if (c != x0)
+        {
+            if (!f(c, getColumnIndexes(c)))
+                return false;
+        }
+    }
+    return true;
+}
+
+bool Board::for_each_column_except(int x0, int x1, std::function<bool(int, std::vector<int> const &)> f) const
+{
+    for (int c = 0; c < SIZE; ++c)
+    {
+        if (c != x0 && c != x1)
+        {
+            if (!f(c, getColumnIndexes(c)))
+                return false;
+        }
+    }
+    return true;
+}
+
+bool Board::for_each_column_except(int x0, int x1, int x2, std::function<bool(int, std::vector<int> const &)> f) const
+{
+    for (int c = 0; c < SIZE; ++c)
+    {
+        if (c != x0 && c != x1 && c != x2)
+        {
+            if (!f(c, getColumnIndexes(c)))
+                return false;
+        }
+    }
+    return true;
+}
+
 bool Board::for_each_box(std::function<bool(int, std::vector<int> const &)> f) const
 {
     for (int b = 0; b < SIZE; ++b)
     {
         if (!f(b, getBoxIndexes(b)))
             return false;
+    }
+    return true;
+}
+
+bool Board::for_each_box_except(int x0, std::function<bool(int, std::vector<int> const &)> f) const
+{
+    for (int b = 0; b < SIZE; ++b)
+    {
+        if (b != x0)
+        {
+            if (!f(b, getBoxIndexes(b)))
+                return false;
+        }
+    }
+    return true;
+}
+
+bool Board::for_each_box_except(int x0, int x1, std::function<bool(int, std::vector<int> const &)> f) const
+{
+    for (int b = 0; b < SIZE; ++b)
+    {
+        if (b != x0 && b != x1)
+        {
+            if (!f(b, getBoxIndexes(b)))
+                return false;
+        }
+    }
+    return true;
+}
+
+bool Board::for_each_box_except(int x0, int x1, int x2, std::function<bool(int, std::vector<int> const &)> f) const
+{
+    for (int b = 0; b < SIZE; ++b)
+    {
+        if (b != x0 && b != x1 && b != x2)
+        {
+            if (!f(b, getBoxIndexes(b)))
+                return false;
+        }
     }
     return true;
 }
