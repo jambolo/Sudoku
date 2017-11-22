@@ -116,22 +116,14 @@ bool Board::completed() const
 
 bool Board::consistent() const
 {
-    for (int r = 0; r < SIZE; ++r)
+    for (int i = 0; i < SIZE; ++i)
     {
-        if (!rowIsConsistent(r))
+        if (!rowIsConsistent(i) ||
+            !columnIsConsistent(i) ||
+            !boxIsConsistent(i))
+        {
             return false;
-    }
-
-    for (int c = 0; c < SIZE; ++c)
-    {
-        if (!columnIsConsistent(c))
-            return false;
-    }
-
-    for (int b = 0; b < SIZE; ++b)
-    {
-        if (!boxIsConsistent(b))
-            return false;
+        }
     }
     return true;
 }
@@ -177,7 +169,7 @@ void Board::draw() const
     }
 }
 
-bool Board::for_each_row(std::function<bool(int, std::vector<int> const &)> f) const
+bool Board::for_each_row(std::function<bool(int, std::vector<int> const &)> f)
 {
     for (int r = 0; r < SIZE; ++r)
     {
@@ -187,7 +179,7 @@ bool Board::for_each_row(std::function<bool(int, std::vector<int> const &)> f) c
     return true;
 }
 
-bool Board::for_each_row_except(int x0, std::function<bool(int, std::vector<int> const &)> f) const
+bool Board::for_each_row_except(int x0, std::function<bool(int, std::vector<int> const &)> f)
 {
     for (int r = 0; r < SIZE; ++r)
     {
@@ -200,7 +192,7 @@ bool Board::for_each_row_except(int x0, std::function<bool(int, std::vector<int>
     return true;
 }
 
-bool Board::for_each_row_except(int x0, int x1, std::function<bool(int, std::vector<int> const &)> f) const
+bool Board::for_each_row_except(int x0, int x1, std::function<bool(int, std::vector<int> const &)> f)
 {
     for (int r = 0; r < SIZE; ++r)
     {
@@ -213,7 +205,7 @@ bool Board::for_each_row_except(int x0, int x1, std::function<bool(int, std::vec
     return true;
 }
 
-bool Board::for_each_row_except(int x0, int x1, int x2, std::function<bool(int, std::vector<int> const &)> f) const
+bool Board::for_each_row_except(int x0, int x1, int x2, std::function<bool(int, std::vector<int> const &)> f)
 {
     for (int r = 0; r < SIZE; ++r)
     {
@@ -226,7 +218,7 @@ bool Board::for_each_row_except(int x0, int x1, int x2, std::function<bool(int, 
     return true;
 }
 
-bool Board::for_each_column(std::function<bool(int, std::vector<int> const &)> f) const
+bool Board::for_each_column(std::function<bool(int, std::vector<int> const &)> f)
 {
     for (int c = 0; c < SIZE; ++c)
     {
@@ -236,7 +228,7 @@ bool Board::for_each_column(std::function<bool(int, std::vector<int> const &)> f
     return true;
 }
 
-bool Board::for_each_column_except(int x0, std::function<bool(int, std::vector<int> const &)> f) const
+bool Board::for_each_column_except(int x0, std::function<bool(int, std::vector<int> const &)> f)
 {
     for (int c = 0; c < SIZE; ++c)
     {
@@ -249,7 +241,7 @@ bool Board::for_each_column_except(int x0, std::function<bool(int, std::vector<i
     return true;
 }
 
-bool Board::for_each_column_except(int x0, int x1, std::function<bool(int, std::vector<int> const &)> f) const
+bool Board::for_each_column_except(int x0, int x1, std::function<bool(int, std::vector<int> const &)> f)
 {
     for (int c = 0; c < SIZE; ++c)
     {
@@ -262,7 +254,7 @@ bool Board::for_each_column_except(int x0, int x1, std::function<bool(int, std::
     return true;
 }
 
-bool Board::for_each_column_except(int x0, int x1, int x2, std::function<bool(int, std::vector<int> const &)> f) const
+bool Board::for_each_column_except(int x0, int x1, int x2, std::function<bool(int, std::vector<int> const &)> f)
 {
     for (int c = 0; c < SIZE; ++c)
     {
@@ -275,7 +267,7 @@ bool Board::for_each_column_except(int x0, int x1, int x2, std::function<bool(in
     return true;
 }
 
-bool Board::for_each_box(std::function<bool(int, std::vector<int> const &)> f) const
+bool Board::for_each_box(std::function<bool(int, std::vector<int> const &)> f)
 {
     for (int b = 0; b < SIZE; ++b)
     {
@@ -285,7 +277,7 @@ bool Board::for_each_box(std::function<bool(int, std::vector<int> const &)> f) c
     return true;
 }
 
-bool Board::for_each_box_except(int x0, std::function<bool(int, std::vector<int> const &)> f) const
+bool Board::for_each_box_except(int x0, std::function<bool(int, std::vector<int> const &)> f)
 {
     for (int b = 0; b < SIZE; ++b)
     {
@@ -298,7 +290,7 @@ bool Board::for_each_box_except(int x0, std::function<bool(int, std::vector<int>
     return true;
 }
 
-bool Board::for_each_box_except(int x0, int x1, std::function<bool(int, std::vector<int> const &)> f) const
+bool Board::for_each_box_except(int x0, int x1, std::function<bool(int, std::vector<int> const &)> f)
 {
     for (int b = 0; b < SIZE; ++b)
     {
@@ -311,7 +303,7 @@ bool Board::for_each_box_except(int x0, int x1, std::function<bool(int, std::vec
     return true;
 }
 
-bool Board::for_each_box_except(int x0, int x1, int x2, std::function<bool(int, std::vector<int> const &)> f) const
+bool Board::for_each_box_except(int x0, int x1, int x2, std::function<bool(int, std::vector<int> const &)> f)
 {
     for (int b = 0; b < SIZE; ++b)
     {
@@ -489,32 +481,10 @@ std::vector<int> const & Board::getBoxIndexes(int b)
     return INDEXES_BY_BOX[b];
 }
 
-bool Board::boxIsConsistent(int b) const
+bool Board::consistent(std::vector<int> const & unit) const
 {
     int values = 0;
-    for (int i : getBoxIndexes(b))
-    {
-        if (!consistent(get(i), values))
-            return false;
-    }
-    return true;
-}
-
-bool Board::columnIsConsistent(int c) const
-{
-    int values = 0;
-    for (int i : getColumnIndexes(c))
-    {
-        if (!consistent(get(i), values))
-            return false;
-    }
-    return true;
-}
-
-bool Board::rowIsConsistent(int r) const
-{
-    int values = 0;
-    for (int i : getRowIndexes(r))
+    for (int i : unit)
     {
         if (!consistent(get(i), values))
             return false;

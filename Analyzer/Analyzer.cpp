@@ -746,10 +746,7 @@ bool Analyzer::nakedPairFound(std::vector<int> & indexes, std::vector<int> & val
             which = r;
             return false;   // done
         }
-        else
-        {
-            return true;
-        }
+        return true;
     });
     if (found)
     {
@@ -764,10 +761,7 @@ bool Analyzer::nakedPairFound(std::vector<int> & indexes, std::vector<int> & val
             which = c;
             return false;   // done
         }
-        else
-        {
-            return true;
-        }
+        return true;
     });
     if (found)
     {
@@ -782,10 +776,7 @@ bool Analyzer::nakedPairFound(std::vector<int> & indexes, std::vector<int> & val
             which = b;
             return false;   // done
         }
-        else
-        {
-            return true;
-        }
+        return true;
     });
     if (found)
     {
@@ -864,10 +855,7 @@ bool Analyzer::nakedTripleFound(std::vector<int> & indexes, std::vector<int> & v
             which = r;
             return false;   // done
         }
-        else
-        {
-            return true;
-        }
+        return true;
     });
     if (found)
     {
@@ -882,10 +870,7 @@ bool Analyzer::nakedTripleFound(std::vector<int> & indexes, std::vector<int> & v
             which = c;
             return false;   // done
         }
-        else
-        {
-            return true;
-        }
+        return true;
     });
     if (found)
     {
@@ -900,10 +885,7 @@ bool Analyzer::nakedTripleFound(std::vector<int> & indexes, std::vector<int> & v
             which = b;
             return false;   // done
         }
-        else
-        {
-            return true;
-        }
+        return true;
     });
     if (found)
     {
@@ -991,10 +973,7 @@ bool Analyzer::nakedQuadFound(std::vector<int> & indexes, std::vector<int> & val
             which = r;
             return false;   // done
         }
-        else
-        {
-            return true;
-        }
+        return true;
     });
     if (found)
     {
@@ -1009,10 +988,7 @@ bool Analyzer::nakedQuadFound(std::vector<int> & indexes, std::vector<int> & val
             which = c;
             return false;   // done
         }
-        else
-        {
-            return true;
-        }
+        return true;
     });
     if (found)
     {
@@ -1027,10 +1003,7 @@ bool Analyzer::nakedQuadFound(std::vector<int> & indexes, std::vector<int> & val
             which = b;
             return false;   // done
         }
-        else
-        {
-            return true;
-        }
+        return true;
     });
     if (found)
     {
@@ -1304,7 +1277,11 @@ bool Analyzer::xWingFound(std::vector<int> & indexes, std::vector<int> & values,
     return false;
 }
 
-bool Analyzer::xWing(std::vector<int> const & indexes, std::vector<int> & eliminatedIndexes, std::vector<int> & eliminatedValues)
+bool Analyzer::xWing(std::vector<int> const & indexes,
+    std::vector<int> & eliminatedIndexes,
+    std::vector<int> & eliminatedValues,
+    int * otherUnit,
+    std::vector<int> pivots)
 {
     return false;
 }
