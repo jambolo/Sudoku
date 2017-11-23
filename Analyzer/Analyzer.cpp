@@ -8,6 +8,55 @@
 
 static int const ALL_CANDIDATES = 0x3fe;
 
+// Calls a function for element of a vector except the specified ones
+static void for_each_index_except(std::vector<int> const & indexes, int x0, std::function<void(int)> f)
+{
+    for (int i : indexes)
+    {
+        if (i != x0)
+            f(i);
+    }
+}
+
+// Calls a function for element of a vector except the specified ones
+static void for_each_index_except(std::vector<int> const & indexes, int x0, int x1, std::function<void(int)> f)
+{
+    for (int i : indexes)
+    {
+        if (i != x0 && i != x1)
+            f(i);
+    }
+}
+
+// Calls a function for element of a vector except the specified ones
+static void for_each_index_except(std::vector<int> const & indexes,
+    int x0,
+    int x1,
+    int x2,
+    std::function<void(int)> f)
+{
+    for (int i : indexes)
+    {
+        if (i != x0 && i != x1 && i != x2)
+            f(i);
+    }
+}
+
+// Calls a function for element of a vector except the specified ones
+static void for_each_index_except(std::vector<int> const & indexes,
+    int x0,
+    int x1,
+    int x2,
+    int x3,
+    std::function<void(int)> f)
+{
+    for (int i : indexes)
+    {
+        if (i != x0 && i != x1 && i != x2 && i != x3)
+            f(i);
+    }
+}
+
 // Returns true if there is only one candidate
 static bool solved(unsigned candidates)
 {
@@ -61,6 +110,7 @@ Analyzer::Analyzer(Board const & board, bool verbose /*= false*/)
     , unsolved_(Board::SIZE * Board::SIZE)
     , candidates_(Board::SIZE * Board::SIZE, ALL_CANDIDATES)
     , done_(false)
+    , stuck_(false)
 {
     // Nothing is solved initially
     std::iota(unsolved_.begin(), unsolved_.end(), 0);
@@ -280,7 +330,7 @@ bool Analyzer::hiddenSingleFound(std::vector<int> & indexes, std::vector<int> & 
     bool found;
     int which;
 
-    found = !board_.for_each_row([&] (int r, std::vector<int> const & row) {
+    found = !Board::for_each_row([&] (int r, std::vector<int> const & row) {
         if (hiddenSingle(row, indexes, values))
         {
             which = r;
@@ -298,7 +348,7 @@ bool Analyzer::hiddenSingleFound(std::vector<int> & indexes, std::vector<int> & 
         return true;
     }
 
-    found = !board_.for_each_column([&] (int c, std::vector<int> const & column) {
+    found = !Board::for_each_column([&] (int c, std::vector<int> const & column) {
         if (hiddenSingle(column, indexes, values))
         {
             which = c;
@@ -316,7 +366,7 @@ bool Analyzer::hiddenSingleFound(std::vector<int> & indexes, std::vector<int> & 
         return true;
     }
 
-    found = !board_.for_each_box([&] (int b, std::vector<int> const & box) {
+    found = !Board::for_each_box([&] (int b, std::vector<int> const & box) {
         if (hiddenSingle(box, indexes, values))
         {
             which = b;
@@ -346,11 +396,9 @@ bool Analyzer::hiddenSingle(std::vector<int> const & indexes,
         if (board_.isEmpty(s))
         {
             unsigned others = 0;
-            for (int i : indexes)
-            {
-                if (i != s)
-                    others |= candidates_[i];
-            }
+            for_each_index_except(indexes, s, [&] (int i) {
+                others |= candidates_[i];
+            });
 
             unsigned exclusive = candidates_[s] & ~others;
             if (exclusive)
@@ -382,7 +430,7 @@ bool Analyzer::hiddenPairFound(std::vector<int> & indexes, std::vector<int> & va
     int which;
     std::vector<int> hidden;
 
-    found = !board_.for_each_row([&] (int r, std::vector<int> const & row) {
+    found = !Board::for_each_row([&] (int r, std::vector<int> const & row) {
         if (hiddenPair(row, indexes, values, hidden))
         {
             which = r;
@@ -400,7 +448,7 @@ bool Analyzer::hiddenPairFound(std::vector<int> & indexes, std::vector<int> & va
         return true;
     }
 
-    found = !board_.for_each_column([&] (int c, std::vector<int> const & column) {
+    found = !Board::for_each_column([&] (int c, std::vector<int> const & column) {
         if (hiddenPair(column, indexes, values, hidden))
         {
             which = c;
@@ -418,7 +466,7 @@ bool Analyzer::hiddenPairFound(std::vector<int> & indexes, std::vector<int> & va
         return true;
     }
 
-    found = !board_.for_each_box([&] (int b, std::vector<int> const & box) {
+    found = !Board::for_each_box([&] (int b, std::vector<int> const & box) {
         if (hiddenPair(box, indexes, values, hidden))
         {
             which = b;
@@ -512,7 +560,7 @@ bool Analyzer::hiddenTripleFound(std::vector<int> & indexes, std::vector<int> & 
     int which;
     std::vector<int> hidden;
 
-    found = !board_.for_each_row([&] (int r, std::vector<int> const & row) {
+    found = !Board::for_each_row([&] (int r, std::vector<int> const & row) {
         if (hiddenTriple(row, indexes, values, hidden))
         {
             which = r;
@@ -530,7 +578,7 @@ bool Analyzer::hiddenTripleFound(std::vector<int> & indexes, std::vector<int> & 
         return true;
     }
 
-    found = !board_.for_each_column([&] (int c, std::vector<int> const & column) {
+    found = !Board::for_each_column([&] (int c, std::vector<int> const & column) {
         if (hiddenTriple(column, indexes, values, hidden))
         {
             which = c;
@@ -548,7 +596,7 @@ bool Analyzer::hiddenTripleFound(std::vector<int> & indexes, std::vector<int> & 
         return true;
     }
 
-    found = !board_.for_each_box([&] (int b, std::vector<int> const & box) {
+    found = !Board::for_each_box([&] (int b, std::vector<int> const & box) {
         if (hiddenTriple(box, indexes, values, hidden))
         {
             which = b;
@@ -650,7 +698,7 @@ bool Analyzer::hiddenQuadFound(std::vector<int> & indexes, std::vector<int> & va
     int which;
     std::vector<int> hidden;
 
-    found = !board_.for_each_row([&] (int r, std::vector<int> const & row) {
+    found = !Board::for_each_row([&] (int r, std::vector<int> const & row) {
         if (hiddenQuad(row, indexes, values, hidden))
         {
             which = r;
@@ -668,7 +716,7 @@ bool Analyzer::hiddenQuadFound(std::vector<int> & indexes, std::vector<int> & va
         return true;
     }
 
-    found = !board_.for_each_column([&] (int c, std::vector<int> const & column) {
+    found = !Board::for_each_column([&] (int c, std::vector<int> const & column) {
         if (hiddenQuad(column, indexes, values, hidden))
         {
             which = c;
@@ -686,7 +734,7 @@ bool Analyzer::hiddenQuadFound(std::vector<int> & indexes, std::vector<int> & va
         return true;
     }
 
-    found = !board_.for_each_box([&] (int b, std::vector<int> const & box) {
+    found = !Board::for_each_box([&] (int b, std::vector<int> const & box) {
         if (hiddenQuad(box, indexes, values, hidden))
         {
             which = b;
@@ -820,7 +868,7 @@ bool Analyzer::nakedPairFound(std::vector<int> & indexes, std::vector<int> & val
     int which;
     std::vector<int> nakedIndexes;
 
-    found = !board_.for_each_row([&] (int r, std::vector<int> const & row) {
+    found = !Board::for_each_row([&] (int r, std::vector<int> const & row) {
         if (nakedPair(row, indexes, values, nakedIndexes))
         {
             which = r;
@@ -835,7 +883,7 @@ bool Analyzer::nakedPairFound(std::vector<int> & indexes, std::vector<int> & val
         return true;
     }
 
-    found = !board_.for_each_column([&] (int c, std::vector<int> const & column) {
+    found = !Board::for_each_column([&] (int c, std::vector<int> const & column) {
         if (nakedPair(column, indexes, values, nakedIndexes))
         {
             which = c;
@@ -850,7 +898,7 @@ bool Analyzer::nakedPairFound(std::vector<int> & indexes, std::vector<int> & val
         return true;
     }
 
-    found = !board_.for_each_box([&] (int b, std::vector<int> const & box) {
+    found = !Board::for_each_box([&] (int b, std::vector<int> const & box) {
         if (nakedPair(box, indexes, values, nakedIndexes))
         {
             which = b;
@@ -888,15 +936,10 @@ bool Analyzer::nakedPair(std::vector<int> const & indexes,
                     unsigned candidates = candidates_[i0] | candidates_[i1];
                     if (candidateCount(candidates) == 2)
                     {
-                        for (auto i : indexes)
-                        {
-                            if (i != i0 && i != i1)
-                            {
-                                unsigned eliminated = candidates_[i] & candidates;
-                                if (eliminated)
-                                    eliminatedIndexes.push_back(i);
-                            }
-                        }
+                        for_each_index_except(indexes, i0, i1, [&](int i) {
+                            if (candidates_[i] & candidates)
+                                eliminatedIndexes.push_back(i);
+                        });
                         if (!eliminatedIndexes.empty())
                         {
                             eliminatedValues = valuesFromCandidates(candidates);
@@ -929,7 +972,7 @@ bool Analyzer::nakedTripleFound(std::vector<int> & indexes, std::vector<int> & v
     int which;
     std::vector<int> nakedIndexes;
 
-    found = !board_.for_each_row([&] (int r, std::vector<int> const & row) {
+    found = !Board::for_each_row([&] (int r, std::vector<int> const & row) {
         if (nakedTriple(row, indexes, values, nakedIndexes))
         {
             which = r;
@@ -944,7 +987,7 @@ bool Analyzer::nakedTripleFound(std::vector<int> & indexes, std::vector<int> & v
         return true;
     }
 
-    found = !board_.for_each_column([&] (int c, std::vector<int> const & column) {
+    found = !Board::for_each_column([&] (int c, std::vector<int> const & column) {
         if (nakedTriple(column, indexes, values, nakedIndexes))
         {
             which = c;
@@ -959,7 +1002,7 @@ bool Analyzer::nakedTripleFound(std::vector<int> & indexes, std::vector<int> & v
         return true;
     }
 
-    found = !board_.for_each_box([&] (int b, std::vector<int> const & box) {
+    found = !Board::for_each_box([&] (int b, std::vector<int> const & box) {
         if (nakedTriple(box, indexes, values, nakedIndexes))
         {
             which = b;
@@ -1003,15 +1046,10 @@ bool Analyzer::nakedTriple(std::vector<int> const & indexes,
                             unsigned candidates = candidates_[i0] | candidates_[i1] | candidates_[i2];
                             if (candidateCount(candidates) == 3)
                             {
-                                for (auto i : indexes)
-                                {
-                                    if (i != i0 && i != i1 && i != i2)
-                                    {
-                                        unsigned eliminated = candidates_[i] & candidates;
-                                        if (eliminated)
+                                for_each_index_except(indexes, i0, i1, i2, [&] (int i) {
+                                        if (candidates_[i] & candidates)
                                             eliminatedIndexes.push_back(i);
-                                    }
-                                }
+                                });
                                 if (!eliminatedIndexes.empty())
                                 {
                                     eliminatedValues = valuesFromCandidates(candidates);
@@ -1047,7 +1085,7 @@ bool Analyzer::nakedQuadFound(std::vector<int> & indexes, std::vector<int> & val
     int which;
     std::vector<int> nakedIndexes;
 
-    found = !board_.for_each_row([&] (int r, std::vector<int> const & row) {
+    found = !Board::for_each_row([&] (int r, std::vector<int> const & row) {
         if (nakedQuad(row, indexes, values, nakedIndexes))
         {
             which = r;
@@ -1062,7 +1100,7 @@ bool Analyzer::nakedQuadFound(std::vector<int> & indexes, std::vector<int> & val
         return true;
     }
 
-    found = !board_.for_each_column([&] (int c, std::vector<int> const & column) {
+    found = !Board::for_each_column([&] (int c, std::vector<int> const & column) {
         if (nakedQuad(column, indexes, values, nakedIndexes))
         {
             which = c;
@@ -1077,7 +1115,7 @@ bool Analyzer::nakedQuadFound(std::vector<int> & indexes, std::vector<int> & val
         return true;
     }
 
-    found = !board_.for_each_box([&] (int b, std::vector<int> const & box) {
+    found = !Board::for_each_box([&] (int b, std::vector<int> const & box) {
         if (nakedQuad(box, indexes, values, nakedIndexes))
         {
             which = b;
@@ -1127,15 +1165,10 @@ bool Analyzer::nakedQuad(std::vector<int> const & indexes,
                                     unsigned candidates = candidates_[i0] | candidates_[i1] | candidates_[i2] | candidates_[i3];
                                     if (candidateCount(candidates) == 4)
                                     {
-                                        for (auto i : indexes)
-                                        {
-                                            if (i != i0 && i != i1 && i != i2 && i != i3)
-                                            {
-                                                unsigned eliminated = candidates_[i] & candidates;
-                                                if (eliminated)
-                                                    eliminatedIndexes.push_back(i);
-                                            }
-                                        }
+                                        for_each_index_except(indexes, i0, i1, i2, i3, [&] (int i) {
+                                            if (candidates_[i] & candidates)
+                                                eliminatedIndexes.push_back(i);
+                                        });
                                         if (!eliminatedIndexes.empty())
                                         {
                                             eliminatedValues = valuesFromCandidates(candidates);
@@ -1173,7 +1206,7 @@ bool Analyzer::lockedCandidatesFound(std::vector<int> & indexes, std::vector<int
     bool found;
     int which1, which2;
 
-    found = !board_.for_each_row([&](int r, std::vector<int> const & row) {
+    found = !Board::for_each_row([&](int r, std::vector<int> const & row) {
         for (int c = 0; c < Board::SIZE; c += Board::BOX_SIZE)
         {
             int b = Board::indexOfBox(r, c);
@@ -1193,7 +1226,7 @@ bool Analyzer::lockedCandidatesFound(std::vector<int> & indexes, std::vector<int
         return true;
     }
 
-    found = !board_.for_each_column([&](int c, std::vector<int> const & column) {
+    found = !Board::for_each_column([&](int c, std::vector<int> const & column) {
         for (int r = 0; r < Board::SIZE; r += Board::BOX_SIZE)
         {
             int b = Board::indexOfBox(r, c);
@@ -1217,7 +1250,7 @@ bool Analyzer::lockedCandidatesFound(std::vector<int> & indexes, std::vector<int
     // For the intersection of each row or column with a box, if there are candidates that exist within the
     // intersection but not in the rest of the box, then success if those candidates exist in the row/column.
 
-    found = !board_.for_each_row([&](int r, std::vector<int> const & row) {
+    found = !Board::for_each_row([&](int r, std::vector<int> const & row) {
         for (int c = 0; c < Board::SIZE; c += Board::BOX_SIZE)
         {
             int b = Board::indexOfBox(r, c);
@@ -1238,7 +1271,7 @@ bool Analyzer::lockedCandidatesFound(std::vector<int> & indexes, std::vector<int
         return true;
     }
 
-    found = !board_.for_each_column([&](int c, std::vector<int> const & column) {
+    found = !Board::for_each_column([&](int c, std::vector<int> const & column) {
         for (int r = 0; r < Board::SIZE; r += Board::BOX_SIZE)
         {
             int b = Board::indexOfBox(r, c);
@@ -1321,36 +1354,239 @@ bool Analyzer::lockedCandidates(std::vector<int> const & indexes1,
     return !eliminatedIndexes.empty();
 }
 
+
+static std::string generateXWingReason(char const * unitName,
+    char const * otherUnitNamePlural,
+    std::vector<int> const & pivots)
+{
+    std::string reason = "Pivots are " + Board::locationName(pivots[0]) +
+                        ", " + Board::locationName(pivots[1]) +
+                        ", " + Board::locationName(pivots[2]) +
+                        ", " + Board::locationName(pivots[3]);
+        return reason;
+}
+
 bool Analyzer::xWingFound(std::vector<int> & indexes, std::vector<int> & values, std::string & reason)
 {
-    // For each exclusive pair in a unit, if they have additional candidates, then success.
+    // If a value is a candidate in a row (or column) in exactly two cells and it is a candidate in another row
+    // (or column) in exactly the same two columns (or rows) as the first row (or or column), then it cannot be
+    // a candidate in any other cells in those two columns (or rows).
 
     bool found;
+    int which1, which2;
+    std::vector<int> pivots;
 
-    found = !board_.for_each_row([&](int r, std::vector<int> const & row) {
-        return !xWing(row, indexes, values);
+    found = !Board::for_each_row([&](int r0, std::vector<int> const & row) {
+        unsigned alreadyTested = 0;
+        for (int c0 = 0; c0 < Board::SIZE - 1; ++c0)
+        {
+            unsigned candidates0 = candidates_[row[c0]];
+
+            // Ignore solved cells
+            if (solved(candidates0))
+                continue;
+
+            // Ignore cells with only already-tested candidate
+            candidates0 &= ~alreadyTested;
+            if (!candidates0)
+                continue;
+
+            for (int c1 = c0 + 1; c1 < Board::SIZE; ++c1)
+            {
+                unsigned candidates1 = candidates_[row[c1]];
+
+                // Ignore solved cells 
+                if (solved(candidates1))
+                    continue;
+
+                // Find any matching candidates in this cell that are not in any of the remaining cells
+                unsigned candidates = candidates0 & candidates1;
+                for (int c2 = c1 + 1; c2 < Board::SIZE; ++c2)
+                {
+                    candidates &= ~candidates_[row[c2]];
+                    if (!candidates)
+                        break;
+                }
+
+                // If none of the candidates in c0 are only in c1, then nothing to do
+                if (!candidates)
+                    break;
+
+                // There are should be exactly 1 or 2 values that occur only in columns c0 and c1
+                std::vector<int> candidateValues = valuesFromCandidates(candidates);
+                assert(candidateValues.size() <= 2);
+
+                // Find another row that has one of the values in only columns c0 and c1. If one is found, then
+                // the value can be eliminated from candidates in all other cells in those two columns.
+                for (int v : candidateValues)
+                {
+                    int r1 = -1;
+                    unsigned valueMask = 1 << v;
+                    for (int r = r0 + 1; r < Board::SIZE; ++r)
+                    {
+                        std::vector<int> rowIndexes = Board::getRowIndexes(r);
+
+                        // If the columns don't match then skip the row
+                        unsigned other0 = candidates_[rowIndexes[c0]];
+                        unsigned other1 = candidates_[rowIndexes[c1]];
+                        if (!(valueMask & other0) || !(valueMask & other1))
+                            continue;
+
+                        // If the others in the row do not match then this is an X-Wing
+                        unsigned theRest = 0;
+                        for_each_index_except(rowIndexes, rowIndexes[c0], rowIndexes[c1], [&] (int i) {
+                            theRest |= candidates_[i];
+                        });
+                        if (!(valueMask & theRest))
+                        {
+                            r1 = r;
+                            break;
+                        }
+                    }
+
+                    // If an X-Wing was found, and there are candidates to be eliminated, then success.
+                    if (r1 >= 0)
+                    {
+                        int columns[2] = { c0, c1 };
+                        for (int c : columns)
+                        {
+                            std::vector<int> columnIndexes = board_.getColumnIndexes(c);
+                            for_each_index_except(columnIndexes, columnIndexes[r0], columnIndexes[r1], [&] (int i) {
+                                if (valueMask & candidates_[i])
+                                    indexes.push_back(i);
+                            });
+                        }
+                        if (!indexes.empty())
+                        {
+                            values.push_back(v);
+                            which1 = r0;
+                            which2 = r1;
+                            pivots =
+                            {
+                                Board::indexOf(r0, c0),
+                                Board::indexOf(r0, c1),
+                                Board::indexOf(r1, c0),
+                                Board::indexOf(r1, c1)
+                            };
+                            return false;
+                        }
+                    }
+                }
+            }
+            alreadyTested |= candidates0;
+        }
+        return true;
     });
     if (found)
     {
-        reason = "two squares in a row have exclusive candidate pairs that correspond to candidates in another row in the same columns, so other squares in those columns cannot have these values";
+        reason = generateXWingReason("row", "columns", pivots);
         return true;
     }
 
-    found = !board_.for_each_column([&](int c, std::vector<int> const & column) {
-        return !xWing(column, indexes, values);
-    });
-    if (found)
-    {
-        reason = "two squares in a column have exclusive candidate pairs that correspond to candidates in another column in the same rows, so other squares in those rows cannot have these values";
-        return true;
-    }
+    found = !Board::for_each_column([&](int c0, std::vector<int> const & column) {
+        unsigned alreadyTested = 0;
+        for (int r0 = 0; r0 < Board::SIZE - 1; ++r0)
+        {
+            unsigned candidates0 = candidates_[column[r0]];
 
-    found = !board_.for_each_box([&](int b, std::vector<int> const & box) {
-        return !xWing(box, indexes, values);
+            // Ignore solved cells
+            if (solved(candidates0))
+                continue;
+
+            // Ignore cells with only already-tested candidate
+            candidates0 &= ~alreadyTested;
+            if (!candidates0)
+                continue;
+
+            for (int r1 = r0 + 1; r1 < Board::SIZE; ++r1)
+            {
+                unsigned candidates1 = candidates_[column[r1]];
+
+                // Ignore solved cells 
+                if (solved(candidates1))
+                    continue;
+
+                // Find any matching candidates in this cell that are not in any of the remaining cells
+                unsigned candidates = candidates0 & candidates1;
+                for (int r2 = r1 + 1; r2 < Board::SIZE; ++r2)
+                {
+                    candidates &= ~candidates_[column[r2]];
+                    if (!candidates)
+                        break;
+                }
+
+                // If none of the candidates in c0 are only in c1, then nothing to do
+                if (!candidates)
+                    break;
+
+                // There are should be exactly 1 or 2 values that occur only in columns c0 and c1
+                std::vector<int> candidateValues = valuesFromCandidates(candidates);
+                assert(candidateValues.size() <= 2);
+
+                // Find another column that has one of the values in only rows r0 and r1. If one is found, then
+                // the value can be eliminated from candidates in all other cells in those two rows.
+                for (int v : candidateValues)
+                {
+                    int c1 = -1;
+                    unsigned valueMask = 1 << v;
+                    for (int c = c0 + 1; c < Board::SIZE; ++c)
+                    {
+                        std::vector<int> columnIndexes = Board::getColumnIndexes(c);
+
+                        // If the columns don't match then skip the column
+                        unsigned other0 = candidates_[columnIndexes[r0]];
+                        unsigned other1 = candidates_[columnIndexes[r1]];
+                        if (!(valueMask & other0) || !(valueMask & other1))
+                            continue;
+
+                        // If the others in the column do not match then this is an X-Wing
+                        unsigned theRest = 0;
+                        for_each_index_except(columnIndexes, columnIndexes[r0], columnIndexes[r1], [&](int i) {
+                            theRest |= candidates_[i];
+                        });
+                        if (!(valueMask & theRest))
+                        {
+                            c1 = c;
+                            break;
+                        }
+                    }
+
+                    // If an X-Wing was found, and there are candidates to be eliminated, then success.
+                    if (c1 >= 0)
+                    {
+                        int rows[2] = { r0, r1 };
+                        for (int r : rows)
+                        {
+                            std::vector<int> rowIndexes = board_.getRowIndexes(r);
+                            for_each_index_except(rowIndexes, rowIndexes[c0], rowIndexes[c1], [&](int i) {
+                                if (valueMask & candidates_[i])
+                                    indexes.push_back(i);
+                            });
+                        }
+                        if (!indexes.empty())
+                        {
+                            values.push_back(v);
+                            which1 = c0;
+                            which2 = c1;
+                            pivots =
+                            {
+                                Board::indexOf(r0, c0),
+                                Board::indexOf(r0, c1),
+                                Board::indexOf(r1, c0),
+                                Board::indexOf(r1, c1)
+                            };
+                            return false;
+                        }
+                    }
+                }
+            }
+            alreadyTested |= candidates0;
+        }
+        return true;
     });
     if (found)
     {
-        reason = "two squares in a box have exclusive candidate pairs that correspond to candidates in another box, so other squares in those boxes cannot have these values";
+        reason = generateXWingReason("column", "rows", pivots);
         return true;
     }
 
@@ -1380,7 +1616,7 @@ const char * Analyzer::Step::techniqueName(Analyzer::Step::TechniqueId technique
         "naked triple",
         "naked quad",
         "locked candidates",
-        "x wing"
+        "x-wing"
     };
     assert((size_t)technique >= 0 && (size_t)technique < sizeof(NAMES) / sizeof(*NAMES));
     return NAMES[technique];

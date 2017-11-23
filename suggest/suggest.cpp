@@ -146,8 +146,9 @@ int main(int argc, char ** argv)
             Analyzer::Step step = analyzer.next();
             printStep(step, verbose, detailed, i++);
         } while (!analyzer.done());
+
         printf("\n");
-        if (analyzer.stuck())
+        if (analyzer.stuck() && detailed)
             analyzer.drawPenciledBoard();
         else
             analyzer.board().draw();
@@ -162,11 +163,12 @@ int main(int argc, char ** argv)
             step = analyzer.next();
             printStep(step, verbose, detailed, i++);
         } while (step.action != Analyzer::Step::SOLVE && !analyzer.done());
-        if (analyzer.stuck())
-        {
-            printf("\n");
+
+        printf("\n");
+        if (detailed)
             analyzer.drawPenciledBoard();
-        }
+        else if (verbose)
+            analyzer.board().draw();
     }
 
     return 0;
