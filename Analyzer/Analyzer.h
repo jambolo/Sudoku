@@ -106,11 +106,20 @@ private:
                           std::vector<int> &       eliminatedValues);
 
     bool xWingFound(std::vector<int> & indexes, std::vector<int> & values, std::string & reason);
-    bool xWing(std::vector<int> const & indexes,
-        std::vector<int> & eliminatedIndexes,
-        std::vector<int> & eliminatedValues,
-        int * otherUnit,
-        std::vector<int> pivots);
+    bool xWingRow(int                      r0,
+                  std::vector<int> const & row,
+                  std::vector<int> &       eliminatedIndexes,
+                  std::vector<int> &       eliminatedValues,
+                  int &                    which1,
+                  int &                    which2,
+                  std::vector<int> &       pivots);
+    bool xWingColumn(int                      c0,
+                     std::vector<int> const & column,
+                     std::vector<int> &       eliminatedIndexes,
+                     std::vector<int> &       eliminatedValues,
+                     int &                    which1,
+                     int &                    which2,
+                     std::vector<int> &       pivots);
 
     Board board_;                       // Current state of the board
     bool verbose_;                      // If true, then generate explanations

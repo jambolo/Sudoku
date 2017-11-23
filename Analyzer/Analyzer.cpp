@@ -30,10 +30,10 @@ static void for_each_index_except(std::vector<int> const & indexes, int x0, int 
 
 // Calls a function for element of a vector except the specified ones
 static void for_each_index_except(std::vector<int> const & indexes,
-    int x0,
-    int x1,
-    int x2,
-    std::function<void(int)> f)
+                                  int                      x0,
+                                  int                      x1,
+                                  int                      x2,
+                                  std::function<void(int)> f)
 {
     for (int i : indexes)
     {
@@ -44,11 +44,11 @@ static void for_each_index_except(std::vector<int> const & indexes,
 
 // Calls a function for element of a vector except the specified ones
 static void for_each_index_except(std::vector<int> const & indexes,
-    int x0,
-    int x1,
-    int x2,
-    int x3,
-    std::function<void(int)> f)
+                                  int                      x0,
+                                  int                      x1,
+                                  int                      x2,
+                                  int                      x3,
+                                  std::function<void(int)> f)
 {
     for (int i : indexes)
     {
@@ -207,7 +207,7 @@ Analyzer::Step Analyzer::next()
         return { Step::ELIMINATE, indexes, values, Step::X_WING, reason };
     }
 
-    done_ = true;
+    done_  = true;
     stuck_ = true;
     return { Step::STUCK };
 }
@@ -1047,8 +1047,8 @@ bool Analyzer::nakedTriple(std::vector<int> const & indexes,
                             if (candidateCount(candidates) == 3)
                             {
                                 for_each_index_except(indexes, i0, i1, i2, [&] (int i) {
-                                        if (candidates_[i] & candidates)
-                                            eliminatedIndexes.push_back(i);
+                                    if (candidates_[i] & candidates)
+                                        eliminatedIndexes.push_back(i);
                                 });
                                 if (!eliminatedIndexes.empty())
                                 {
@@ -1354,16 +1354,15 @@ bool Analyzer::lockedCandidates(std::vector<int> const & indexes1,
     return !eliminatedIndexes.empty();
 }
 
-
-static std::string generateXWingReason(char const * unitName,
-    char const * otherUnitNamePlural,
-    std::vector<int> const & pivots)
+static std::string generateXWingReason(char const *             unitName,
+                                       char const *             otherUnitNamePlural,
+                                       std::vector<int> const & pivots)
 {
     std::string reason = "Pivots are " + Board::locationName(pivots[0]) +
-                        ", " + Board::locationName(pivots[1]) +
-                        ", " + Board::locationName(pivots[2]) +
-                        ", " + Board::locationName(pivots[3]);
-        return reason;
+                         ", " + Board::locationName(pivots[1]) +
+                         ", " + Board::locationName(pivots[2]) +
+                         ", " + Board::locationName(pivots[3]);
+    return reason;
 }
 
 bool Analyzer::xWingFound(std::vector<int> & indexes, std::vector<int> & values, std::string & reason)
@@ -1376,106 +1375,8 @@ bool Analyzer::xWingFound(std::vector<int> & indexes, std::vector<int> & values,
     int which1, which2;
     std::vector<int> pivots;
 
-    found = !Board::for_each_row([&](int r0, std::vector<int> const & row) {
-        unsigned alreadyTested = 0;
-        for (int c0 = 0; c0 < Board::SIZE - 1; ++c0)
-        {
-            unsigned candidates0 = candidates_[row[c0]];
-
-            // Ignore solved cells
-            if (solved(candidates0))
-                continue;
-
-            // Ignore cells with only already-tested candidate
-            candidates0 &= ~alreadyTested;
-            if (!candidates0)
-                continue;
-
-            for (int c1 = c0 + 1; c1 < Board::SIZE; ++c1)
-            {
-                unsigned candidates1 = candidates_[row[c1]];
-
-                // Ignore solved cells 
-                if (solved(candidates1))
-                    continue;
-
-                // Find any matching candidates in this cell that are not in any of the remaining cells
-                unsigned candidates = candidates0 & candidates1;
-                for (int c2 = c1 + 1; c2 < Board::SIZE; ++c2)
-                {
-                    candidates &= ~candidates_[row[c2]];
-                    if (!candidates)
-                        break;
-                }
-
-                // If none of the candidates in c0 are only in c1, then nothing to do
-                if (!candidates)
-                    break;
-
-                // There are should be exactly 1 or 2 values that occur only in columns c0 and c1
-                std::vector<int> candidateValues = valuesFromCandidates(candidates);
-                assert(candidateValues.size() <= 2);
-
-                // Find another row that has one of the values in only columns c0 and c1. If one is found, then
-                // the value can be eliminated from candidates in all other cells in those two columns.
-                for (int v : candidateValues)
-                {
-                    int r1 = -1;
-                    unsigned valueMask = 1 << v;
-                    for (int r = r0 + 1; r < Board::SIZE; ++r)
-                    {
-                        std::vector<int> rowIndexes = Board::getRowIndexes(r);
-                        int other0 = rowIndexes[c0];
-                        int other1 = rowIndexes[c1];
-
-                        // If the columns don't match then skip the row
-                        if (!(valueMask & candidates_[other0]) || !(valueMask & candidates_[other1]))
-                            continue;
-
-                        // If the others in the row do not match then this is an X-Wing
-                        unsigned theRest = 0;
-                        for_each_index_except(rowIndexes, other0, other1, [&] (int i) {
-                            theRest |= candidates_[i];
-                        });
-                        if (!(valueMask & theRest))
-                        {
-                            r1 = r;
-                            break;
-                        }
-                    }
-
-                    // If an X-Wing was found, and there are candidates to be eliminated, then success.
-                    if (r1 >= 0)
-                    {
-                        int columns[2] = { c0, c1 };
-                        for (int c : columns)
-                        {
-                            std::vector<int> columnIndexes = board_.getColumnIndexes(c);
-                            for_each_index_except(columnIndexes, columnIndexes[r0], columnIndexes[r1], [&] (int i) {
-                                if (valueMask & candidates_[i])
-                                    indexes.push_back(i);
-                            });
-                        }
-                        if (!indexes.empty())
-                        {
-                            values.push_back(v);
-                            which1 = r0;
-                            which2 = r1;
-                            pivots =
-                            {
-                                Board::indexOf(r0, c0),
-                                Board::indexOf(r0, c1),
-                                Board::indexOf(r1, c0),
-                                Board::indexOf(r1, c1)
-                            };
-                            return false;
-                        }
-                    }
-                }
-            }
-            alreadyTested |= candidates0;
-        }
-        return true;
+    found = !Board::for_each_row([&](int r, std::vector<int> const & row) {
+        return !xWingRow(r, row, indexes, values, which1, which2, pivots);
     });
     if (found)
     {
@@ -1483,106 +1384,8 @@ bool Analyzer::xWingFound(std::vector<int> & indexes, std::vector<int> & values,
         return true;
     }
 
-    found = !Board::for_each_column([&](int c0, std::vector<int> const & column) {
-        unsigned alreadyTested = 0;
-        for (int r0 = 0; r0 < Board::SIZE - 1; ++r0)
-        {
-            unsigned candidates0 = candidates_[column[r0]];
-
-            // Ignore solved cells
-            if (solved(candidates0))
-                continue;
-
-            // Ignore cells with only already-tested candidate
-            candidates0 &= ~alreadyTested;
-            if (!candidates0)
-                continue;
-
-            for (int r1 = r0 + 1; r1 < Board::SIZE; ++r1)
-            {
-                unsigned candidates1 = candidates_[column[r1]];
-
-                // Ignore solved cells 
-                if (solved(candidates1))
-                    continue;
-
-                // Find any matching candidates in this cell that are not in any of the remaining cells
-                unsigned candidates = candidates0 & candidates1;
-                for (int r2 = r1 + 1; r2 < Board::SIZE; ++r2)
-                {
-                    candidates &= ~candidates_[column[r2]];
-                    if (!candidates)
-                        break;
-                }
-
-                // If none of the candidates in c0 are only in c1, then nothing to do
-                if (!candidates)
-                    break;
-
-                // There are should be exactly 1 or 2 values that occur only in columns c0 and c1
-                std::vector<int> candidateValues = valuesFromCandidates(candidates);
-                assert(candidateValues.size() <= 2);
-
-                // Find another column that has one of the values in only rows r0 and r1. If one is found, then
-                // the value can be eliminated from candidates in all other cells in those two rows.
-                for (int v : candidateValues)
-                {
-                    int c1 = -1;
-                    unsigned valueMask = 1 << v;
-                    for (int c = c0 + 1; c < Board::SIZE; ++c)
-                    {
-                        std::vector<int> columnIndexes = Board::getColumnIndexes(c);
-                        int other0 = columnIndexes[r0];
-                        int other1 = columnIndexes[r1];
-
-                        // If the columns don't match then skip the column
-                        if (!(valueMask & candidates_[other0]) || !(valueMask & candidates_[other1]))
-                            continue;
-
-                        // If the others in the column do not match then this is an X-Wing
-                        unsigned theRest = 0;
-                        for_each_index_except(columnIndexes, other0, other1, [&](int i) {
-                            theRest |= candidates_[i];
-                        });
-                        if (!(valueMask & theRest))
-                        {
-                            c1 = c;
-                            break;
-                        }
-                    }
-
-                    // If an X-Wing was found, and there are candidates to be eliminated, then success.
-                    if (c1 >= 0)
-                    {
-                        int rows[2] = { r0, r1 };
-                        for (int r : rows)
-                        {
-                            std::vector<int> rowIndexes = board_.getRowIndexes(r);
-                            for_each_index_except(rowIndexes, rowIndexes[c0], rowIndexes[c1], [&](int i) {
-                                if (valueMask & candidates_[i])
-                                    indexes.push_back(i);
-                            });
-                        }
-                        if (!indexes.empty())
-                        {
-                            values.push_back(v);
-                            which1 = c0;
-                            which2 = c1;
-                            pivots =
-                            {
-                                Board::indexOf(r0, c0),
-                                Board::indexOf(r0, c1),
-                                Board::indexOf(r1, c0),
-                                Board::indexOf(r1, c1)
-                            };
-                            return false;
-                        }
-                    }
-                }
-            }
-            alreadyTested |= candidates0;
-        }
-        return true;
+    found = !Board::for_each_column([&](int c, std::vector<int> const & column) {
+        return !xWingColumn(c, column, indexes, values, which1, which2, pivots);
     });
     if (found)
     {
@@ -1593,12 +1396,221 @@ bool Analyzer::xWingFound(std::vector<int> & indexes, std::vector<int> & values,
     return false;
 }
 
-bool Analyzer::xWing(std::vector<int> const & indexes,
-    std::vector<int> & eliminatedIndexes,
-    std::vector<int> & eliminatedValues,
-    int * otherUnit,
-    std::vector<int> pivots)
+bool Analyzer::xWingRow(int                      r0,
+                        std::vector<int> const & row,
+                        std::vector<int> &       eliminatedIndexes,
+                        std::vector<int> &       eliminatedValues,
+                        int &                    which1,
+                        int &                    which2,
+                        std::vector<int> &       pivots)
 {
+    unsigned alreadyTested = 0;
+    for (int c0 = 0; c0 < Board::SIZE - 1; ++c0)
+    {
+        unsigned candidates0 = candidates_[row[c0]];
+
+        // Ignore solved cells
+        if (solved(candidates0))
+            continue;
+
+        // Ignore cells with only already-tested candidate
+        candidates0 &= ~alreadyTested;
+        if (!candidates0)
+            continue;
+
+        for (int c1 = c0 + 1; c1 < Board::SIZE; ++c1)
+        {
+            unsigned candidates1 = candidates_[row[c1]];
+
+            // Ignore solved cells
+            if (solved(candidates1))
+                continue;
+
+            // Find any matching candidates in this cell that are not in any of the remaining cells
+            unsigned candidates = candidates0 & candidates1;
+            for (int c2 = c1 + 1; c2 < Board::SIZE; ++c2)
+            {
+                candidates &= ~candidates_[row[c2]];
+                if (!candidates)
+                    break;
+            }
+
+            // If none of the candidates in c0 are only in c1, then nothing to do
+            if (!candidates)
+                break;
+
+            // There are should be exactly 1 or 2 values that occur only in columns c0 and c1
+            std::vector<int> candidateValues = valuesFromCandidates(candidates);
+            assert(candidateValues.size() <= 2);
+
+            // Find another row that has one of the values in only columns c0 and c1. If one is found, then
+            // the value can be eliminated from candidates in all other cells in those two columns.
+            for (int v : candidateValues)
+            {
+                int r1 = -1;
+                unsigned valueMask = 1 << v;
+                for (int r = r0 + 1; r < Board::SIZE; ++r)
+                {
+                    std::vector<int> rowIndexes = Board::getRowIndexes(r);
+                    int other0 = rowIndexes[c0];
+                    int other1 = rowIndexes[c1];
+
+                    // If the columns don't match then skip the row
+                    if (!(valueMask & candidates_[other0]) || !(valueMask & candidates_[other1]))
+                        continue;
+
+                    // If the others in the row do not match then this is an X-Wing
+                    unsigned theRest = 0;
+                    for_each_index_except(rowIndexes, other0, other1, [&] (int i) {
+                        theRest |= candidates_[i];
+                    });
+                    if (!(valueMask & theRest))
+                    {
+                        r1 = r;
+                        break;
+                    }
+                }
+
+                // If an X-Wing was found, and there are candidates to be eliminated, then success.
+                if (r1 >= 0)
+                {
+                    int columns[2] = { c0, c1 };
+                    for (int c : columns)
+                    {
+                        std::vector<int> columnIndexes = board_.getColumnIndexes(c);
+                        for_each_index_except(columnIndexes, columnIndexes[r0], columnIndexes[r1], [&] (int i) {
+                            if (valueMask & candidates_[i])
+                                eliminatedIndexes.push_back(i);
+                        });
+                    }
+                    if (!eliminatedIndexes.empty())
+                    {
+                        eliminatedValues.push_back(v);
+                        which1 = r0;
+                        which2 = r1;
+                        pivots =
+                        {
+                            Board::indexOf(r0, c0),
+                            Board::indexOf(r0, c1),
+                            Board::indexOf(r1, c0),
+                            Board::indexOf(r1, c1)
+                        };
+                        return true;
+                    }
+                }
+            }
+        }
+        alreadyTested |= candidates0;
+    }
+    return false;
+}
+
+bool Analyzer::xWingColumn(int                      c0,
+                           std::vector<int> const & column,
+                           std::vector<int> &       eliminatedIndexes,
+                           std::vector<int> &       eliminatedValues,
+                           int &                    which1,
+                           int &                    which2,
+                           std::vector<int> &       pivots)
+{
+    unsigned alreadyTested = 0;
+    for (int r0 = 0; r0 < Board::SIZE - 1; ++r0)
+    {
+        unsigned candidates0 = candidates_[column[r0]];
+
+        // Ignore solved cells
+        if (solved(candidates0))
+            continue;
+
+        // Ignore cells with only already-tested candidate
+        candidates0 &= ~alreadyTested;
+        if (!candidates0)
+            continue;
+
+        for (int r1 = r0 + 1; r1 < Board::SIZE; ++r1)
+        {
+            unsigned candidates1 = candidates_[column[r1]];
+
+            // Ignore solved cells
+            if (solved(candidates1))
+                continue;
+
+            // Find any matching candidates in this cell that are not in any of the remaining cells
+            unsigned candidates = candidates0 & candidates1;
+            for (int r2 = r1 + 1; r2 < Board::SIZE; ++r2)
+            {
+                candidates &= ~candidates_[column[r2]];
+                if (!candidates)
+                    break;
+            }
+
+            // If none of the candidates in c0 are only in c1, then nothing to do
+            if (!candidates)
+                break;
+
+            // There are should be exactly 1 or 2 values that occur only in columns c0 and c1
+            std::vector<int> candidateValues = valuesFromCandidates(candidates);
+            assert(candidateValues.size() <= 2);
+
+            // Find another column that has one of the values in only rows r0 and r1. If one is found, then
+            // the value can be eliminated from candidates in all other cells in those two rows.
+            for (int v : candidateValues)
+            {
+                int c1 = -1;
+                unsigned valueMask = 1 << v;
+                for (int c = c0 + 1; c < Board::SIZE; ++c)
+                {
+                    std::vector<int> columnIndexes = Board::getColumnIndexes(c);
+                    int other0 = columnIndexes[r0];
+                    int other1 = columnIndexes[r1];
+
+                    // If the columns don't match then skip the column
+                    if (!(valueMask & candidates_[other0]) || !(valueMask & candidates_[other1]))
+                        continue;
+
+                    // If the others in the column do not match then this is an X-Wing
+                    unsigned theRest = 0;
+                    for_each_index_except(columnIndexes, other0, other1, [&] (int i) {
+                        theRest |= candidates_[i];
+                    });
+                    if (!(valueMask & theRest))
+                    {
+                        c1 = c;
+                        break;
+                    }
+                }
+
+                // If an X-Wing was found, and there are candidates to be eliminated, then success.
+                if (c1 >= 0)
+                {
+                    int rows[2] = { r0, r1 };
+                    for (int r : rows)
+                    {
+                        std::vector<int> rowIndexes = board_.getRowIndexes(r);
+                        for_each_index_except(rowIndexes, rowIndexes[c0], rowIndexes[c1], [&] (int i) {
+                            if (valueMask & candidates_[i])
+                                eliminatedIndexes.push_back(i);
+                        });
+                    }
+                    if (!eliminatedIndexes.empty())
+                    {
+                        eliminatedValues.push_back(v);
+                        which1 = c0;
+                        which2 = c1;
+                        pivots =
+                        {
+                            Board::indexOf(r0, c0),
+                            Board::indexOf(r0, c1),
+                            Board::indexOf(r1, c0),
+                            Board::indexOf(r1, c1)
+                        };
+                        return true;
+                    }
+                }
+            }
+        }
+        alreadyTested |= candidates0;
+    }
     return false;
 }
 

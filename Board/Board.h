@@ -63,8 +63,8 @@ public:
     // Draws the board to stdout
     void draw() const;
 
-    // Calls a function for each row on the board, passing in the row number and the indexes of the squares in the row. Returns true if all rows were
-    // processed successfully.
+    // Calls a function for each row on the board, passing in the row number and the indexes of the squares in the row. Returns true
+    // if all rows were processed successfully.
     static bool for_each_row(std::function<bool(int, std::vector<int> const &)> f);
 
     // Calls a function for each row on the board except the specified ones, passing in the row number and the
@@ -79,7 +79,8 @@ public:
     // indexes of the squares in the row. Returns true if all rows were processed successfully.
     static bool for_each_row_except(int x0, int x1, int x2, std::function<bool(int, std::vector<int> const &)> f);
 
-    // Calls a function for each column on the board, passing in the column number and the indexes of the squares in the column. Returns true if all rows
+    // Calls a function for each column on the board, passing in the column number and the indexes of the squares in the column.
+    // Returns true if all rows
     // were processed successfully.
     static bool for_each_column(std::function<bool(int, std::vector<int> const &)> f);
 
@@ -95,8 +96,8 @@ public:
     // the indexes of the squares in the column. Returns true if all columns were processed successfully.
     static bool for_each_column_except(int x0, int x1, int x2, std::function<bool(int, std::vector<int> const &)> f);
 
-    // Calls a function for each box on the board, passing in the box number and the indexes of the squares in the box. Returns true if all rows were
-    // processed successfully.
+    // Calls a function for each box on the board, passing in the box number and the indexes of the squares in the box. Returns true
+    // if all rows were processed successfully.
     static bool for_each_box(std::function<bool(int, std::vector<int> const &)> f);
 
     // Calls a function for each box on the board except the specified ones, passing in the box number and
@@ -159,9 +160,9 @@ public:
 private:
 
     bool        consistent(std::vector<int> const & unit) const;
-    bool        boxIsConsistent(int b) const { return consistent(getBoxIndexes(b)); }
+    bool        boxIsConsistent(int b) const    { return consistent(getBoxIndexes(b)); }
     bool        columnIsConsistent(int c) const { return consistent(getColumnIndexes(c)); }
-    bool        rowIsConsistent(int r) const { return consistent(getRowIndexes(r)); }
+    bool        rowIsConsistent(int r) const    { return consistent(getRowIndexes(r)); }
     static bool consistent(int x, int & values);
 
     int board_[SIZE][SIZE];
