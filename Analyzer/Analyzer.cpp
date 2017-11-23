@@ -1425,16 +1425,16 @@ bool Analyzer::xWingFound(std::vector<int> & indexes, std::vector<int> & values,
                     for (int r = r0 + 1; r < Board::SIZE; ++r)
                     {
                         std::vector<int> rowIndexes = Board::getRowIndexes(r);
+                        int other0 = rowIndexes[c0];
+                        int other1 = rowIndexes[c1];
 
                         // If the columns don't match then skip the row
-                        unsigned other0 = candidates_[rowIndexes[c0]];
-                        unsigned other1 = candidates_[rowIndexes[c1]];
-                        if (!(valueMask & other0) || !(valueMask & other1))
+                        if (!(valueMask & candidates_[other0]) || !(valueMask & candidates_[other1]))
                             continue;
 
                         // If the others in the row do not match then this is an X-Wing
                         unsigned theRest = 0;
-                        for_each_index_except(rowIndexes, rowIndexes[c0], rowIndexes[c1], [&] (int i) {
+                        for_each_index_except(rowIndexes, other0, other1, [&] (int i) {
                             theRest |= candidates_[i];
                         });
                         if (!(valueMask & theRest))
@@ -1532,16 +1532,16 @@ bool Analyzer::xWingFound(std::vector<int> & indexes, std::vector<int> & values,
                     for (int c = c0 + 1; c < Board::SIZE; ++c)
                     {
                         std::vector<int> columnIndexes = Board::getColumnIndexes(c);
+                        int other0 = columnIndexes[r0];
+                        int other1 = columnIndexes[r1];
 
                         // If the columns don't match then skip the column
-                        unsigned other0 = candidates_[columnIndexes[r0]];
-                        unsigned other1 = candidates_[columnIndexes[r1]];
-                        if (!(valueMask & other0) || !(valueMask & other1))
+                        if (!(valueMask & candidates_[other0]) || !(valueMask & candidates_[other1]))
                             continue;
 
                         // If the others in the column do not match then this is an X-Wing
                         unsigned theRest = 0;
-                        for_each_index_except(columnIndexes, columnIndexes[r0], columnIndexes[r1], [&](int i) {
+                        for_each_index_except(columnIndexes, other0, other1, [&](int i) {
                             theRest |= candidates_[i];
                         });
                         if (!(valueMask & theRest))

@@ -4,6 +4,7 @@
 #include <cassert>
 #include <memory>
 #include <vector>
+#include <string>
 
 Board::Board()
 {

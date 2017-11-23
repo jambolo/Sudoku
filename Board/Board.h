@@ -8,9 +8,9 @@ class Board
 public:
     Board();
 
-    static int const SIZE     = 9;
-    static int const BOX_SIZE = 3;
-    static int const EMPTY    = 0;
+    static int constexpr SIZE     = 9;
+    static int constexpr BOX_SIZE = 3;
+    static int constexpr EMPTY    = 0;
 
     // Sets the value of a square (1 - 9, or EMPTY)
     void set(int r, int c, int x) { board_[r][c] = x; }
