@@ -158,7 +158,87 @@ Analyzer::Step Analyzer::next()
     }
 
     done_ = true;
+    stuck_ = true;
     return { Step::STUCK };
+}
+
+void Analyzer::drawPenciledBoard() const
+{
+    printf("      1       2       3       4       5       6       7       8       9\n");
+    printf("  +=======+=======+=======+=======+=======+=======+=======+=======+=======+\n");
+    for (int r = 0; r < Board::SIZE; ++r)
+    {
+        printf("  |");
+        for (int c = 0; c < Board::SIZE; ++c)
+        {
+            unsigned candidates = candidates_[Board::indexOf(r, c)];
+            if (solved(candidates))
+            {
+                printf("       ");
+            }
+            else
+            {
+                char x1 = (candidates & (1 << 1)) ? '1' : '.';
+                char x2 = (candidates & (1 << 2)) ? '2' : '.';
+                char x3 = (candidates & (1 << 3)) ? '3' : '.';
+                printf(" %c %c %c ", x1, x2, x3);
+            }
+            if (c % 3 == 2)
+                printf("|");
+            else
+                printf(":");
+        }
+        printf("\n");
+
+        printf("%c |", Board::rowName(r));
+        for (int c = 0; c < Board::SIZE; ++c)
+        {
+            unsigned candidates = candidates_[Board::indexOf(r, c)];
+            if (solved(candidates))
+            {
+                int v = board_.get(r, c);
+                printf("   %d   ", v);
+            }
+            else
+            {
+                char x4 = (candidates & (1 << 4)) ? '4' : '.';
+                char x5 = (candidates & (1 << 5)) ? '5' : '.';
+                char x6 = (candidates & (1 << 6)) ? '6' : '.';
+                printf(" %c %c %c ", x4, x5, x6);
+            }
+            if (c % 3 == 2)
+                printf("|");
+            else
+                printf(":");
+        }
+        printf("\n");
+
+        printf("  |");
+        for (int c = 0; c < Board::SIZE; ++c)
+        {
+            unsigned candidates = candidates_[Board::indexOf(r, c)];
+            if (solved(candidates))
+            {
+                printf("       ");
+            }
+            else
+            {
+                char x7 = (candidates & (1 << 7)) ? '7' : '.';
+                char x8 = (candidates & (1 << 8)) ? '8' : '.';
+                char x9 = (candidates & (1 << 9)) ? '9' : '.';
+                printf(" %c %c %c ", x7, x8, x9);
+            }
+            if (c % 3 == 2)
+                printf("|");
+            else
+                printf(":");
+        }
+        printf("\n");
+        if (r % 3 == 2)
+            printf("  +=======+=======+=======+=======+=======+=======+=======+=======+=======+\n");
+        else
+            printf("  +-------+-------+-------+-------+-------+-------+-------+-------+-------+\n");
+    }
 }
 
 void Analyzer::solve(int r, int c, int x)

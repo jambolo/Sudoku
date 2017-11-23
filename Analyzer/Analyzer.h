@@ -46,6 +46,11 @@ public:
     // Returns true if the analyzer can make no more progress
     bool done() const { return done_; }
 
+    // Returns true if the analyzer can make no more progress because it is stuck
+    bool stuck() const { return stuck_; }
+
+    void drawPenciledBoard() const;
+
 private:
 
     void solve(int r, int c, int x);
@@ -112,4 +117,5 @@ private:
     std::vector<int> unsolved_;         // Indexes of unsolved squares
     std::vector<unsigned> candidates_;  // Masks of possible values for each square
     bool done_;                         // True if the analyzer can do no more, either because it is stumped or the board is solved
+    bool stuck_;                        // True if the analyzer can do no more, either because it is stumped
 };
