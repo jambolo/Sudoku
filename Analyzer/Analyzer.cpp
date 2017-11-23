@@ -115,7 +115,7 @@ Analyzer::Analyzer(Board const & board, bool verbose /*= false*/)
     // Nothing is solved initially
     std::iota(unsolved_.begin(), unsolved_.end(), 0);
 
-    // For solved squares, mark as solved
+    // For solved cells, mark as solved
     for (int r = 0; r < Board::SIZE; ++r)
     {
         for (int c = 0; c < Board::SIZE; ++c)
@@ -296,21 +296,21 @@ void Analyzer::solve(int r, int c, int x)
     // Update the board
     board_.set(r, c, x);
 
-    // The square has only one candidate now
+    // The cell has only one candidate now
     int index = Board::indexOf(r, c);
     candidates_[index] = 1 << x;
 
-    // Remove from the list of unsolved squares
+    // Remove from the list of unsolved cells
     unsolved_.erase(std::remove(unsolved_.begin(), unsolved_.end(), index), unsolved_.end());
 
-    // Eliminate this square's value from its dependents' candidates
+    // Eliminate this cell's value from its dependents' candidates
     std::vector<int> dependents = Board::getDependents(r, c);
     eliminate(dependents, x);
 }
 
 void Analyzer::eliminate(std::vector<int> const & indexes, int x)
 {
-    for (auto i : indexes)
+    for (int i : indexes)
     {
         candidates_[i] &= ~(1 << x);
         assert(candidates_[i] != 0);
@@ -319,13 +319,13 @@ void Analyzer::eliminate(std::vector<int> const & indexes, int x)
 
 void Analyzer::eliminate(std::vector<int> const & indexes, std::vector<int> const & values)
 {
-    for (auto v : values)
+    for (int v : values)
     {
         eliminate(indexes, v);
     }
 }
 
-bool Analyzer::hiddenSingleFound(std::vector<int> & indexes, std::vector<int> & values, std::string & reason)
+bool Analyzer::hiddenSingleFound(std::vector<int> & indexes, std::vector<int> & values, std::string & reason) const
 {
     bool found;
     int which;
@@ -389,7 +389,7 @@ bool Analyzer::hiddenSingleFound(std::vector<int> & indexes, std::vector<int> & 
 
 bool Analyzer::hiddenSingle(std::vector<int> const & indexes,
                             std::vector<int> &       eliminatedIndexes,
-                            std::vector<int> &       eliminatedValues)
+                            std::vector<int> &       eliminatedValues) const
 {
     for (int s : indexes)
     {
@@ -422,7 +422,7 @@ static std::string generateHiddenPairReason(std::string const & unitType, char w
     return reason;
 }
 
-bool Analyzer::hiddenPairFound(std::vector<int> & indexes, std::vector<int> & values, std::string & reason)
+bool Analyzer::hiddenPairFound(std::vector<int> & indexes, std::vector<int> & values, std::string & reason) const
 {
     // For each exclusive pair in a unit, if they have additional candidates, then success.
 
@@ -490,7 +490,7 @@ bool Analyzer::hiddenPairFound(std::vector<int> & indexes, std::vector<int> & va
 bool Analyzer::hiddenPair(std::vector<int> const & indexes,
                           std::vector<int> &       eliminatedIndexes,
                           std::vector<int> &       eliminatedValues,
-                          std::vector<int> &       hiddenValues)
+                          std::vector<int> &       hiddenValues) const
 {
     // Go through each possible pair of candidates and search for exactly two cells containing the one or more of a pair
     for (int x0 = 1; x0 <= Board::SIZE - 1; ++x0)
@@ -552,7 +552,7 @@ static std::string generateHiddenTripleReason(std::string const & unitType, char
     return reason;
 }
 
-bool Analyzer::hiddenTripleFound(std::vector<int> & indexes, std::vector<int> & values, std::string & reason)
+bool Analyzer::hiddenTripleFound(std::vector<int> & indexes, std::vector<int> & values, std::string & reason) const
 {
     // For each exclusive triple in a unit, if they have additional candidates, then success.
 
@@ -620,7 +620,7 @@ bool Analyzer::hiddenTripleFound(std::vector<int> & indexes, std::vector<int> & 
 bool Analyzer::hiddenTriple(std::vector<int> const & indexes,
                             std::vector<int> &       eliminatedIndexes,
                             std::vector<int> &       eliminatedValues,
-                            std::vector<int> &       hiddenValues)
+                            std::vector<int> &       hiddenValues) const
 {
     // Go through each possible triple of candidates and search for exactly three cells containing the one or more of a triple
     for (int x0 = 1; x0 <= Board::SIZE - 2; ++x0)
@@ -690,7 +690,7 @@ static std::string generateHiddenQuadReason(std::string const & unitType, char w
     return reason;
 }
 
-bool Analyzer::hiddenQuadFound(std::vector<int> & indexes, std::vector<int> & values, std::string & reason)
+bool Analyzer::hiddenQuadFound(std::vector<int> & indexes, std::vector<int> & values, std::string & reason) const
 {
     // For each exclusive quad in a unit, if they have additional candidates, then success.
 
@@ -758,7 +758,7 @@ bool Analyzer::hiddenQuadFound(std::vector<int> & indexes, std::vector<int> & va
 bool Analyzer::hiddenQuad(std::vector<int> const & indexes,
                           std::vector<int> &       eliminatedIndexes,
                           std::vector<int> &       eliminatedValues,
-                          std::vector<int> &       hiddenValues)
+                          std::vector<int> &       hiddenValues) const
 {
     // Go through each possible quad of candidates and search for exactly four cells containing the one or more of a quad
     for (int x0 = 1; x0 <= Board::SIZE - 3; ++x0)
@@ -824,7 +824,7 @@ bool Analyzer::hiddenQuad(std::vector<int> const & indexes,
     return false;
 }
 
-bool Analyzer::nakedSingleFound(std::vector<int> & indexes, std::vector<int> & values, std::string & reason)
+bool Analyzer::nakedSingleFound(std::vector<int> & indexes, std::vector<int> & values, std::string & reason) const
 {
     if (nakedSingle(indexes, values))
     {
@@ -835,10 +835,10 @@ bool Analyzer::nakedSingleFound(std::vector<int> & indexes, std::vector<int> & v
     return false;
 }
 
-bool Analyzer::nakedSingle(std::vector<int> & indexes, std::vector<int> & values)
+bool Analyzer::nakedSingle(std::vector<int> & indexes, std::vector<int> & values) const
 {
-    // For each unsolved square, if it only has one candidate, then success
-    for (auto i : unsolved_)
+    // For each unsolved cell, if it only has one candidate, then success
+    for (int i : unsolved_)
     {
         unsigned candidates = candidates_[i];
         if (solved(candidates))
@@ -860,7 +860,7 @@ static std::string generateNakedPairReason(std::string const & unitType, char wh
     return reason;
 }
 
-bool Analyzer::nakedPairFound(std::vector<int> & indexes, std::vector<int> & values, std::string & reason)
+bool Analyzer::nakedPairFound(std::vector<int> & indexes, std::vector<int> & values, std::string & reason) const
 {
     // For each exclusive pair in a unit, if there are other candidates that overlap, then success.
 
@@ -919,7 +919,7 @@ bool Analyzer::nakedPairFound(std::vector<int> & indexes, std::vector<int> & val
 bool Analyzer::nakedPair(std::vector<int> const & indexes,
                          std::vector<int> &       eliminatedIndexes,
                          std::vector<int> &       eliminatedValues,
-                         std::vector<int> &       nakedIndexes)
+                         std::vector<int> &       nakedIndexes) const
 {
     for (int b0 = 0; b0 < Board::SIZE - 1; ++b0)
     {
@@ -964,7 +964,7 @@ static std::string generateNakedTripleReason(std::string const & unitType, char 
     return reason;
 }
 
-bool Analyzer::nakedTripleFound(std::vector<int> & indexes, std::vector<int> & values, std::string & reason)
+bool Analyzer::nakedTripleFound(std::vector<int> & indexes, std::vector<int> & values, std::string & reason) const
 {
     // For each exclusive triple in a unit, if there are other candidates that overlap, then success.
 
@@ -1023,7 +1023,7 @@ bool Analyzer::nakedTripleFound(std::vector<int> & indexes, std::vector<int> & v
 bool Analyzer::nakedTriple(std::vector<int> const & indexes,
                            std::vector<int> &       eliminatedIndexes,
                            std::vector<int> &       eliminatedValues,
-                           std::vector<int> &       nakedIndexes)
+                           std::vector<int> &       nakedIndexes) const
 {
     for (int b0 = 0; b0 < Board::SIZE - 2; ++b0)
     {
@@ -1077,7 +1077,7 @@ static std::string generateNakedQuadReason(std::string const & unitType, char wh
     return reason;
 }
 
-bool Analyzer::nakedQuadFound(std::vector<int> & indexes, std::vector<int> & values, std::string & reason)
+bool Analyzer::nakedQuadFound(std::vector<int> & indexes, std::vector<int> & values, std::string & reason) const
 {
     // For each exclusive quad in a unit, if there are other candidates that overlap, then success.
 
@@ -1136,7 +1136,7 @@ bool Analyzer::nakedQuadFound(std::vector<int> & indexes, std::vector<int> & val
 bool Analyzer::nakedQuad(std::vector<int> const & indexes,
                          std::vector<int> &       eliminatedIndexes,
                          std::vector<int> &       eliminatedValues,
-                         std::vector<int> &       nakedIndexes)
+                         std::vector<int> &       nakedIndexes) const
 {
     for (int b0 = 0; b0 < Board::SIZE - 3; ++b0)
     {
@@ -1198,7 +1198,7 @@ static std::string generateLockedCandidatesReason(std::string const & unitType1,
     return reason;
 }
 
-bool Analyzer::lockedCandidatesFound(std::vector<int> & indexes, std::vector<int> & values, std::string & reason)
+bool Analyzer::lockedCandidatesFound(std::vector<int> & indexes, std::vector<int> & values, std::string & reason) const
 {
     // For the intersection of each row or column with a box, if there are candidates that exist within the
     // intersection but not in the rest of the row/column, then success if those candidates exist in the box.
@@ -1298,7 +1298,7 @@ bool Analyzer::lockedCandidatesFound(std::vector<int> & indexes, std::vector<int
 bool Analyzer::lockedCandidates(std::vector<int> const & indexes1,
                                 std::vector<int> const & indexes2,
                                 std::vector<int> &       eliminatedIndexes,
-                                std::vector<int> &       eliminatedValues)
+                                std::vector<int> &       eliminatedValues) const
 {
     // Indexes in the intersection
     std::vector<int> intersection(Board::BOX_SIZE);
@@ -1311,45 +1311,32 @@ bool Analyzer::lockedCandidates(std::vector<int> const & indexes1,
     std::set_difference(indexes2.begin(), indexes2.end(), intersection.begin(), intersection.end(), others2.begin());
 
     // Candidates in the intersection
-    unsigned intersectionCandidates = 0;
-    for (int i : intersection)
-    {
-        if (!solved(candidates_[i]))
-            intersectionCandidates |= candidates_[i];
-    }
+    unsigned intersectionCandidates = allUnsolvedCandidates(intersection.begin(), intersection.end());
 
     // Candidates in set 1, not in intersection
-    unsigned otherCandidates1 = 0;
-    for (int i : others1)
-    {
-        if (!solved(candidates_[i]))
-            otherCandidates1 |= candidates_[i];
-    }
+    unsigned otherCandidates1 = allUnsolvedCandidates(others1.begin(), others1.end());
 
-    // If any of the candidates in the intersection don't exist in the rest of set 1, then eliminate them from set 2
+    // If any of the candidates in the intersection don't exist in the rest of set 1, then they are the ones to be eliminated from
+    // set 2
     unsigned unique1 = intersectionCandidates & ~otherCandidates1;
     if (unique1)
     {
-        bool found = false;
         for (int i : others2)
         {
             if (candidates_[i] & unique1)
-            {
                 eliminatedIndexes.push_back(i);
-                found = true;
-            }
         }
-        if (found)
+        if (!eliminatedIndexes.empty())
         {
             std::vector<int> uniqueCandidates = valuesFromCandidates(unique1);
             eliminatedValues.insert(eliminatedValues.end(), uniqueCandidates.begin(), uniqueCandidates.end());
         }
-    }
 
-    std::sort(eliminatedIndexes.begin(), eliminatedIndexes.end());
-    eliminatedIndexes.erase(std::unique(eliminatedIndexes.begin(), eliminatedIndexes.end()), eliminatedIndexes.end());
-    std::sort(eliminatedValues.begin(), eliminatedValues.end());
-    eliminatedValues.erase(std::unique(eliminatedValues.begin(), eliminatedValues.end()), eliminatedValues.end());
+        std::sort(eliminatedIndexes.begin(), eliminatedIndexes.end());
+        eliminatedIndexes.erase(std::unique(eliminatedIndexes.begin(), eliminatedIndexes.end()), eliminatedIndexes.end());
+        std::sort(eliminatedValues.begin(), eliminatedValues.end());
+        eliminatedValues.erase(std::unique(eliminatedValues.begin(), eliminatedValues.end()), eliminatedValues.end());
+    }
 
     return !eliminatedIndexes.empty();
 }
@@ -1365,7 +1352,7 @@ static std::string generateXWingReason(char const *             unitName,
     return reason;
 }
 
-bool Analyzer::xWingFound(std::vector<int> & indexes, std::vector<int> & values, std::string & reason)
+bool Analyzer::xWingFound(std::vector<int> & indexes, std::vector<int> & values, std::string & reason) const
 {
     // If a value is a candidate in a row (or column) in exactly two cells and it is a candidate in another row
     // (or column) in exactly the same two columns (or rows) as the first row (or or column), then it cannot be
@@ -1397,17 +1384,17 @@ bool Analyzer::xWingFound(std::vector<int> & indexes, std::vector<int> & values,
 }
 
 bool Analyzer::xWingRow(int                      r0,
-                        std::vector<int> const & row,
+                        std::vector<int> const & indexes,
                         std::vector<int> &       eliminatedIndexes,
                         std::vector<int> &       eliminatedValues,
                         int &                    which1,
                         int &                    which2,
-                        std::vector<int> &       pivots)
+                        std::vector<int> &       pivots) const
 {
     unsigned alreadyTested = 0;
     for (int c0 = 0; c0 < Board::SIZE - 1; ++c0)
     {
-        unsigned candidates0 = candidates_[row[c0]];
+        unsigned candidates0 = candidates_[indexes[c0]];
 
         // Ignore solved cells
         if (solved(candidates0))
@@ -1420,20 +1407,14 @@ bool Analyzer::xWingRow(int                      r0,
 
         for (int c1 = c0 + 1; c1 < Board::SIZE; ++c1)
         {
-            unsigned candidates1 = candidates_[row[c1]];
+            unsigned candidates1 = candidates_[indexes[c1]];
 
             // Ignore solved cells
             if (solved(candidates1))
                 continue;
 
             // Find any matching candidates in this cell that are not in any of the remaining cells
-            unsigned candidates = candidates0 & candidates1;
-            for (int c2 = c1 + 1; c2 < Board::SIZE; ++c2)
-            {
-                candidates &= ~candidates_[row[c2]];
-                if (!candidates)
-                    break;
-            }
+            unsigned candidates = candidates0 & candidates1 & ~allCandidates(indexes.begin() + c1 + 1, indexes.end());
 
             // If none of the candidates in c0 are only in c1, then nothing to do
             if (!candidates)
@@ -1474,8 +1455,7 @@ bool Analyzer::xWingRow(int                      r0,
                 // If an X-Wing was found, and there are candidates to be eliminated, then success.
                 if (r1 >= 0)
                 {
-                    int columns[2] = { c0, c1 };
-                    for (int c : columns)
+                    for (int c : { c0, c1 })
                     {
                         std::vector<int> columnIndexes = board_.getColumnIndexes(c);
                         for_each_index_except(columnIndexes, columnIndexes[r0], columnIndexes[r1], [&] (int i) {
@@ -1506,17 +1486,17 @@ bool Analyzer::xWingRow(int                      r0,
 }
 
 bool Analyzer::xWingColumn(int                      c0,
-                           std::vector<int> const & column,
+                           std::vector<int> const & indexes,
                            std::vector<int> &       eliminatedIndexes,
                            std::vector<int> &       eliminatedValues,
                            int &                    which1,
                            int &                    which2,
-                           std::vector<int> &       pivots)
+                           std::vector<int> &       pivots) const
 {
     unsigned alreadyTested = 0;
     for (int r0 = 0; r0 < Board::SIZE - 1; ++r0)
     {
-        unsigned candidates0 = candidates_[column[r0]];
+        unsigned candidates0 = candidates_[indexes[r0]];
 
         // Ignore solved cells
         if (solved(candidates0))
@@ -1529,22 +1509,16 @@ bool Analyzer::xWingColumn(int                      c0,
 
         for (int r1 = r0 + 1; r1 < Board::SIZE; ++r1)
         {
-            unsigned candidates1 = candidates_[column[r1]];
+            unsigned candidates1 = candidates_[indexes[r1]];
 
             // Ignore solved cells
             if (solved(candidates1))
                 continue;
 
             // Find any matching candidates in this cell that are not in any of the remaining cells
-            unsigned candidates = candidates0 & candidates1;
-            for (int r2 = r1 + 1; r2 < Board::SIZE; ++r2)
-            {
-                candidates &= ~candidates_[column[r2]];
-                if (!candidates)
-                    break;
-            }
+            unsigned candidates = candidates0 & candidates1 & ~allCandidates(indexes.begin() + r1 + 1, indexes.end());
 
-            // If none of the candidates in c0 are only in c1, then nothing to do
+            // If none of the candidates in r0 are only in r1, then nothing to do
             if (!candidates)
                 break;
 
@@ -1583,8 +1557,7 @@ bool Analyzer::xWingColumn(int                      c0,
                 // If an X-Wing was found, and there are candidates to be eliminated, then success.
                 if (c1 >= 0)
                 {
-                    int rows[2] = { r0, r1 };
-                    for (int r : rows)
+                    for (int r : { r0, r1 })
                     {
                         std::vector<int> rowIndexes = board_.getRowIndexes(r);
                         for_each_index_except(rowIndexes, rowIndexes[c0], rowIndexes[c1], [&] (int i) {
@@ -1612,6 +1585,28 @@ bool Analyzer::xWingColumn(int                      c0,
         alreadyTested |= candidates0;
     }
     return false;
+}
+
+unsigned Analyzer::allCandidates(std::vector<int>::const_iterator first, std::vector<int>::const_iterator last) const
+{
+    unsigned candidates = 0;
+    for (std::vector<int>::const_iterator i = first; i != last; ++i)
+    {
+        candidates |= candidates_[*i];
+    }
+    return candidates;
+}
+
+unsigned Analyzer::allUnsolvedCandidates(std::vector<int>::const_iterator first, std::vector<int>::const_iterator last) const
+{
+    unsigned candidates = 0;
+    for (std::vector<int>::const_iterator i = first; i != last; ++i)
+    {
+        unsigned c = candidates_[*i];
+        if (!solved(c))
+            candidates |= c;
+    }
+    return candidates;
 }
 
 const char * Analyzer::Step::techniqueName(Analyzer::Step::TechniqueId technique)

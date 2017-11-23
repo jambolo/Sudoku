@@ -57,69 +57,72 @@ private:
     void eliminate(std::vector<int> const & indexes, int x);
     void eliminate(std::vector<int> const & indexes, std::vector<int> const & values);
 
-    bool hiddenSingleFound(std::vector<int> & indexes, std::vector<int> & values, std::string & reason);
-    bool hiddenSingle(std::vector<int> const & indexes, std::vector<int> & eliminatedIndexes, std::vector<int> & eliminatedValues);
+    bool hiddenSingleFound(std::vector<int> & indexes, std::vector<int> & values, std::string & reason) const;
+    bool hiddenSingle(std::vector<int> const & indexes, std::vector<int> & eliminatedIndexes, std::vector<int> & eliminatedValues) const;
 
-    bool hiddenPairFound(std::vector<int> & indexes, std::vector<int> & values, std::string & reason);
+    bool hiddenPairFound(std::vector<int> & indexes, std::vector<int> & values, std::string & reason) const;
     bool hiddenPair(std::vector<int> const & indexes,
                     std::vector<int> &       eliminatedIndexes,
                     std::vector<int> &       eliminatedValues,
-                    std::vector<int> &       hiddenValues);
+                    std::vector<int> &       hiddenValues) const;
 
-    bool hiddenTripleFound(std::vector<int> & indexes, std::vector<int> & values, std::string & reason);
+    bool hiddenTripleFound(std::vector<int> & indexes, std::vector<int> & values, std::string & reason) const;
     bool hiddenTriple(std::vector<int> const & indexes,
                       std::vector<int> &       eliminatedIndexes,
                       std::vector<int> &       eliminatedValues,
-                      std::vector<int> &       hiddenValues);
+                      std::vector<int> &       hiddenValues) const;
 
-    bool hiddenQuadFound(std::vector<int> & indexes, std::vector<int> & values, std::string & reason);
+    bool hiddenQuadFound(std::vector<int> & indexes, std::vector<int> & values, std::string & reason) const;
     bool hiddenQuad(std::vector<int> const & indexes,
                     std::vector<int> &       eliminatedIndexes,
                     std::vector<int> &       eliminatedValues,
-                    std::vector<int> &       hiddenValues);
+                    std::vector<int> &       hiddenValues) const;
 
-    bool nakedSingleFound(std::vector<int> & indexes, std::vector<int> & values, std::string & reason);
-    bool nakedSingle(std::vector<int> & indexes, std::vector<int> & values);
+    bool nakedSingleFound(std::vector<int> & indexes, std::vector<int> & values, std::string & reason) const;
+    bool nakedSingle(std::vector<int> & indexes, std::vector<int> & values) const;
 
-    bool nakedPairFound(std::vector<int> & indexes, std::vector<int> & values, std::string & reason);
+    bool nakedPairFound(std::vector<int> & indexes, std::vector<int> & values, std::string & reason) const;
     bool nakedPair(std::vector<int> const & indexes,
                    std::vector<int> &       eliminatedIndexes,
                    std::vector<int> &       eliminatedValues,
-                   std::vector<int> &       nakedIndexes);
+                   std::vector<int> &       nakedIndexes) const;
 
-    bool nakedTripleFound(std::vector<int> & indexes, std::vector<int> & values, std::string & reason);
+    bool nakedTripleFound(std::vector<int> & indexes, std::vector<int> & values, std::string & reason) const;
     bool nakedTriple(std::vector<int> const & indexes,
                      std::vector<int> &       eliminatedIndexes,
                      std::vector<int> &       eliminatedValues,
-                     std::vector<int> &       nakedIndexes);
+                     std::vector<int> &       nakedIndexes) const;
 
-    bool nakedQuadFound(std::vector<int> & indexes, std::vector<int> & values, std::string & reason);
+    bool nakedQuadFound(std::vector<int> & indexes, std::vector<int> & values, std::string & reason) const;
     bool nakedQuad(std::vector<int> const & indexes,
                    std::vector<int> &       eliminatedIndexes,
                    std::vector<int> &       eliminatedValues,
-                   std::vector<int> &       nakedIndexes);
+                   std::vector<int> &       nakedIndexes) const;
 
-    bool lockedCandidatesFound(std::vector<int> & indexes, std::vector<int> & values, std::string & reason);
+    bool lockedCandidatesFound(std::vector<int> & indexes, std::vector<int> & values, std::string & reason) const;
     bool lockedCandidates(std::vector<int> const & indexes1,
                           std::vector<int> const & indexes2,
                           std::vector<int> &       eliminatedIndexes,
-                          std::vector<int> &       eliminatedValues);
+                          std::vector<int> &       eliminatedValues) const;
 
-    bool xWingFound(std::vector<int> & indexes, std::vector<int> & values, std::string & reason);
+    bool xWingFound(std::vector<int> & indexes, std::vector<int> & values, std::string & reason) const;
     bool xWingRow(int                      r0,
                   std::vector<int> const & row,
                   std::vector<int> &       eliminatedIndexes,
                   std::vector<int> &       eliminatedValues,
                   int &                    which1,
                   int &                    which2,
-                  std::vector<int> &       pivots);
+                  std::vector<int> &       pivots) const;
     bool xWingColumn(int                      c0,
                      std::vector<int> const & column,
                      std::vector<int> &       eliminatedIndexes,
                      std::vector<int> &       eliminatedValues,
                      int &                    which1,
                      int &                    which2,
-                     std::vector<int> &       pivots);
+                     std::vector<int> &       pivots) const;
+
+    unsigned allCandidates(std::vector<int>::const_iterator first, std::vector<int>::const_iterator last) const;
+    unsigned allUnsolvedCandidates(std::vector<int>::const_iterator first, std::vector<int>::const_iterator last) const;
 
     Board board_;                       // Current state of the board
     bool verbose_;                      // If true, then generate explanations
