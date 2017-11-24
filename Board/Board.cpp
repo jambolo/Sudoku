@@ -166,6 +166,16 @@ void Board::draw() const
     }
 }
 
+bool Board::for_each_cell(std::function<bool(int)> f)
+{
+    for (int i = 0; i < SIZE * SIZE; ++i)
+    {
+        if (!f(i))
+            return false;
+    }
+    return true;
+}
+
 bool Board::for_each_row(std::function<bool(int, std::vector<int> const &)> f)
 {
     for (int r = 0; r < SIZE; ++r)

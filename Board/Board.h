@@ -63,6 +63,9 @@ public:
     // Draws the board to stdout
     void draw() const;
 
+    // Calls a function for each cell on the board, passing the index of the cell. Returns true if all cells were processed successfully.
+    static bool for_each_cell(std::function<bool(int)> f);
+
     // Calls a function for each row on the board, passing in the row number and the indexes of the squares in the row. Returns true
     // if all rows were processed successfully.
     static bool for_each_row(std::function<bool(int, std::vector<int> const &)> f);
