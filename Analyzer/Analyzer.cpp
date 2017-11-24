@@ -107,12 +107,8 @@ static int candidateCount(unsigned candidates)
 Analyzer::Analyzer(Board const & board, bool verbose /*= false*/)
     : board_(board)
     , verbose_(verbose)
-    , unsolved_(Board::SIZE * Board::SIZE)
     , candidates_(Board::SIZE * Board::SIZE, ALL_CANDIDATES)
 {
-    // Nothing is solved initially
-    std::iota(unsolved_.begin(), unsolved_.end(), 0);
-
     // For solved cells, mark as solved
     for (int r = 0; r < Board::SIZE; ++r)
     {
@@ -130,7 +126,6 @@ Analyzer::Analyzer(Board const & board, bool verbose /*= false*/)
 Analyzer::Analyzer(Board const & board, std::vector<unsigned> const & candidates, bool verbose /*= false*/)
     : board_(board)
     , verbose_(verbose)
-    , unsolved_(Board::SIZE * Board::SIZE)
     , candidates_(candidates)
 {
 }
@@ -305,9 +300,6 @@ void Analyzer::solve(int r, int c, int x)
     // The cell has only one candidate now
     int index = Board::indexOf(r, c);
     candidates_[index] = 1 << x;
-
-    // Remove from the list of unsolved cells
-    unsolved_.erase(std::remove(unsolved_.begin(), unsolved_.end(), index), unsolved_.end());
 
     // Eliminate this cell's value from its dependents' candidates
     std::vector<int> dependents = Board::getDependents(r, c);
@@ -832,6 +824,8 @@ bool Analyzer::hiddenQuad(std::vector<int> const & indexes,
 
 bool Analyzer::nakedSingleFound(std::vector<int> & indexes, std::vector<int> & values, std::string & reason) const
 {
+    // For each unsolved cell, if it only has one candidate, then success
+
     if (nakedSingle(indexes, values))
     {
         if (verbose_)
@@ -843,18 +837,19 @@ bool Analyzer::nakedSingleFound(std::vector<int> & indexes, std::vector<int> & v
 
 bool Analyzer::nakedSingle(std::vector<int> & indexes, std::vector<int> & values) const
 {
-    // For each unsolved cell, if it only has one candidate, then success
-    for (int i : unsolved_)
-    {
-        unsigned candidates = candidates_[i];
-        if (solved(candidates))
+    return !Board::for_each_cell([&] (int i) {
+        if (board_.isEmpty(i))
         {
-            indexes.push_back(i);
-            values.push_back(valueFromCandidates(candidates));
-            return true;
+            unsigned candidates = candidates_[i];
+            if (solved(candidates))
+            {
+                indexes.push_back(i);
+                values.push_back(valueFromCandidates(candidates));
+                return false;
+            }
         }
-    }
-    return false;
+        return true;
+    });
 }
 
 static std::string generateNakedPairReason(std::string const & unitType, char which, std::vector<int> const & nakedIndexes)

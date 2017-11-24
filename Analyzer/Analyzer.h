@@ -129,7 +129,6 @@ private:
 
     Board board_;                       // Current state of the board
     bool verbose_;                      // If true, then generate explanations
-    std::vector<int> unsolved_;         // Indexes of unsolved squares
     std::vector<unsigned> candidates_;  // Masks of possible values for each square
     bool done_  = false;                // True if the analyzer can do no more, either because it is stumped or the board is solved
     bool stuck_ = false;                // True if the analyzer can do no more, either because it is stumped
