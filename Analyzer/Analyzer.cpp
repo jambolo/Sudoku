@@ -1,6 +1,9 @@
 #include "Analyzer.h"
 
 #include "Board/Board.h"
+#if defined(_DEBUG)
+#include "Solver/Solver.h"
+#endif // defined(_DEBUG)
 
 #include <algorithm>
 #include <cassert>
@@ -108,19 +111,33 @@ Analyzer::Analyzer(Board const & board, bool verbose /*= false*/)
     : board_(board)
     , verbose_(verbose)
     , candidates_(Board::SIZE * Board::SIZE, ALL_CANDIDATES)
+#if defined(_DEBUG)
+    , solvedBoard_(board)
+#endif // defined(_DEBUG)
 {
-    // For solved cells, mark as solved
-    for (int r = 0; r < Board::SIZE; ++r)
-    {
-        for (int c = 0; c < Board::SIZE; ++c)
+#if defined(_DEBUG)
+    // Validate the board
+    assert(board_.consistent());
+    assert(Solver::hasUniqueSolution(board_));
+
+    // Create the solved board for debugging purposes
+    Solver::solve(solvedBoard_);
+#endif // defined(_DEBUG)
+
+    // Update candidates according to known cells
+    Board::for_each_cell([&] (int i) {
+        if (!board.isEmpty(i))
         {
-            if (!board.isEmpty(r, c))
-            {
-                int x = board.get(r, c);
-                solve(r, c, x);
-            }
+            int x = board.get(i);
+            solve(i, x);
         }
-    }
+        return true;
+    });
+
+#if defined(_DEBUG)
+    // Sanity check -- validate the candidates
+    assert(candidatesAreValid());
+#endif // defined(_DEBUG)
 }
 
 Analyzer::Analyzer(Board const & board, std::vector<unsigned> const & candidates, bool verbose /*= false*/)
@@ -128,10 +145,18 @@ Analyzer::Analyzer(Board const & board, std::vector<unsigned> const & candidates
     , verbose_(verbose)
     , candidates_(candidates)
 {
+#if defined(_DEBUG)
+    assert(board_.consistent());
+    assert(Solver::hasUniqueSolution(board_));
+    Solver::solve(solvedBoard_);
+    assert(candidatesAreValid());
+#endif // defined(_DEBUG)
 }
 
 Analyzer::Step Analyzer::next()
 {
+    assert(candidatesAreValid());
+
     if (board_.completed())
     {
         done_ = true;
@@ -144,67 +169,71 @@ Analyzer::Step Analyzer::next()
 
     if (nakedSingleFound(indexes, values, reason))
     {
-        int r;
-        int c;
-        Board::locationOf(indexes.front(), &r, &c);
-        solve(r, c, values.front());
+        solve(indexes.front(), values.front());
+        assert(candidatesAreValid());
         return { Step::SOLVE, indexes, values, Step::NAKED_SINGLE, reason };
     }
 
     if (hiddenSingleFound(indexes, values, reason))
     {
-        int r;
-        int c;
-        Board::locationOf(indexes.front(), &r, &c);
-        solve(r, c, values.front());
+        solve(indexes.front(), values.front());
+        assert(candidatesAreValid());
         return { Step::SOLVE, indexes, values, Step::HIDDEN_SINGLE, reason };
     }
 
     if (nakedPairFound(indexes, values, reason))
     {
         eliminate(indexes, values);
+        assert(candidatesAreValid());
         return { Step::ELIMINATE, indexes, values, Step::NAKED_PAIR, reason };
     }
 
     if (nakedTripleFound(indexes, values, reason))
     {
         eliminate(indexes, values);
+        assert(candidatesAreValid());
         return { Step::ELIMINATE, indexes, values, Step::NAKED_TRIPLE, reason };
     }
 
     if (nakedQuadFound(indexes, values, reason))
     {
         eliminate(indexes, values);
+        assert(candidatesAreValid());
         return { Step::ELIMINATE, indexes, values, Step::NAKED_QUAD, reason };
     }
 
     if (lockedCandidatesFound(indexes, values, reason))
     {
         eliminate(indexes, values);
+        assert(candidatesAreValid());
         return { Step::ELIMINATE, indexes, values, Step::LOCKED_CANDIDATES, reason };
     }
 
     if (hiddenPairFound(indexes, values, reason))
     {
         eliminate(indexes, values);
+        assert(candidatesAreValid());
         return { Step::ELIMINATE, indexes, values, Step::HIDDEN_PAIR, reason };
     }
 
     if (hiddenTripleFound(indexes, values, reason))
     {
         eliminate(indexes, values);
+        assert(candidatesAreValid());
         return { Step::ELIMINATE, indexes, values, Step::HIDDEN_TRIPLE, reason };
     }
 
     if (hiddenQuadFound(indexes, values, reason))
     {
         eliminate(indexes, values);
+        assert(candidatesAreValid());
         return { Step::ELIMINATE, indexes, values, Step::HIDDEN_QUAD, reason };
     }
 
     if (xWingFound(indexes, values, reason))
     {
         eliminate(indexes, values);
+        assert(candidatesAreValid());
         return { Step::ELIMINATE, indexes, values, Step::X_WING, reason };
     }
 
@@ -292,17 +321,16 @@ void Analyzer::drawPenciledBoard() const
     }
 }
 
-void Analyzer::solve(int r, int c, int x)
+void Analyzer::solve(int i, int x)
 {
     // Update the board
-    board_.set(r, c, x);
+    board_.set(i, x);
 
     // The cell has only one candidate now
-    int index = Board::indexOf(r, c);
-    candidates_[index] = 1 << x;
+    candidates_[i] = 1 << x;
 
     // Eliminate this cell's value from its dependents' candidates
-    std::vector<int> dependents = Board::getDependents(r, c);
+    std::vector<int> dependents = Board::getDependents(i);
     eliminate(dependents, x);
 }
 
@@ -1609,6 +1637,17 @@ unsigned Analyzer::allUnsolvedCandidates(std::vector<int>::const_iterator first,
     }
     return candidates;
 }
+
+#if defined(_DEBUG)
+bool Analyzer::candidatesAreValid()
+{
+    return Board::for_each_cell([&] (int i) {
+        int v = solvedBoard_.get(i);
+        assert(v != Board::EMPTY); // Sanity check
+        return (((1 << v) & candidates_[i]) != 0);
+    });
+}
+#endif // defined(_DEBUG)
 
 const char * Analyzer::Step::techniqueName(Analyzer::Step::TechniqueId technique)
 {

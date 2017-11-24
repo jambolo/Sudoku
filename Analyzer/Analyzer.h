@@ -50,11 +50,12 @@ public:
     // Returns true if the analyzer can make no more progress because it is stuck
     bool stuck() const { return stuck_; }
 
+    // Draws the board with candidates
     void drawPenciledBoard() const;
 
 private:
 
-    void solve(int r, int c, int x);
+    void solve(int i, int x);
     void eliminate(std::vector<int> const & indexes, int x);
     void eliminate(std::vector<int> const & indexes, std::vector<int> const & values);
 
@@ -127,9 +128,17 @@ private:
     unsigned allCandidates(std::vector<int>::const_iterator first, std::vector<int>::const_iterator last) const;
     unsigned allUnsolvedCandidates(std::vector<int>::const_iterator first, std::vector<int>::const_iterator last) const;
 
+#if defined(_DEBUG)
+    bool candidatesAreValid();
+#endif // defined(_DEBUG)
+
     Board board_;                       // Current state of the board
     bool verbose_;                      // If true, then generate explanations
     std::vector<unsigned> candidates_;  // Masks of possible values for each square
     bool done_  = false;                // True if the analyzer can do no more, either because it is stumped or the board is solved
     bool stuck_ = false;                // True if the analyzer can do no more, either because it is stumped
+
+#if defined(_DEBUG)
+    Board solvedBoard_;                 // All results are checked against this board
+#endif // defined(_DEBUG)
 };
