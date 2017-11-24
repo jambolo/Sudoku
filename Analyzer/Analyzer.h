@@ -36,6 +36,7 @@ public:
     };
 
     Analyzer(Board const & board, bool verbose = false);
+    Analyzer(Board const & board, std::vector<unsigned> const & candidates, bool verbose = false);
 
     // Determines the next solution step
     Step next();
@@ -58,7 +59,9 @@ private:
     void eliminate(std::vector<int> const & indexes, std::vector<int> const & values);
 
     bool hiddenSingleFound(std::vector<int> & indexes, std::vector<int> & values, std::string & reason) const;
-    bool hiddenSingle(std::vector<int> const & indexes, std::vector<int> & eliminatedIndexes, std::vector<int> & eliminatedValues) const;
+    bool hiddenSingle(std::vector<int> const & indexes,
+                      std::vector<int> &       eliminatedIndexes,
+                      std::vector<int> &       eliminatedValues) const;
 
     bool hiddenPairFound(std::vector<int> & indexes, std::vector<int> & values, std::string & reason) const;
     bool hiddenPair(std::vector<int> const & indexes,
@@ -128,6 +131,6 @@ private:
     bool verbose_;                      // If true, then generate explanations
     std::vector<int> unsolved_;         // Indexes of unsolved squares
     std::vector<unsigned> candidates_;  // Masks of possible values for each square
-    bool done_;                         // True if the analyzer can do no more, either because it is stumped or the board is solved
-    bool stuck_;                        // True if the analyzer can do no more, either because it is stumped
+    bool done_  = false;                // True if the analyzer can do no more, either because it is stumped or the board is solved
+    bool stuck_ = false;                // True if the analyzer can do no more, either because it is stumped
 };

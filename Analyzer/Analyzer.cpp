@@ -109,8 +109,6 @@ Analyzer::Analyzer(Board const & board, bool verbose /*= false*/)
     , verbose_(verbose)
     , unsolved_(Board::SIZE * Board::SIZE)
     , candidates_(Board::SIZE * Board::SIZE, ALL_CANDIDATES)
-    , done_(false)
-    , stuck_(false)
 {
     // Nothing is solved initially
     std::iota(unsolved_.begin(), unsolved_.end(), 0);
@@ -127,6 +125,14 @@ Analyzer::Analyzer(Board const & board, bool verbose /*= false*/)
             }
         }
     }
+}
+
+Analyzer::Analyzer(Board const & board, std::vector<unsigned> const & candidates, bool verbose /*= false*/)
+    : board_(board)
+    , verbose_(verbose)
+    , unsolved_(Board::SIZE * Board::SIZE)
+    , candidates_(candidates)
+{
 }
 
 Analyzer::Step Analyzer::next()
