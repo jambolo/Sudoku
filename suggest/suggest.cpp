@@ -13,7 +13,7 @@ enum Verbosity
 
 static void syntax()
 {
-    fprintf(stderr, "syntax: suggest [-v][-a] <81 values, 0-9>\n");
+    fprintf(stderr, "syntax: suggest [-a] [-vvv] <81 values, 0-9>\n");
     fprintf(stderr, "Options:\n");
     fprintf(stderr, "  -v:   outputs additional information\n");
     fprintf(stderr, "  -vv:  outputs additional additional information\n");
@@ -79,42 +79,48 @@ int main(int argc, char ** argv)
 
     --argc;
     ++argv;
-    if (argc < Board::SIZE * Board::SIZE)
+
+    while (**argv == '-')
     {
-        syntax();
-        return 1;
+        if (strcmp(*argv, "-a") == 0)
+        {
+            all = true;
+        }
+        else if (strcmp(*argv, "-v") == 0)
+        {
+            verbosity = VERBOSE;
+        }
+        else if (strcmp(*argv, "-vv") == 0)
+        {
+            verbosity = DETAILED;
+        }
+        else if (strcmp(*argv, "-vvv") == 0)
+        {
+            verbosity = CHATTY;
+        }
+        else
+        {
+            fprintf(stderr, "Invalid parameter '%s'\n", *argv);
+            syntax();
+            return 1;
+        }
+ 
+        ++argv;
+        --argc;
     }
 
-    if (strcmp(*argv, "-a") == 0)
+    if (!isdigit(**argv))
     {
-        all     = true;
-        verbosity = VERBOSE;
-        ++argv;
-        --argc;
-    }
-    if (strcmp(*argv, "-v") == 0)
-    {
-        verbosity = VERBOSE;
-        ++argv;
-        --argc;
-    }
-    if (strcmp(*argv, "-vv") == 0)
-    {
-        verbosity = DETAILED;
-        ++argv;
-        --argc;
-    }
-    if (strcmp(*argv, "-vvv") == 0)
-    {
-        verbosity = CHATTY;
-        ++argv;
-        --argc;
+        fprintf(stderr, "Invalid parameter '%s'\n", *argv);
+        syntax();
+        return 1;
     }
 
     if (argc != Board::SIZE * Board::SIZE)
     {
+        fprintf(stderr, "The board does not have 81 values.\n");
         syntax();
-        return 1;
+        return 2;
     }
 
     Board board;
