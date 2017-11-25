@@ -1370,14 +1370,45 @@ bool Analyzer::lockedCandidates(std::vector<int> const & indexes1,
     return !eliminatedIndexes.empty();
 }
 
-static std::string generateXWingReason(char const *             unitName,
-                                       char const *             otherUnitNamePlural,
-                                       std::vector<int> const & pivots)
+static std::string generateXWingRowReason(int value, std::vector<int> const & pivots)
 {
-    std::string reason = "Pivots are " + Board::locationName(pivots[0]) +
-                         ", " + Board::locationName(pivots[1]) +
-                         ", " + Board::locationName(pivots[2]) +
-                         ", " + Board::locationName(pivots[3]);
+    assert(pivots.size() == 4);
+    int r0, c0;
+    Board::locationOf(pivots[0], &r0, &c0);
+    int r3, c3;
+    Board::locationOf(pivots[3], &r3, &c3);
+
+    std::string reason = "Only " + Board::locationName(pivots[0]) +
+                         " and " + Board::locationName(pivots[1]) +
+                         " in row " + Board::rowName(r0) +
+                         " and only " + Board::locationName(pivots[2]) +
+                         " and " + Board::locationName(pivots[3]) +
+                         " in row " + Board::rowName(r3) +
+                         " can have the value " + std::to_string(value) +
+                         ". These squares are in the same two columns, " + Board::columnName(c0) +
+                         " and " + Board::columnName(c3) +
+                         ", so one of the squares in each column must have this value and none of the other squares in these columns can.";
+    return reason;
+}
+
+static std::string generateXWingColumnReason(int value, std::vector<int> const & pivots)
+{
+    assert(pivots.size() == 4);
+    int r0, c0;
+    Board::locationOf(pivots[0], &r0, &c0);
+    int r3, c3;
+    Board::locationOf(pivots[3], &r3, &c3);
+
+    std::string reason = "Only " + Board::locationName(pivots[0]) +
+                         " and " + Board::locationName(pivots[1]) +
+                         " in column " + Board::columnName(c0) +
+                         " and only " + Board::locationName(pivots[2]) +
+                         " and " + Board::locationName(pivots[3]) +
+                         " in column " + Board::columnName(c3) +
+                         " can have the value " + std::to_string(value) +
+                         ". These squares are in the same two rows, " + Board::rowName(r0) +
+                         " and " + Board::rowName(r3) +
+                         ". One of the squares in each row must have this value and so none of the other squares in these rows can.";
     return reason;
 }
 
@@ -1388,24 +1419,23 @@ bool Analyzer::xWingFound(std::vector<int> & indexes, std::vector<int> & values,
     // a candidate in any other cells in those two columns (or rows).
 
     bool found;
-    int which1, which2;
     std::vector<int> pivots;
 
     found = !Board::for_each_row([&](int r, std::vector<int> const & row) {
-        return !xWingRow(r, row, indexes, values, which1, which2, pivots);
+        return !xWingRow(r, row, indexes, values, pivots);
     });
     if (found)
     {
-        reason = generateXWingReason("row", "columns", pivots);
+        reason = generateXWingRowReason(values[0], pivots);
         return true;
     }
 
     found = !Board::for_each_column([&](int c, std::vector<int> const & column) {
-        return !xWingColumn(c, column, indexes, values, which1, which2, pivots);
+        return !xWingColumn(c, column, indexes, values, pivots);
     });
     if (found)
     {
-        reason = generateXWingReason("column", "rows", pivots);
+        reason = generateXWingColumnReason(values[0], pivots);
         return true;
     }
 
@@ -1413,17 +1443,15 @@ bool Analyzer::xWingFound(std::vector<int> & indexes, std::vector<int> & values,
 }
 
 bool Analyzer::xWingRow(int                      r0,
-                        std::vector<int> const & indexes,
+                        std::vector<int> const & row,
                         std::vector<int> &       eliminatedIndexes,
                         std::vector<int> &       eliminatedValues,
-                        int &                    which1,
-                        int &                    which2,
                         std::vector<int> &       pivots) const
 {
     unsigned alreadyTested = 0;
     for (int c0 = 0; c0 < Board::SIZE - 1; ++c0)
     {
-        unsigned candidates0 = candidates_[indexes[c0]];
+        unsigned candidates0 = candidates_[row[c0]];
 
         // Ignore solved cells
         if (solved(candidates0))
@@ -1436,18 +1464,31 @@ bool Analyzer::xWingRow(int                      r0,
 
         for (int c1 = c0 + 1; c1 < Board::SIZE; ++c1)
         {
-            unsigned candidates1 = candidates_[indexes[c1]];
+            unsigned candidates1 = candidates_[row[c1]];
 
             // Ignore solved cells
             if (solved(candidates1))
                 continue;
 
-            // Find any matching candidates in this cell that are not in any of the remaining cells
-            unsigned candidates = candidates0 & candidates1 & ~allCandidates(indexes.begin() + c1 + 1, indexes.end());
+            unsigned candidates = candidates0 & candidates1;
+
+            // If there are no matching candidates in this cell, then nothing to do
+            if (!candidates)
+                continue;
+
+            // Find any matching candidates in this cell that are not in any of the other cells
+            unsigned others = 0;
+            for (int c = 0; c < Board::SIZE; ++c)
+            {
+                if (c != c0 && c != c1)
+                    others |= candidates_[row[c]];
+            }
+
+            candidates &= ~others;
 
             // If none of the candidates in c0 are only in c1, then nothing to do
             if (!candidates)
-                break;
+                continue;
 
             // There are should be exactly 1 or 2 values that occur only in columns c0 and c1
             std::vector<int> candidateValues = valuesFromCandidates(candidates);
@@ -1495,8 +1536,6 @@ bool Analyzer::xWingRow(int                      r0,
                     if (!eliminatedIndexes.empty())
                     {
                         eliminatedValues.push_back(v);
-                        which1 = r0;
-                        which2 = r1;
                         pivots =
                         {
                             Board::indexOf(r0, c0),
@@ -1515,17 +1554,15 @@ bool Analyzer::xWingRow(int                      r0,
 }
 
 bool Analyzer::xWingColumn(int                      c0,
-                           std::vector<int> const & indexes,
+                           std::vector<int> const & column,
                            std::vector<int> &       eliminatedIndexes,
                            std::vector<int> &       eliminatedValues,
-                           int &                    which1,
-                           int &                    which2,
                            std::vector<int> &       pivots) const
 {
     unsigned alreadyTested = 0;
     for (int r0 = 0; r0 < Board::SIZE - 1; ++r0)
     {
-        unsigned candidates0 = candidates_[indexes[r0]];
+        unsigned candidates0 = candidates_[column[r0]];
 
         // Ignore solved cells
         if (solved(candidates0))
@@ -1538,18 +1575,27 @@ bool Analyzer::xWingColumn(int                      c0,
 
         for (int r1 = r0 + 1; r1 < Board::SIZE; ++r1)
         {
-            unsigned candidates1 = candidates_[indexes[r1]];
+            unsigned candidates1 = candidates_[column[r1]];
 
             // Ignore solved cells
             if (solved(candidates1))
                 continue;
 
-            // Find any matching candidates in this cell that are not in any of the remaining cells
-            unsigned candidates = candidates0 & candidates1 & ~allCandidates(indexes.begin() + r1 + 1, indexes.end());
+            unsigned candidates = candidates0 & candidates1;
 
-            // If none of the candidates in r0 are only in r1, then nothing to do
+            // If there are no matching candidates in this cell, then nothing to do
             if (!candidates)
-                break;
+                continue;
+
+            // Find any matching candidates in this cell that are not in any of the other cells
+            unsigned others = 0;
+            for (int r = 0; r < Board::SIZE; ++r)
+            {
+                if (r != r0 && r != r1)
+                    others |= candidates_[column[r]];
+            }
+
+            candidates &= ~others;
 
             // There are should be exactly 1 or 2 values that occur only in columns c0 and c1
             std::vector<int> candidateValues = valuesFromCandidates(candidates);
@@ -1597,13 +1643,11 @@ bool Analyzer::xWingColumn(int                      c0,
                     if (!eliminatedIndexes.empty())
                     {
                         eliminatedValues.push_back(v);
-                        which1 = c0;
-                        which2 = c1;
                         pivots =
                         {
                             Board::indexOf(r0, c0),
-                            Board::indexOf(r0, c1),
                             Board::indexOf(r1, c0),
+                            Board::indexOf(r0, c1),
                             Board::indexOf(r1, c1)
                         };
                         return true;
@@ -1644,9 +1688,10 @@ bool Analyzer::candidatesAreValid()
     return Board::for_each_cell([&] (int i) {
         int v = solvedBoard_.get(i);
         assert(v != Board::EMPTY); // Sanity check
-        return (((1 << v) & candidates_[i]) != 0);
+        return ((1 << v) & candidates_[i]) != 0;
     });
 }
+
 #endif // defined(_DEBUG)
 
 const char * Analyzer::Step::techniqueName(Analyzer::Step::TechniqueId technique)

@@ -74,7 +74,7 @@ static void printStep(Analyzer::Step const & step, Verbosity verbosity, int i = 
 
 int main(int argc, char ** argv)
 {
-    bool all            = false;
+    bool all = false;
     Verbosity verbosity = QUIET;
 
     --argc;
@@ -104,7 +104,7 @@ int main(int argc, char ** argv)
             syntax();
             return 1;
         }
- 
+
         ++argv;
         --argc;
     }

@@ -114,15 +114,11 @@ private:
                   std::vector<int> const & row,
                   std::vector<int> &       eliminatedIndexes,
                   std::vector<int> &       eliminatedValues,
-                  int &                    which1,
-                  int &                    which2,
                   std::vector<int> &       pivots) const;
     bool xWingColumn(int                      c0,
                      std::vector<int> const & column,
                      std::vector<int> &       eliminatedIndexes,
                      std::vector<int> &       eliminatedValues,
-                     int &                    which1,
-                     int &                    which2,
                      std::vector<int> &       pivots) const;
 
     unsigned allCandidates(std::vector<int>::const_iterator first, std::vector<int>::const_iterator last) const;
