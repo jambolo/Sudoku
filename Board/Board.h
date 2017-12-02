@@ -6,6 +6,8 @@
 class Board
 {
 public:
+    class ForEach;
+    
     Board();
 
     static int constexpr SIZE     = 9;
@@ -63,58 +65,6 @@ public:
     // Draws the board to stdout
     void draw() const;
 
-    // Calls a function for each cell on the board, passing the index of the cell. Returns true if all cells were processed successfully.
-    static bool for_each_cell(std::function<bool(int)> f);
-
-    // Calls a function for each row on the board, passing in the row number and the indexes of the squares in the row. Returns true
-    // if all rows were processed successfully.
-    static bool for_each_row(std::function<bool(int, std::vector<int> const &)> f);
-
-    // Calls a function for each row on the board except the specified ones, passing in the row number and the
-    // indexes of the squares in the row. Returns true if all rows were processed successfully.
-    static bool for_each_row_except(int x0, std::function<bool(int, std::vector<int> const &)> f);
-
-    // Calls a function for each row on the board except the specified ones, passing in the row number and the
-    // indexes of the squares in the row. Returns true if all rows were processed successfully.
-    static bool for_each_row_except(int x0, int x1, std::function<bool(int, std::vector<int> const &)> f);
-
-    // Calls a function for each row on the board except the specified ones, passing in the row number and the
-    // indexes of the squares in the row. Returns true if all rows were processed successfully.
-    static bool for_each_row_except(int x0, int x1, int x2, std::function<bool(int, std::vector<int> const &)> f);
-
-    // Calls a function for each column on the board, passing in the column number and the indexes of the squares in the column.
-    // Returns true if all rows
-    // were processed successfully.
-    static bool for_each_column(std::function<bool(int, std::vector<int> const &)> f);
-
-    // Calls a function for each column on the board except the specified ones, passing in the column number and
-    // the indexes of the squares in the column. Returns true if all columns were processed successfully.
-    static bool for_each_column_except(int x0, std::function<bool(int, std::vector<int> const &)> f);
-
-    // Calls a function for each column on the board except the specified ones, passing in the column number and
-    // the indexes of the squares in the column. Returns true if all columns were processed successfully.
-    static bool for_each_column_except(int x0, int x1, std::function<bool(int, std::vector<int> const &)> f);
-
-    // Calls a function for each column on the board except the specified ones, passing in the column number and
-    // the indexes of the squares in the column. Returns true if all columns were processed successfully.
-    static bool for_each_column_except(int x0, int x1, int x2, std::function<bool(int, std::vector<int> const &)> f);
-
-    // Calls a function for each box on the board, passing in the box number and the indexes of the squares in the box. Returns true
-    // if all rows were processed successfully.
-    static bool for_each_box(std::function<bool(int, std::vector<int> const &)> f);
-
-    // Calls a function for each box on the board except the specified ones, passing in the box number and
-    // the indexes of the squares in the box. Returns true if all boxes were processed successfully.
-    static bool for_each_box_except(int x0, std::function<bool(int, std::vector<int> const &)> f);
-
-    // Calls a function for each box on the board except the specified ones, passing in the box number and
-    // the indexes of the squares in the box. Returns true if all boxes were processed successfully.
-    static bool for_each_box_except(int x0, int x1, std::function<bool(int, std::vector<int> const &)> f);
-
-    // Calls a function for each box on the board except the specified ones, passing in the box number and
-    // the indexes of the squares in the box. Returns true if all boxes were processed successfully.
-    static bool for_each_box_except(int x0, int x1, int x2, std::function<bool(int, std::vector<int> const &)> f);
-
     // Returns the next square (in row major order)
     static void increment(int * r, int * c);
 
@@ -169,4 +119,60 @@ private:
     static bool consistent(int x, int & values);
 
     int board_[SIZE][SIZE];
+};
+
+class Board::ForEach
+{
+public:
+    // Calls a function for each cell on the board, passing the index of the cell. Returns true if all cells were processed successfully.
+    static bool cell(std::function<bool(int)> f);
+    
+    // Calls a function for each row on the board, passing in the row number and the indexes of the squares in the row. Returns true
+    // if all rows were processed successfully.
+    static bool row(std::function<bool(int, std::vector<int> const &)> f);
+    
+    // Calls a function for each row on the board except the specified ones, passing in the row number and the
+    // indexes of the squares in the row. Returns true if all rows were processed successfully.
+    static bool rowExcept(int x0, std::function<bool(int, std::vector<int> const &)> f);
+    
+    // Calls a function for each row on the board except the specified ones, passing in the row number and the
+    // indexes of the squares in the row. Returns true if all rows were processed successfully.
+    static bool rowExcept(int x0, int x1, std::function<bool(int, std::vector<int> const &)> f);
+    
+    // Calls a function for each row on the board except the specified ones, passing in the row number and the
+    // indexes of the squares in the row. Returns true if all rows were processed successfully.
+    static bool rowExcept(int x0, int x1, int x2, std::function<bool(int, std::vector<int> const &)> f);
+    
+    // Calls a function for each column on the board, passing in the column number and the indexes of the squares in the column.
+    // Returns true if all rows
+    // were processed successfully.
+    static bool column(std::function<bool(int, std::vector<int> const &)> f);
+    
+    // Calls a function for each column on the board except the specified ones, passing in the column number and
+    // the indexes of the squares in the column. Returns true if all columns were processed successfully.
+    static bool columnExcept(int x0, std::function<bool(int, std::vector<int> const &)> f);
+    
+    // Calls a function for each column on the board except the specified ones, passing in the column number and
+    // the indexes of the squares in the column. Returns true if all columns were processed successfully.
+    static bool columnExcept(int x0, int x1, std::function<bool(int, std::vector<int> const &)> f);
+    
+    // Calls a function for each column on the board except the specified ones, passing in the column number and
+    // the indexes of the squares in the column. Returns true if all columns were processed successfully.
+    static bool columnExcept(int x0, int x1, int x2, std::function<bool(int, std::vector<int> const &)> f);
+    
+    // Calls a function for each box on the board, passing in the box number and the indexes of the squares in the box. Returns true
+    // if all rows were processed successfully.
+    static bool box(std::function<bool(int, std::vector<int> const &)> f);
+    
+    // Calls a function for each box on the board except the specified ones, passing in the box number and
+    // the indexes of the squares in the box. Returns true if all boxes were processed successfully.
+    static bool boxExcept(int x0, std::function<bool(int, std::vector<int> const &)> f);
+    
+    // Calls a function for each box on the board except the specified ones, passing in the box number and
+    // the indexes of the squares in the box. Returns true if all boxes were processed successfully.
+    static bool boxExcept(int x0, int x1, std::function<bool(int, std::vector<int> const &)> f);
+    
+    // Calls a function for each box on the board except the specified ones, passing in the box number and
+    // the indexes of the squares in the box. Returns true if all boxes were processed successfully.
+    static bool boxExcept(int x0, int x1, int x2, std::function<bool(int, std::vector<int> const &)> f);
 };
