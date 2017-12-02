@@ -30,7 +30,7 @@ static void printStep(Analyzer::Step const & step, Verbosity verbosity, int i = 
     {
         case Analyzer::Step::SOLVE:
         {
-            printf("The value of %s is %d", Board::locationName(step.indexes[0]).c_str(), step.values[0]);
+            printf("The value of %s is %d", Board::Cell::name(step.indexes[0]).c_str(), step.values[0]);
             if (verbosity >= VERBOSE || verbosity >= DETAILED)
             {
                 printf(" (%s)", Analyzer::Step::techniqueName(step.technique));
@@ -51,8 +51,8 @@ static void printStep(Analyzer::Step const & step, Verbosity verbosity, int i = 
             {
                 int r;
                 int c;
-                Board::locationOf(v, &r, &c);
-                printf("%s ", Board::locationName(v).c_str());
+                Board::Cell::locationOf(v, &r, &c);
+                printf("%s ", Board::Cell::name(v).c_str());
             }
             if (verbosity >= VERBOSE || verbosity >= DETAILED)
             {

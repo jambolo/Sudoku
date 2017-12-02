@@ -13,7 +13,7 @@ bool Solver::search(Board & board, int r, int c)
     if (!board.nextEmpty(&r, &c))
         return true;
 
-    std::vector<int> possible = board.allPossible(r, c);
+    std::vector<int> possible = board.candidates(r, c);
     for (auto x : possible)
     {
         board.set(r, c, x);
@@ -43,7 +43,7 @@ void Solver::searchAll(Board & board, int r, int c, std::vector<Board> & solutio
         return;
     }
 
-    std::vector<int> possible = board.allPossible(r, c);
+    std::vector<int> possible = board.candidates(r, c);
     for (auto x : possible)
     {
         board.set(r, c, x);
@@ -63,7 +63,7 @@ void Solver::searchUnique(Board & board, int r, int c, int & count)
     }
 
     // Try all the possible values for the empty square
-    std::vector<int> possible = board.allPossible(r, c);
+    std::vector<int> possible = board.candidates(r, c);
     for (auto x : possible)
     {
         board.set(r, c, x);

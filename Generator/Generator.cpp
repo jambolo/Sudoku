@@ -18,7 +18,7 @@ Board Generator::generate(int difficulty /* = 0*/)
 
     // Randomly remove as many squares as possible until no unique solution can be found
     std::vector<int> indexes = randomizedIndexes();
-    for (auto i : indexes)
+    for (int i : indexes)
     {
         int r = i / Board::SIZE;
         int c = i % Board::SIZE;
@@ -40,13 +40,13 @@ Board Generator::generate(int difficulty /* = 0*/)
 bool Generator::attempt(Board & board, int r /* = 0*/, int c /* = -1*/)
 {
     // Go to next square
-    Board::increment(&r, &c);
+    Board::Cell::next(&r, &c);
     if (r >= Board::SIZE)
         return true;
 
-    std::vector<int> possibleValues = board.allPossible(r, c);
+    std::vector<int> possibleValues = board.candidates(r, c);
     std::random_shuffle(possibleValues.begin(), possibleValues.end());
-    for (auto x : possibleValues)
+    for (int x : possibleValues)
     {
         board.set(r, c, x);
         if (attempt(board, r, c))

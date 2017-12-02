@@ -251,7 +251,7 @@ void Analyzer::drawPenciledBoard() const
         printf("  |");
         for (int c = 0; c < Board::SIZE; ++c)
         {
-            unsigned candidates = candidates_[Board::indexOf(r, c)];
+            unsigned candidates = candidates_[Board::Cell::indexOf(r, c)];
             if (solved(candidates))
             {
                 printf("       ");
@@ -270,10 +270,10 @@ void Analyzer::drawPenciledBoard() const
         }
         printf("\n");
 
-        printf("%c |", Board::rowName(r));
+        printf("%c |", Board::Unit::rowName(r));
         for (int c = 0; c < Board::SIZE; ++c)
         {
-            unsigned candidates = candidates_[Board::indexOf(r, c)];
+            unsigned candidates = candidates_[Board::Cell::indexOf(r, c)];
             if (solved(candidates))
             {
                 int v = board_.get(r, c);
@@ -296,7 +296,7 @@ void Analyzer::drawPenciledBoard() const
         printf("  |");
         for (int c = 0; c < Board::SIZE; ++c)
         {
-            unsigned candidates = candidates_[Board::indexOf(r, c)];
+            unsigned candidates = candidates_[Board::Cell::indexOf(r, c)];
             if (solved(candidates))
             {
                 printf("       ");
@@ -330,7 +330,7 @@ void Analyzer::solve(int i, int x)
     candidates_[i] = 1 << x;
 
     // Eliminate this cell's value from its dependents' candidates
-    std::vector<int> dependents = Board::getDependents(i);
+    std::vector<int> dependents = Board::Cell::dependents(i);
     eliminate(dependents, x);
 }
 
@@ -370,7 +370,7 @@ bool Analyzer::hiddenSingleFound(std::vector<int> & indexes, std::vector<int> & 
     if (found)
     {
         if (verbose_)
-            reason = std::string("This is the only square in row ") + Board::rowName(which) + " that can have this value.";
+            reason = std::string("This is the only square in row ") + Board::Unit::rowName(which) + " that can have this value.";
         return true;
     }
 
@@ -388,7 +388,8 @@ bool Analyzer::hiddenSingleFound(std::vector<int> & indexes, std::vector<int> & 
     if (found)
     {
         if (verbose_)
-            reason = std::string("This is the only square in column ") + Board::columnName(which) + " that can have this value.";
+            reason = std::string("This is the only square in column ") + Board::Unit::columnName(which) +
+                     " that can have this value.";
         return true;
     }
 
@@ -406,7 +407,7 @@ bool Analyzer::hiddenSingleFound(std::vector<int> & indexes, std::vector<int> & 
     if (found)
     {
         if (verbose_)
-            reason = std::string("This is the only square in box ") + Board::boxName(which) + " that can have this value.";
+            reason = std::string("This is the only square in box ") + Board::Unit::boxName(which) + " that can have this value.";
         return true;
     }
 
@@ -470,7 +471,7 @@ bool Analyzer::hiddenPairFound(std::vector<int> & indexes, std::vector<int> & va
     if (found)
     {
         if (verbose_)
-            reason = generateHiddenPairReason("row", Board::rowName(which), hidden);
+            reason = generateHiddenPairReason("row", Board::Unit::rowName(which), hidden);
         return true;
     }
 
@@ -488,7 +489,7 @@ bool Analyzer::hiddenPairFound(std::vector<int> & indexes, std::vector<int> & va
     if (found)
     {
         if (verbose_)
-            reason = generateHiddenPairReason("column", Board::columnName(which), hidden);
+            reason = generateHiddenPairReason("column", Board::Unit::columnName(which), hidden);
         return true;
     }
 
@@ -506,7 +507,7 @@ bool Analyzer::hiddenPairFound(std::vector<int> & indexes, std::vector<int> & va
     if (found)
     {
         if (verbose_)
-            reason = generateHiddenPairReason("box", Board::boxName(which), hidden);
+            reason = generateHiddenPairReason("box", Board::Unit::boxName(which), hidden);
         return true;
     }
 
@@ -600,7 +601,7 @@ bool Analyzer::hiddenTripleFound(std::vector<int> & indexes, std::vector<int> & 
     if (found)
     {
         if (verbose_)
-            reason = generateHiddenTripleReason("row", Board::rowName(which), hidden);
+            reason = generateHiddenTripleReason("row", Board::Unit::rowName(which), hidden);
         return true;
     }
 
@@ -618,7 +619,7 @@ bool Analyzer::hiddenTripleFound(std::vector<int> & indexes, std::vector<int> & 
     if (found)
     {
         if (verbose_)
-            reason = generateHiddenTripleReason("column", Board::columnName(which), hidden);
+            reason = generateHiddenTripleReason("column", Board::Unit::columnName(which), hidden);
         return true;
     }
 
@@ -636,7 +637,7 @@ bool Analyzer::hiddenTripleFound(std::vector<int> & indexes, std::vector<int> & 
     if (found)
     {
         if (verbose_)
-            reason = generateHiddenTripleReason("box", Board::boxName(which), hidden);
+            reason = generateHiddenTripleReason("box", Board::Unit::boxName(which), hidden);
         return true;
     }
 
@@ -738,7 +739,7 @@ bool Analyzer::hiddenQuadFound(std::vector<int> & indexes, std::vector<int> & va
     if (found)
     {
         if (verbose_)
-            reason = generateHiddenQuadReason("row", Board::rowName(which), hidden);
+            reason = generateHiddenQuadReason("row", Board::Unit::rowName(which), hidden);
         return true;
     }
 
@@ -756,7 +757,7 @@ bool Analyzer::hiddenQuadFound(std::vector<int> & indexes, std::vector<int> & va
     if (found)
     {
         if (verbose_)
-            reason = generateHiddenQuadReason("column", Board::columnName(which), hidden);
+            reason = generateHiddenQuadReason("column", Board::Unit::columnName(which), hidden);
         return true;
     }
 
@@ -774,7 +775,7 @@ bool Analyzer::hiddenQuadFound(std::vector<int> & indexes, std::vector<int> & va
     if (found)
     {
         if (verbose_)
-            reason = generateHiddenQuadReason("box", Board::boxName(which), hidden);
+            reason = generateHiddenQuadReason("box", Board::Unit::boxName(which), hidden);
         return true;
     }
 
@@ -882,8 +883,8 @@ bool Analyzer::nakedSingle(std::vector<int> & indexes, std::vector<int> & values
 
 static std::string generateNakedPairReason(std::string const & unitType, char which, std::vector<int> const & nakedIndexes)
 {
-    std::string reason = "Two other squares (" + Board::locationName(nakedIndexes[0]) +
-                         " and " + Board::locationName(nakedIndexes[1]) +
+    std::string reason = "Two other squares (" + Board::Cell::name(nakedIndexes[0]) +
+                         " and " + Board::Cell::name(nakedIndexes[1]) +
                          ") in " + unitType + " " + which +
                          " must be one of these two values, so these squares cannot";
     return reason;
@@ -908,7 +909,7 @@ bool Analyzer::nakedPairFound(std::vector<int> & indexes, std::vector<int> & val
     if (found)
     {
         if (verbose_)
-            reason = generateNakedPairReason("row", Board::rowName(which), nakedIndexes);
+            reason = generateNakedPairReason("row", Board::Unit::rowName(which), nakedIndexes);
         return true;
     }
 
@@ -923,7 +924,7 @@ bool Analyzer::nakedPairFound(std::vector<int> & indexes, std::vector<int> & val
     if (found)
     {
         if (verbose_)
-            reason = generateNakedPairReason("column", Board::columnName(which), nakedIndexes);
+            reason = generateNakedPairReason("column", Board::Unit::columnName(which), nakedIndexes);
         return true;
     }
 
@@ -938,7 +939,7 @@ bool Analyzer::nakedPairFound(std::vector<int> & indexes, std::vector<int> & val
     if (found)
     {
         if (verbose_)
-            reason = generateNakedPairReason("box", Board::boxName(which), nakedIndexes);
+            reason = generateNakedPairReason("box", Board::Unit::boxName(which), nakedIndexes);
         return true;
     }
 
@@ -985,9 +986,9 @@ bool Analyzer::nakedPair(std::vector<int> const & indexes,
 
 static std::string generateNakedTripleReason(std::string const & unitType, char which, std::vector<int> const & nakedIndexes)
 {
-    std::string reason = std::string("Three other squares (") + Board::locationName(nakedIndexes[0]) +
-                         ", " + Board::locationName(nakedIndexes[1]) +
-                         " and " + Board::locationName(nakedIndexes[2]) +
+    std::string reason = std::string("Three other squares (") + Board::Cell::name(nakedIndexes[0]) +
+                         ", " + Board::Cell::name(nakedIndexes[1]) +
+                         " and " + Board::Cell::name(nakedIndexes[2]) +
                          ") in " + unitType + " " + which +
                          " must be one of these three values, so these squares cannot";
     return reason;
@@ -1012,7 +1013,7 @@ bool Analyzer::nakedTripleFound(std::vector<int> & indexes, std::vector<int> & v
     if (found)
     {
         if (verbose_)
-            reason = generateNakedTripleReason("row", Board::rowName(which), nakedIndexes);
+            reason = generateNakedTripleReason("row", Board::Unit::rowName(which), nakedIndexes);
         return true;
     }
 
@@ -1027,7 +1028,7 @@ bool Analyzer::nakedTripleFound(std::vector<int> & indexes, std::vector<int> & v
     if (found)
     {
         if (verbose_)
-            reason = generateNakedTripleReason("column", Board::columnName(which), nakedIndexes);
+            reason = generateNakedTripleReason("column", Board::Unit::columnName(which), nakedIndexes);
         return true;
     }
 
@@ -1042,7 +1043,7 @@ bool Analyzer::nakedTripleFound(std::vector<int> & indexes, std::vector<int> & v
     if (found)
     {
         if (verbose_)
-            reason = generateNakedTripleReason("box", Board::boxName(which), nakedIndexes);
+            reason = generateNakedTripleReason("box", Board::Unit::boxName(which), nakedIndexes);
         return true;
     }
 
@@ -1071,10 +1072,10 @@ bool Analyzer::nakedTriple(std::vector<int> const & indexes,
 
 static std::string generateNakedQuadReason(std::string const & unitType, char which, std::vector<int> const & nakedIndexes)
 {
-    std::string reason = "Four other squares (" + Board::locationName(nakedIndexes[0]) +
-                         ", " + Board::locationName(nakedIndexes[1]) +
-                         ", " + Board::locationName(nakedIndexes[2]) +
-                         " and " + Board::locationName(nakedIndexes[3]) +
+    std::string reason = "Four other squares (" + Board::Cell::name(nakedIndexes[0]) +
+                         ", " + Board::Cell::name(nakedIndexes[1]) +
+                         ", " + Board::Cell::name(nakedIndexes[2]) +
+                         " and " + Board::Cell::name(nakedIndexes[3]) +
                          ") in " + unitType + " " + which +
                          " must be one of these four values, so these squares cannot";
     return reason;
@@ -1099,7 +1100,7 @@ bool Analyzer::nakedQuadFound(std::vector<int> & indexes, std::vector<int> & val
     if (found)
     {
         if (verbose_)
-            reason = generateNakedQuadReason("row", Board::rowName(which), nakedIndexes);
+            reason = generateNakedQuadReason("row", Board::Unit::rowName(which), nakedIndexes);
         return true;
     }
 
@@ -1114,7 +1115,7 @@ bool Analyzer::nakedQuadFound(std::vector<int> & indexes, std::vector<int> & val
     if (found)
     {
         if (verbose_)
-            reason = generateNakedQuadReason("column", Board::columnName(which), nakedIndexes);
+            reason = generateNakedQuadReason("column", Board::Unit::columnName(which), nakedIndexes);
         return true;
     }
 
@@ -1129,7 +1130,7 @@ bool Analyzer::nakedQuadFound(std::vector<int> & indexes, std::vector<int> & val
     if (found)
     {
         if (verbose_)
-            reason = generateNakedQuadReason("box", Board::boxName(which), nakedIndexes);
+            reason = generateNakedQuadReason("box", Board::Unit::boxName(which), nakedIndexes);
         return true;
     }
 
@@ -1178,8 +1179,8 @@ bool Analyzer::lockedCandidatesFound(std::vector<int> & indexes, std::vector<int
     found = !Board::ForEach::row([&](int r, std::vector<int> const & row) {
         for (int c = 0; c < Board::SIZE; c += Board::BOX_SIZE)
         {
-            int b = Board::indexOfBox(r, c);
-            std::vector<int> box = Board::getBoxIndexes(b);
+            int b = Board::Unit::whichBox(r, c);
+            std::vector<int> box = Board::Unit::box(b);
             if (lockedCandidates(row, box, indexes, values))
             {
                 which1 = r;
@@ -1191,15 +1192,15 @@ bool Analyzer::lockedCandidatesFound(std::vector<int> & indexes, std::vector<int
     });
     if (found)
     {
-        reason = generateLockedCandidatesReason("row", Board::rowName(which1), "box", Board::boxName(which2));
+        reason = generateLockedCandidatesReason("row", Board::Unit::rowName(which1), "box", Board::Unit::boxName(which2));
         return true;
     }
 
     found = !Board::ForEach::column([&](int c, std::vector<int> const & column) {
         for (int r = 0; r < Board::SIZE; r += Board::BOX_SIZE)
         {
-            int b = Board::indexOfBox(r, c);
-            std::vector<int> box = Board::getBoxIndexes(b);
+            int b = Board::Unit::whichBox(r, c);
+            std::vector<int> box = Board::Unit::box(b);
             if (lockedCandidates(column, box, indexes, values))
             {
                 which1 = c;
@@ -1212,7 +1213,7 @@ bool Analyzer::lockedCandidatesFound(std::vector<int> & indexes, std::vector<int
     if (found)
     {
         if (verbose_)
-            reason = generateLockedCandidatesReason("column", Board::columnName(which1), "box", Board::boxName(which2));
+            reason = generateLockedCandidatesReason("column", Board::Unit::columnName(which1), "box", Board::Unit::boxName(which2));
         return true;
     }
 
@@ -1222,8 +1223,8 @@ bool Analyzer::lockedCandidatesFound(std::vector<int> & indexes, std::vector<int
     found = !Board::ForEach::row([&](int r, std::vector<int> const & row) {
         for (int c = 0; c < Board::SIZE; c += Board::BOX_SIZE)
         {
-            int b = Board::indexOfBox(r, c);
-            std::vector<int> box = Board::getBoxIndexes(b);
+            int b = Board::Unit::whichBox(r, c);
+            std::vector<int> box = Board::Unit::box(b);
             if (lockedCandidates(box, row, indexes, values))
             {
                 which1 = b;
@@ -1236,15 +1237,15 @@ bool Analyzer::lockedCandidatesFound(std::vector<int> & indexes, std::vector<int
     if (found)
     {
         if (verbose_)
-            reason = generateLockedCandidatesReason("box", Board::boxName(which1), "row", Board::rowName(which2));
+            reason = generateLockedCandidatesReason("box", Board::Unit::boxName(which1), "row", Board::Unit::rowName(which2));
         return true;
     }
 
     found = !Board::ForEach::column([&](int c, std::vector<int> const & column) {
         for (int r = 0; r < Board::SIZE; r += Board::BOX_SIZE)
         {
-            int b = Board::indexOfBox(r, c);
-            std::vector<int> box = Board::getBoxIndexes(b);
+            int b = Board::Unit::whichBox(r, c);
+            std::vector<int> box = Board::Unit::box(b);
             if (lockedCandidates(box, column, indexes, values))
             {
                 which1 = b;
@@ -1257,7 +1258,7 @@ bool Analyzer::lockedCandidatesFound(std::vector<int> & indexes, std::vector<int
     if (found)
     {
         if (verbose_)
-            reason = generateLockedCandidatesReason("box", Board::boxName(which1), "row", Board::columnName(which2));
+            reason = generateLockedCandidatesReason("box", Board::Unit::boxName(which1), "row", Board::Unit::columnName(which2));
         return true;
     }
 
@@ -1314,19 +1315,19 @@ static std::string generateXWingRowReason(int value, std::vector<int> const & pi
 {
     assert(pivots.size() == 4);
     int r0, c0;
-    Board::locationOf(pivots[0], &r0, &c0);
+    Board::Cell::locationOf(pivots[0], &r0, &c0);
     int r3, c3;
-    Board::locationOf(pivots[3], &r3, &c3);
+    Board::Cell::locationOf(pivots[3], &r3, &c3);
 
-    std::string reason = "Only " + Board::locationName(pivots[0]) +
-                         " and " + Board::locationName(pivots[1]) +
-                         " in row " + Board::rowName(r0) +
-                         " and only " + Board::locationName(pivots[2]) +
-                         " and " + Board::locationName(pivots[3]) +
-                         " in row " + Board::rowName(r3) +
+    std::string reason = "Only " + Board::Cell::name(pivots[0]) +
+                         " and " + Board::Cell::name(pivots[1]) +
+                         " in row " + Board::Unit::rowName(r0) +
+                         " and only " + Board::Cell::name(pivots[2]) +
+                         " and " + Board::Cell::name(pivots[3]) +
+                         " in row " + Board::Unit::rowName(r3) +
                          " can have the value " + std::to_string(value) +
-                         ". These squares are in the same two columns, " + Board::columnName(c0) +
-                         " and " + Board::columnName(c3) +
+                         ". These squares are in the same two columns, " + Board::Unit::columnName(c0) +
+                         " and " + Board::Unit::columnName(c3) +
                          ", so one of the squares in each column must have this value and none of the other squares in these columns can.";
     return reason;
 }
@@ -1335,19 +1336,19 @@ static std::string generateXWingColumnReason(int value, std::vector<int> const &
 {
     assert(pivots.size() == 4);
     int r0, c0;
-    Board::locationOf(pivots[0], &r0, &c0);
+    Board::Cell::locationOf(pivots[0], &r0, &c0);
     int r3, c3;
-    Board::locationOf(pivots[3], &r3, &c3);
+    Board::Cell::locationOf(pivots[3], &r3, &c3);
 
-    std::string reason = "Only " + Board::locationName(pivots[0]) +
-                         " and " + Board::locationName(pivots[1]) +
-                         " in column " + Board::columnName(c0) +
-                         " and only " + Board::locationName(pivots[2]) +
-                         " and " + Board::locationName(pivots[3]) +
-                         " in column " + Board::columnName(c3) +
+    std::string reason = "Only " + Board::Cell::name(pivots[0]) +
+                         " and " + Board::Cell::name(pivots[1]) +
+                         " in column " + Board::Unit::columnName(c0) +
+                         " and only " + Board::Cell::name(pivots[2]) +
+                         " and " + Board::Cell::name(pivots[3]) +
+                         " in column " + Board::Unit::columnName(c3) +
                          " can have the value " + std::to_string(value) +
-                         ". These squares are in the same two rows, " + Board::rowName(r0) +
-                         " and " + Board::rowName(r3) +
+                         ". These squares are in the same two rows, " + Board::Unit::rowName(r0) +
+                         " and " + Board::Unit::rowName(r3) +
                          ". One of the squares in each row must have this value and so none of the other squares in these rows can.";
     return reason;
 }
@@ -1442,7 +1443,7 @@ bool Analyzer::xWingRow(int                      r0,
                 unsigned valueMask = 1 << v;
                 for (int r = r0 + 1; r < Board::SIZE; ++r)
                 {
-                    std::vector<int> rowIndexes = Board::getRowIndexes(r);
+                    std::vector<int> rowIndexes = Board::Unit::row(r);
                     int other0 = rowIndexes[c0];
                     int other1 = rowIndexes[c1];
 
@@ -1467,7 +1468,7 @@ bool Analyzer::xWingRow(int                      r0,
                 {
                     for (int c : { c0, c1 })
                     {
-                        std::vector<int> columnIndexes = board_.getColumnIndexes(c);
+                        std::vector<int> columnIndexes = Board::Unit::column(c);
                         for_each_index_except(columnIndexes, columnIndexes[r0], columnIndexes[r1], [&] (int i) {
                             if (valueMask & candidates_[i])
                                 eliminatedIndexes.push_back(i);
@@ -1478,10 +1479,10 @@ bool Analyzer::xWingRow(int                      r0,
                         eliminatedValues.push_back(v);
                         pivots =
                         {
-                            Board::indexOf(r0, c0),
-                            Board::indexOf(r0, c1),
-                            Board::indexOf(r1, c0),
-                            Board::indexOf(r1, c1)
+                            Board::Cell::indexOf(r0, c0),
+                            Board::Cell::indexOf(r0, c1),
+                            Board::Cell::indexOf(r1, c0),
+                            Board::Cell::indexOf(r1, c1)
                         };
                         return true;
                     }
@@ -1549,7 +1550,7 @@ bool Analyzer::xWingColumn(int                      c0,
                 unsigned valueMask = 1 << v;
                 for (int c = c0 + 1; c < Board::SIZE; ++c)
                 {
-                    std::vector<int> columnIndexes = Board::getColumnIndexes(c);
+                    std::vector<int> columnIndexes = Board::Unit::column(c);
                     int other0 = columnIndexes[r0];
                     int other1 = columnIndexes[r1];
 
@@ -1574,7 +1575,7 @@ bool Analyzer::xWingColumn(int                      c0,
                 {
                     for (int r : { r0, r1 })
                     {
-                        std::vector<int> rowIndexes = board_.getRowIndexes(r);
+                        std::vector<int> rowIndexes = Board::Unit::row(r);
                         for_each_index_except(rowIndexes, rowIndexes[c0], rowIndexes[c1], [&] (int i) {
                             if (valueMask & candidates_[i])
                                 eliminatedIndexes.push_back(i);
@@ -1585,10 +1586,10 @@ bool Analyzer::xWingColumn(int                      c0,
                         eliminatedValues.push_back(v);
                         pivots =
                         {
-                            Board::indexOf(r0, c0),
-                            Board::indexOf(r1, c0),
-                            Board::indexOf(r0, c1),
-                            Board::indexOf(r1, c1)
+                            Board::Cell::indexOf(r0, c0),
+                            Board::Cell::indexOf(r1, c0),
+                            Board::Cell::indexOf(r0, c1),
+                            Board::Cell::indexOf(r1, c1)
                         };
                         return true;
                     }
@@ -1627,23 +1628,24 @@ bool Analyzer::for_each_pair(std::vector<int> const & indexes, std::function<boo
     return true;
 }
 
-bool Analyzer::for_each_triple(std::vector<int> const & indexes, std::function<bool(int i0, int i1, int i2, unsigned candidates)> f) const
+bool Analyzer::for_each_triple(std::vector<int> const & indexes,
+                               std::function<bool(int i0, int i1, int i2, unsigned candidates)> f) const
 {
     for (int b0 = 0; b0 < Board::SIZE - 2; ++b0)
     {
-        int i0 = indexes[b0];
+        int i0     = indexes[b0];
         int count0 = candidateCount(candidates_[i0]);
         if (count0 > 1 && count0 <= 3)
         {
             for (int b1 = b0 + 1; b1 < Board::SIZE - 1; ++b1)
             {
-                int i1 = indexes[b1];
+                int i1     = indexes[b1];
                 int count1 = candidateCount(candidates_[i1]);
                 if (count1 > 1 && count1 <= 3)
                 {
                     for (int b2 = b1 + 1; b2 < Board::SIZE; ++b2)
                     {
-                        int i2 = indexes[b2];
+                        int i2     = indexes[b2];
                         int count2 = candidateCount(candidates_[i2]);
                         if (count2 > 1 && count2 <= 3)
                         {
@@ -1667,25 +1669,25 @@ bool Analyzer::for_each_quad(std::vector<int> const & indexes,
 {
     for (int b0 = 0; b0 < Board::SIZE - 3; ++b0)
     {
-        int i0 = indexes[b0];
+        int i0     = indexes[b0];
         int count0 = candidateCount(candidates_[i0]);
         if (count0 > 1 && count0 <= 4)
         {
             for (int b1 = b0 + 1; b1 < Board::SIZE - 2; ++b1)
             {
-                int i1 = indexes[b1];
+                int i1     = indexes[b1];
                 int count1 = candidateCount(candidates_[i1]);
                 if (count1 > 1 && count1 <= 4)
                 {
                     for (int b2 = b1 + 1; b2 < Board::SIZE - 1; ++b2)
                     {
-                        int i2 = indexes[b2];
+                        int i2     = indexes[b2];
                         int count2 = candidateCount(candidates_[i2]);
                         if (count2 > 1 && count2 <= 4)
                         {
                             for (int b3 = b2 + 1; b3 < Board::SIZE; ++b3)
                             {
-                                int i3 = indexes[b3];
+                                int i3     = indexes[b3];
                                 int count3 = candidateCount(candidates_[i3]);
                                 if (count3 > 1 && count3 <= 4)
                                 {
@@ -1693,7 +1695,7 @@ bool Analyzer::for_each_quad(std::vector<int> const & indexes,
                                     if (candidateCount(candidates) == 4)
                                     {
                                         if (!f(i0, i1, i2, i3, candidates))
-                                        return false;
+                                            return false;
                                     }
                                 }
                             }

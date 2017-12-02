@@ -49,7 +49,6 @@ int main(int argc, char ** argv)
 //     printf("Consistent: %s\n", board.consistent() ? "yes" : "no");
 //     printf("Completed: %s\n", board.completed() ? "yes" : "no");
 //     printf("Solved: %s\n", board.solved() ? "yes" : "no");
-//     printf("Difficulty: %d\n", board.difficulty());
 //
 //     printf("\n");
 //
@@ -73,30 +72,30 @@ int main(int argc, char ** argv)
 //         printf("\n");
 //         printf("No solutions.\n");
 //     }
-
-    srand((unsigned)time(NULL));
-
-    std::vector<int> histo(81);
-
-    time_t start_time = time(NULL);
-    static int const NUMBER_OF_BOARDS = 1000;
-    for (int i = 0; i < NUMBER_OF_BOARDS; ++i)
-    {
-        Board b = Generator::generate();
-        int d   = b.difficulty();
-        ++histo[d];
-    }
-
-    time_t end_time = time(NULL);
-    int total_time  = int(end_time - start_time);
-    printf("total time = %d\n", total_time);
-    printf("average time = %g ms\n", float(total_time) / (float)NUMBER_OF_BOARDS * 1000.0f);
-
-    printf("Difficulty distribution:\n");
-    for (int i = 50; i < 70; ++i)
-    {
-        printf("%2d: %4d\n", i, histo[i]);
-    }
+//
+//     srand((unsigned)time(NULL));
+//
+//     std::vector<int> histo(81);
+//
+//     time_t start_time = time(NULL);
+//     static int const NUMBER_OF_BOARDS = 1000;
+//     for (int i = 0; i < NUMBER_OF_BOARDS; ++i)
+//     {
+//         Board b = Generator::generate();
+//         int d   = b.difficulty();
+//         ++histo[d];
+//     }
+//
+//     time_t end_time = time(NULL);
+//     int total_time  = int(end_time - start_time);
+//     printf("total time = %d\n", total_time);
+//     printf("average time = %g ms\n", float(total_time) / (float)NUMBER_OF_BOARDS * 1000.0f);
+//
+//     printf("Difficulty distribution:\n");
+//     for (int i = 50; i < 70; ++i)
+//     {
+//         printf("%2d: %4d\n", i, histo[i]);
+//     }
 
     return 0;
 }

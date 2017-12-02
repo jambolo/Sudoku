@@ -40,7 +40,6 @@ int main(int argc, char ** argv)
 
     printf("Board to solve:\n");
     board.draw();
-    printf("Difficulty: %d\n", board.difficulty());
     printf("\n");
 
     std::vector<Board> solutions = Solver::allSolutions(board);
