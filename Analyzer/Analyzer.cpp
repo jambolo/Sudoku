@@ -951,37 +951,19 @@ bool Analyzer::nakedPair(std::vector<int> const & indexes,
                          std::vector<int> &       eliminatedValues,
                          std::vector<int> &       nakedIndexes) const
 {
-    for (int b0 = 0; b0 < Board::SIZE - 1; ++b0)
-    {
-        int i0     = indexes[b0];
-        int count0 = candidateCount(candidates_[i0]);
-        if (count0 > 1 && count0 <= 2)
+    return !for_each_pair(indexes, [&] (int i0, int i1, unsigned candidates) {
+        for_each_index_except(indexes, i0, i1, [&](int i) {
+            if (candidates_[i] & candidates)
+                eliminatedIndexes.push_back(i);
+        });
+        if (!eliminatedIndexes.empty())
         {
-            for (int b1 = b0 + 1; b1 < Board::SIZE; ++b1)
-            {
-                int i1     = indexes[b1];
-                int count1 = candidateCount(candidates_[i1]);
-                if (count1 > 1 && count1 <= 2)
-                {
-                    unsigned candidates = candidates_[i0] | candidates_[i1];
-                    if (candidateCount(candidates) == 2)
-                    {
-                        for_each_index_except(indexes, i0, i1, [&](int i) {
-                            if (candidates_[i] & candidates)
-                                eliminatedIndexes.push_back(i);
-                        });
-                        if (!eliminatedIndexes.empty())
-                        {
-                            eliminatedValues = valuesFromCandidates(candidates);
-                            nakedIndexes     = { i0, i1 };
-                            return true;
-                        }
-                    }
-                }
-            }
+            eliminatedValues = valuesFromCandidates(candidates);
+            nakedIndexes     = { i0, i1 };
+            return false;
         }
-    }
-    return false;
+        return true;
+    });
 }
 
 static std::string generateNakedTripleReason(std::string const & unitType, char which, std::vector<int> const & nakedIndexes)
@@ -1625,6 +1607,27 @@ unsigned Analyzer::allUnsolvedCandidates(std::vector<int>::const_iterator first,
 
 bool Analyzer::for_each_pair(std::vector<int> const & indexes, std::function<bool(int i0, int i1, unsigned candidates)> f) const
 {
+    for (int b0 = 0; b0 < Board::SIZE - 1; ++b0)
+    {
+        int i0 = indexes[b0];
+        unsigned candidates0 = candidates_[i0];
+        unsigned cumulativeCandidates0 = candidates0;
+        int count0 = candidateCount(candidates0);
+        if (count0 > 1 && count0 <= 2)
+        {
+            for (int b1 = b0 + 1; b1 < Board::SIZE; ++b1)
+            {
+                int i1 = indexes[b1];
+                unsigned candidates = candidates_[i1];
+                unsigned cumulativeCandidates = cumulativeCandidates0 | candidates;
+                if (candidateCount(candidates) > 1 && candidateCount(cumulativeCandidates) == 2)
+                {
+                    if (!f(i0, i1, cumulativeCandidates))
+                        return false;
+                }
+            }
+        }
+    }
     return true;
 }
 
@@ -1633,28 +1636,28 @@ bool Analyzer::for_each_triple(std::vector<int> const & indexes,
 {
     for (int b0 = 0; b0 < Board::SIZE - 2; ++b0)
     {
-        int i0     = indexes[b0];
-        int count0 = candidateCount(candidates_[i0]);
+        int i0 = indexes[b0];
+        unsigned candidates0 = candidates_[i0];
+        unsigned cumulativeCandidates0 = candidates0;
+        int count0 = candidateCount(candidates0);
         if (count0 > 1 && count0 <= 3)
         {
             for (int b1 = b0 + 1; b1 < Board::SIZE - 1; ++b1)
             {
-                int i1     = indexes[b1];
-                int count1 = candidateCount(candidates_[i1]);
-                if (count1 > 1 && count1 <= 3)
+                int i1 = indexes[b1];
+                unsigned candidates1 = candidates_[i1];
+                unsigned cumulativeCandidates1 = cumulativeCandidates0 | candidates1;
+                if (candidateCount(candidates1) > 1 && candidateCount(cumulativeCandidates1) <= 3)
                 {
                     for (int b2 = b1 + 1; b2 < Board::SIZE; ++b2)
                     {
-                        int i2     = indexes[b2];
-                        int count2 = candidateCount(candidates_[i2]);
-                        if (count2 > 1 && count2 <= 3)
+                        int i2 = indexes[b2];
+                        unsigned candidates = candidates_[i2];
+                        unsigned cumulativeCandidates = cumulativeCandidates1 | candidates;
+                        if (candidateCount(candidates) > 1 && candidateCount(cumulativeCandidates) == 3)
                         {
-                            unsigned candidates = candidates_[i0] | candidates_[i1] | candidates_[i2];
-                            if (candidateCount(candidates) == 3)
-                            {
-                                if (!f(i0, i1, i2, candidates))
-                                    return false;
-                            }
+                            if (!f(i0, i1, i2, cumulativeCandidates))
+                                return false;
                         }
                     }
                 }
@@ -1669,34 +1672,35 @@ bool Analyzer::for_each_quad(std::vector<int> const & indexes,
 {
     for (int b0 = 0; b0 < Board::SIZE - 3; ++b0)
     {
-        int i0     = indexes[b0];
-        int count0 = candidateCount(candidates_[i0]);
+        int i0 = indexes[b0];
+        unsigned candidates0 = candidates_[i0];
+        unsigned cumulativeCandidates0 = candidates0;
+        int count0 = candidateCount(candidates0);
         if (count0 > 1 && count0 <= 4)
         {
             for (int b1 = b0 + 1; b1 < Board::SIZE - 2; ++b1)
             {
-                int i1     = indexes[b1];
-                int count1 = candidateCount(candidates_[i1]);
-                if (count1 > 1 && count1 <= 4)
+                int i1 = indexes[b1];
+                unsigned candidates1 = candidates_[i1];
+                unsigned cumulativeCandidates1 = cumulativeCandidates0 | candidates1;
+                if (candidateCount(candidates1) > 1 && candidateCount(cumulativeCandidates1) <= 4)
                 {
                     for (int b2 = b1 + 1; b2 < Board::SIZE - 1; ++b2)
                     {
-                        int i2     = indexes[b2];
-                        int count2 = candidateCount(candidates_[i2]);
-                        if (count2 > 1 && count2 <= 4)
+                        int i2 = indexes[b2];
+                        unsigned candidates2 = candidates_[i2];
+                        unsigned cumulativeCandidates2 = cumulativeCandidates1 | candidates2;
+                        if (candidateCount(candidates2) > 1 && candidateCount(cumulativeCandidates2) <= 4)
                         {
                             for (int b3 = b2 + 1; b3 < Board::SIZE; ++b3)
                             {
-                                int i3     = indexes[b3];
-                                int count3 = candidateCount(candidates_[i3]);
-                                if (count3 > 1 && count3 <= 4)
+                                int i3 = indexes[b3];
+                                unsigned candidates = candidates_[i3];
+                                unsigned cumulativeCandidates = cumulativeCandidates2 | candidates;
+                                if (candidateCount(candidates) > 1 &&  candidateCount(cumulativeCandidates) == 4)
                                 {
-                                    unsigned candidates = candidates_[i0] | candidates_[i1] | candidates_[i2] | candidates_[i3];
-                                    if (candidateCount(candidates) == 4)
-                                    {
-                                        if (!f(i0, i1, i2, i3, candidates))
-                                            return false;
-                                    }
+                                    if (!f(i0, i1, i2, i3, cumulativeCandidates))
+                                        return false;
                                 }
                             }
                         }

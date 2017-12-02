@@ -124,10 +124,11 @@ private:
     unsigned allCandidates(std::vector<int>::const_iterator first, std::vector<int>::const_iterator last) const;
     unsigned allUnsolvedCandidates(std::vector<int>::const_iterator first, std::vector<int>::const_iterator last) const;
 
-    bool for_each_pair(std::vector<int> const & indexes, std::function<bool(int i0, int i1, unsigned candidates)> f) const;
-    bool for_each_triple(std::vector<int> const & indexes, std::function<bool(int i0, int i1, int i2, unsigned candidates)> f) const;
-    bool for_each_quad(std::vector<int> const & indexes,
-                       std::function<bool(int i0, int i1, int i2, int i3, unsigned candidates)> f) const;
+    bool     for_each_pair(std::vector<int> const & indexes, std::function<bool(int i0, int i1, unsigned candidates)> f) const;
+    bool     for_each_triple(std::vector<int> const & indexes,
+                             std::function<bool(int i0, int i1, int i2, unsigned candidates)> f) const;
+    bool     for_each_quad(std::vector<int> const & indexes,
+                           std::function<bool(int i0, int i1, int i2, int i3, unsigned candidates)> f) const;
 
 #if defined(_DEBUG)
     bool candidatesAreValid();
@@ -135,7 +136,7 @@ private:
 
     Board board_;                       // Current state of the board
     bool verbose_;                      // If true, then generate explanations
-    std::vector<unsigned> candidates_;  // Masks of possible values for each square
+    std::vector<unsigned> candidates_;  // Masks of possible values for each cell
     bool done_  = false;                // True if the analyzer can do no more, either because it is stumped or the board is solved
     bool stuck_ = false;                // True if the analyzer can do no more, either because it is stumped
 

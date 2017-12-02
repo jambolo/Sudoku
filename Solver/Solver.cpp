@@ -9,7 +9,7 @@ bool Solver::solve(Board & b)
 
 bool Solver::search(Board & board, int r, int c)
 {
-    // Find the next empty square. If there are none, then a solution has been found
+    // Find the next empty cell. If there are none, then a solution has been found
     if (!board.nextEmpty(&r, &c))
         return true;
 
@@ -36,7 +36,7 @@ std::vector<Board> Solver::allSolutions(Board const & board)
 
 void Solver::searchAll(Board & board, int r, int c, std::vector<Board> & solutions)
 {
-    // Find the next empty square. If there are none, then a solution has been found
+    // Find the next empty cell. If there are none, then a solution has been found
     if (!board.nextEmpty(&r, &c))
     {
         solutions.push_back(board);
@@ -55,14 +55,14 @@ void Solver::searchAll(Board & board, int r, int c, std::vector<Board> & solutio
 
 void Solver::searchUnique(Board & board, int r, int c, int & count)
 {
-    // Find the next empty square. If there are none, then a solution has been found
+    // Find the next empty cell. If there are none, then a solution has been found
     if (!board.nextEmpty(&r, &c))
     {
         ++count;
         return;
     }
 
-    // Try all the possible values for the empty square
+    // Try all the possible values for the empty cell
     std::vector<int> possible = board.candidates(r, c);
     for (auto x : possible)
     {
