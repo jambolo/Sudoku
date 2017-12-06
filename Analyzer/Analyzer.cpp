@@ -1683,6 +1683,55 @@ unsigned Analyzer::allUnsolvedCandidates(std::vector<int>::const_iterator first,
     return candidates;
 }
 
+std::vector<Analyzer::StrongLink> Analyzer::findStrongLinks(int index) const
+{
+    std::vector<StrongLink> links;
+
+    std::vector<int> row = Board::Unit::row(Board::Unit::whichRow(index));
+    std::vector<StrongLink> rowLinks = findStrongLinks(index, row);
+    links.insert(links.end(), rowLinks.begin(), rowLinks.end());
+
+    std::vector<int> column = Board::Unit::column(Board::Unit::whichColumn(index));
+    std::vector<StrongLink> columnLinks = findStrongLinks(index, column);
+    links.insert(links.end(), columnLinks.begin(), columnLinks.end());
+
+    std::vector<int> box = Board::Unit::box(Board::Unit::whichBox(index));
+    std::vector<StrongLink> boxLinks = findStrongLinks(index, box);
+    links.insert(links.end(), boxLinks.begin(), boxLinks.end());
+
+    return links;
+}
+
+std::vector<Analyzer::StrongLink> Analyzer::findStrongLinks(int i0, std::vector<int> const & unit) const
+{
+    std::vector<Analyzer::StrongLink> links;
+    std::vector<int> values = valuesFromCandidates(candidates_[i0]);
+
+    for (int v : values)
+    {
+        for_each_index_except(unit, i0, [&](int i1) {
+            if (hasStrongLink(i0, i1, v, unit))
+                links.emplace_back(StrongLink{i1, v});
+        });
+    }
+    return links;
+}
+
+
+bool Analyzer::hasStrongLink(int i0, int i1, int v, std::vector<int> const & unit) const
+{
+    unsigned mask = 1 << v;
+    if ((candidates_[i0] & candidates_[i1] & mask) == 0)
+        return false;
+
+    for (int i : unit)
+    {
+        if (i != i0 && i != i1 && (candidates_[i] & mask))
+            return false;
+    }
+    return true;
+}
+
 #if defined(_DEBUG)
 bool Analyzer::candidatesAreValid()
 {

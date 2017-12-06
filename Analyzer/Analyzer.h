@@ -55,6 +55,12 @@ public:
 
 private:
 
+    struct StrongLink
+    {
+        int index;
+        int value;
+    };
+
     void solve(int i, int x);
     void eliminate(std::vector<int> const & indexes, int x);
     void eliminate(std::vector<int> const & indexes, std::vector<int> const & values);
@@ -123,6 +129,10 @@ private:
 
     unsigned allCandidates(std::vector<int>::const_iterator first, std::vector<int>::const_iterator last) const;
     unsigned allUnsolvedCandidates(std::vector<int>::const_iterator first, std::vector<int>::const_iterator last) const;
+
+    std::vector<StrongLink> findStrongLinks(int index) const;
+    std::vector<StrongLink> findStrongLinks(int index, std::vector<int> const & unit) const;
+    bool hasStrongLink(int i0, int i1, int v, std::vector<int> const & unit) const;
 
 #if defined(_DEBUG)
     bool candidatesAreValid();
