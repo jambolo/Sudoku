@@ -12,6 +12,12 @@ public:
 
     Board();
 
+    // Initializes the board from a terminated string of 81 digits
+    bool initialize(char const * s);
+
+    // Serializes the board as a string 0f '0'-'9' in row-major order
+    void serialize(std::string & out) const;
+
     static int constexpr SIZE     = 9;
     static int constexpr BOX_SIZE = 3;
     static int constexpr EMPTY    = 0;

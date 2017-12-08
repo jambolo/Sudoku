@@ -7,40 +7,60 @@
 
 static void syntax()
 {
-    fprintf(stderr, "syntax: solve <81 values, 0-9>\n");
+    fprintf(stderr, "syntax: solve <81 digits, 0-9>\n");
 }
 
 int main(int argc, char ** argv)
 {
     --argc;
     ++argv;
-    if (argc != Board::SIZE * Board::SIZE)
+
+    if (argc < 1)
     {
+        fprintf(stderr, "Missing board.\n");
         syntax();
-        return 1;
+        return 2;
+    }
+
+    if (argc > 1)
+    {
+        fprintf(stderr, "Too many parameters.\n");
+        syntax();
+        return 2;
+    }
+
+    if (strlen(*argv) < 81)
+    {
+        fprintf(stderr, "The board is missing squares.\n");
+        syntax();
+        return 3;
+    }
+
+    if (strlen(*argv) > 81)
+    {
+        fprintf(stderr, "The board has too many squares.\n");
+        syntax();
+        return 3;
     }
 
     Board board;
-    for (int r = 0; r < Board::SIZE; ++r)
+    if (!board.initialize(*argv))
     {
-        for (int c = 0; c < Board::SIZE; ++c)
-        {
-            int x;
-            sscanf(*argv, "%d", &x);
-            if (x < 0 || x > 9)
-            {
-                syntax();
-                return 2;
-            }
-            board.set(r, c, x);
-            --argc;
-            ++argv;
-        }
+        fprintf(stderr, "The squares must be 0-9.\n");
+        syntax();
+        return 3;
     }
 
     printf("Board to solve:\n");
     board.draw();
     printf("\n");
+
+    if (!board.consistent())
+    {
+        fprintf(stderr, "The board is not valid. The squares are not consistent.\n");
+        syntax();
+        return 4;
+    }
 
     std::vector<Board> solutions = Solver::allSolutions(board);
     if (!solutions.empty())

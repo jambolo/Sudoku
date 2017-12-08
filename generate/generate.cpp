@@ -34,12 +34,9 @@ int main(int argc, char ** argv)
     srand((unsigned int)time(NULL));
 
     Board board = Generator::generate(difficulty);
-    printf("[ ");
-    printf("%d", board.get(0));
-    for (int i = 1; i < Board::SIZE * Board::SIZE; ++i)
-    {
-        printf(", %d", board.get(i));
-    }
-    printf(" ]\n");
+    std::string serialized;
+    board.serialize(serialized);
+    puts(serialized.c_str());
+
     return 0;
 }

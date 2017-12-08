@@ -11,6 +11,37 @@ Board::Board()
     memset(&board_, EMPTY, sizeof(board_));
 }
 
+bool Board::initialize(char const * s)
+{
+    for (auto & row : board_)
+    {
+        for (int & cell : row)
+        {
+            char digit = *s++;
+            if (!digit || !isdigit(digit))
+            {
+                return false;
+            }
+            cell =  digit - '0';
+        }
+    }
+
+    // Make sure there are the right number of digits
+    if (*s)
+        return false;
+
+    return true;
+}
+
+void Board::serialize(std::string & out) const
+{
+    for (auto const & row : board_)
+    {
+        for (int cell : row)
+            out.push_back(cell + '0');
+    }
+}
+
 void Board::set(int i, int x)
 {
     int r, c;

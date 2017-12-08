@@ -13,7 +13,7 @@ enum Verbosity
 
 static void syntax()
 {
-    fprintf(stderr, "syntax: suggest [-a] [-vvv] <81 values, 0-9>\n");
+    fprintf(stderr, "syntax: suggest [-a] [-vvv] <81 digits, 0-9>\n");
     fprintf(stderr, "Options:\n");
     fprintf(stderr, "  -v:   outputs additional information\n");
     fprintf(stderr, "  -vv:  outputs additional additional information\n");
@@ -109,42 +109,47 @@ int main(int argc, char ** argv)
         --argc;
     }
 
-    if (!isdigit(**argv))
+    if (argc < 1)
     {
-        fprintf(stderr, "Invalid parameter '%s'\n", *argv);
-        syntax();
-        return 1;
-    }
-
-    if (argc != Board::SIZE * Board::SIZE)
-    {
-        fprintf(stderr, "The board does not have 81 values.\n");
+        fprintf(stderr, "Missing board\n");
         syntax();
         return 2;
     }
 
-    Board board;
-    for (int r = 0; r < Board::SIZE; ++r)
+    if (argc > 1)
     {
-        for (int c = 0; c < Board::SIZE; ++c)
-        {
-            int x = -1;
-            sscanf(*argv, "%d", &x);
-            if (x < 0 || x > 9)
-            {
-                syntax();
-                return 2;
-            }
-            board.set(r, c, x);
-            --argc;
-            ++argv;
-        }
+        fprintf(stderr, "Too many parameters\n");
+        syntax();
+        return 2;
+    }
+
+    if (strlen(*argv) < 81)
+    {
+        fprintf(stderr, "The board is missing squares\n");
+        syntax();
+        return 3;
+    }
+
+    if (strlen(*argv) > 81)
+    {
+        fprintf(stderr, "The board has too many squares\n");
+        syntax();
+        return 3;
+    }
+
+    Board board;
+    if (!board.initialize(*argv))
+    {
+        fprintf(stderr, "The squares must be 0-9.\n");
+        syntax();
+        return 3;
     }
 
     if (!board.consistent())
     {
-        fprintf(stderr, "The board is not valid.\n");
-        return 3;
+        fprintf(stderr, "The board is not valid. The squares are not consistent.\n");
+        syntax();
+        return 4;
     }
 
     Analyzer analyzer(board, verbosity >= VERBOSE);
