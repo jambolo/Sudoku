@@ -144,6 +144,9 @@ Analyzer::Analyzer(Board const & board, std::vector<unsigned> const & candidates
     : board_(board)
     , verbose_(verbose)
     , candidates_(candidates)
+#if defined(_DEBUG)
+    , solvedBoard_(board)
+#endif // defined(_DEBUG)
 {
 #if defined(_DEBUG)
     assert(board_.consistent());
