@@ -151,7 +151,11 @@ Analyzer::Analyzer(Board const & board, std::vector<unsigned> const & candidates
 #if defined(_DEBUG)
     assert(board_.consistent());
     assert(Solver::hasUniqueSolution(board_));
+
+    // Create the solved board for debugging purposes
     Solver::solve(solvedBoard_);
+
+    // Sanity check -- validate the candidates
     assert(candidatesAreValid());
 #endif // defined(_DEBUG)
 }
@@ -1452,107 +1456,46 @@ bool Analyzer::xWingRow(int                      r0,
                         std::vector<int> &       eliminatedValues,
                         std::vector<int> &       pivots) const
 {
-    unsigned alreadyTested = 0;
-    for (int c0 = 0; c0 < Board::SIZE - 1; ++c0)
+    std::vector<StrongLink> links = findStrongLinksR(row);
+    for (auto link : links)
     {
-        unsigned candidates0 = candidates_[row[c0]];
+        int c0 = link.i0;
+        int c1 = link.i1;
+        int v = link.value;
 
-        // Ignore solved cells
-        if (solved(candidates0))
-            continue;
-
-        // Ignore cells with only already-tested candidate
-        candidates0 &= ~alreadyTested;
-        if (!candidates0)
-            continue;
-
-        for (int c1 = c0 + 1; c1 < Board::SIZE; ++c1)
+        for (int r1 = r0 + 1; r1 < Board::SIZE; ++r1)
         {
-            unsigned candidates1 = candidates_[row[c1]];
+            std::vector<int> otherRow = Board::Unit::row(r1);
+            int other0 = otherRow[c0];
+            int other1 = otherRow[c1];
 
-            // Ignore solved cells
-            if (solved(candidates1))
-                continue;
-
-            unsigned candidates = candidates0 & candidates1;
-
-            // If there are no matching candidates in this cell, then nothing to do
-            if (!candidates)
-                continue;
-
-            // Find any matching candidates in this cell that are not in any of the other cells
-            unsigned others = 0;
-            for (int c = 0; c < Board::SIZE; ++c)
+            // If there is a strong link with the same value in the same columns in another row, then
+            // this is an x-wing.
+            if (hasStrongLink(other0, other1, v, otherRow))
             {
-                if (c != c0 && c != c1)
-                    others |= candidates_[row[c]];
-            }
-
-            candidates &= ~others;
-
-            // If none of the candidates in c0 are only in c1, then nothing to do
-            if (!candidates)
-                continue;
-
-            // There are should be exactly 1 or 2 values that occur only in columns c0 and c1
-            std::vector<int> candidateValues = valuesFromCandidates(candidates);
-            assert(candidateValues.size() <= 2);
-
-            // Find another row that has one of the values in only columns c0 and c1. If one is found, then
-            // the value can be eliminated from candidates in all other cells in those two columns.
-            for (int v : candidateValues)
-            {
-                int r1 = -1;
-                unsigned valueMask = 1 << v;
-                for (int r = r0 + 1; r < Board::SIZE; ++r)
+                // Look for other cells in these two columns with the value as a candidate
+                for (int c : { c0, c1 })
                 {
-                    std::vector<int> rowIndexes = Board::Unit::row(r);
-                    int other0 = rowIndexes[c0];
-                    int other1 = rowIndexes[c1];
-
-                    // If the columns don't match then skip the row
-                    if (!(valueMask & candidates_[other0]) || !(valueMask & candidates_[other1]))
-                        continue;
-
-                    // If the others in the row do not match then this is an X-Wing
-                    unsigned theRest = 0;
-                    for_each_index_except(rowIndexes, other0, other1, [&] (int i) {
-                        theRest |= candidates_[i];
+                    std::vector<int> column = Board::Unit::column(c);
+                    for_each_index_except(column, column[r0], column[r1], [&](int i) {
+                        if ((1 << v) & candidates_[i])
+                            eliminatedIndexes.push_back(i);
                     });
-                    if (!(valueMask & theRest))
-                    {
-                        r1 = r;
-                        break;
-                    }
                 }
-
-                // If an X-Wing was found, and there are candidates to be eliminated, then success.
-                if (r1 >= 0)
+                if (!eliminatedIndexes.empty())
                 {
-                    for (int c : { c0, c1 })
+                    eliminatedValues.push_back(v);
+                    pivots =
                     {
-                        std::vector<int> columnIndexes = Board::Unit::column(c);
-                        for_each_index_except(columnIndexes, columnIndexes[r0], columnIndexes[r1], [&] (int i) {
-                            if (valueMask & candidates_[i])
-                                eliminatedIndexes.push_back(i);
-                        });
-                    }
-                    if (!eliminatedIndexes.empty())
-                    {
-                        eliminatedValues.push_back(v);
-                        pivots =
-                        {
-                            Board::Cell::indexOf(r0, c0),
-                            Board::Cell::indexOf(r0, c1),
-                            Board::Cell::indexOf(r1, c0),
-                            Board::Cell::indexOf(r1, c1)
-                        };
-                        return true;
-                    }
+                        Board::Cell::indexOf(r0, c0),
+                        Board::Cell::indexOf(r0, c1),
+                        Board::Cell::indexOf(r1, c0),
+                        Board::Cell::indexOf(r1, c1)
+                    };
+                    return true;
                 }
             }
         }
-        alreadyTested |= candidates0;
     }
     return false;
 }
@@ -1563,103 +1506,46 @@ bool Analyzer::xWingColumn(int                      c0,
                            std::vector<int> &       eliminatedValues,
                            std::vector<int> &       pivots) const
 {
-    unsigned alreadyTested = 0;
-    for (int r0 = 0; r0 < Board::SIZE - 1; ++r0)
+    std::vector<StrongLink> links = findStrongLinksR(column);
+    for (auto link : links)
     {
-        unsigned candidates0 = candidates_[column[r0]];
+        int r0 = link.i0;
+        int r1 = link.i1;
+        int v = link.value;
 
-        // Ignore solved cells
-        if (solved(candidates0))
-            continue;
-
-        // Ignore cells with only already-tested candidate
-        candidates0 &= ~alreadyTested;
-        if (!candidates0)
-            continue;
-
-        for (int r1 = r0 + 1; r1 < Board::SIZE; ++r1)
+        for (int c1 = c0 + 1; c1 < Board::SIZE; ++c1)
         {
-            unsigned candidates1 = candidates_[column[r1]];
+            std::vector<int> otherColumn = Board::Unit::column(c1);
+            int other0 = otherColumn[r0];
+            int other1 = otherColumn[r1];
 
-            // Ignore solved cells
-            if (solved(candidates1))
-                continue;
-
-            unsigned candidates = candidates0 & candidates1;
-
-            // If there are no matching candidates in this cell, then nothing to do
-            if (!candidates)
-                continue;
-
-            // Find any matching candidates in this cell that are not in any of the other cells
-            unsigned others = 0;
-            for (int r = 0; r < Board::SIZE; ++r)
+            // If there is a strong link with the same value in the same columns in another column, then
+            // this is an x-wing.
+            if (hasStrongLink(other0, other1, v, otherColumn))
             {
-                if (r != r0 && r != r1)
-                    others |= candidates_[column[r]];
-            }
-
-            candidates &= ~others;
-
-            // There are should be exactly 1 or 2 values that occur only in columns c0 and c1
-            std::vector<int> candidateValues = valuesFromCandidates(candidates);
-            assert(candidateValues.size() <= 2);
-
-            // Find another column that has one of the values in only rows r0 and r1. If one is found, then
-            // the value can be eliminated from candidates in all other cells in those two rows.
-            for (int v : candidateValues)
-            {
-                int c1 = -1;
-                unsigned valueMask = 1 << v;
-                for (int c = c0 + 1; c < Board::SIZE; ++c)
+                // Look for other cells in these two columns with the value as a candidate
+                for (int c : { r0, r1 })
                 {
-                    std::vector<int> columnIndexes = Board::Unit::column(c);
-                    int other0 = columnIndexes[r0];
-                    int other1 = columnIndexes[r1];
-
-                    // If the columns don't match then skip the column
-                    if (!(valueMask & candidates_[other0]) || !(valueMask & candidates_[other1]))
-                        continue;
-
-                    // If the others in the column do not match then this is an X-Wing
-                    unsigned theRest = 0;
-                    for_each_index_except(columnIndexes, other0, other1, [&] (int i) {
-                        theRest |= candidates_[i];
+                    std::vector<int> column = Board::Unit::column(c);
+                    for_each_index_except(column, column[c0], column[c1], [&](int i) {
+                        if ((1 << v) & candidates_[i])
+                            eliminatedIndexes.push_back(i);
                     });
-                    if (!(valueMask & theRest))
-                    {
-                        c1 = c;
-                        break;
-                    }
                 }
-
-                // If an X-Wing was found, and there are candidates to be eliminated, then success.
-                if (c1 >= 0)
+                if (!eliminatedIndexes.empty())
                 {
-                    for (int r : { r0, r1 })
+                    eliminatedValues.push_back(v);
+                    pivots =
                     {
-                        std::vector<int> rowIndexes = Board::Unit::row(r);
-                        for_each_index_except(rowIndexes, rowIndexes[c0], rowIndexes[c1], [&] (int i) {
-                            if (valueMask & candidates_[i])
-                                eliminatedIndexes.push_back(i);
-                        });
-                    }
-                    if (!eliminatedIndexes.empty())
-                    {
-                        eliminatedValues.push_back(v);
-                        pivots =
-                        {
-                            Board::Cell::indexOf(r0, c0),
-                            Board::Cell::indexOf(r1, c0),
-                            Board::Cell::indexOf(r0, c1),
-                            Board::Cell::indexOf(r1, c1)
-                        };
-                        return true;
-                    }
+                        Board::Cell::indexOf(r0, c0),
+                        Board::Cell::indexOf(r0, c1),
+                        Board::Cell::indexOf(r1, c0),
+                        Board::Cell::indexOf(r1, c1)
+                    };
+                    return true;
                 }
             }
         }
-        alreadyTested |= candidates0;
     }
     return false;
 }
@@ -1686,20 +1572,59 @@ unsigned Analyzer::allUnsolvedCandidates(std::vector<int>::const_iterator first,
     return candidates;
 }
 
-std::vector<Analyzer::StrongLink> Analyzer::findStrongLinks(int index) const
+std::vector<Analyzer::StrongLink> Analyzer::findStrongLinksR(std::vector<int> const & unit) const
+{
+    // Unlike findStrongLinks, this version returns the indexes in the given unit rather than the board indexes.
+
+    std::vector<StrongLink> links;
+
+    unsigned alreadyTested = 0;
+    for (int u0 = 0; u0 < Board::SIZE - 1; ++u0)
+    {
+        int i0 = unit[u0];
+        unsigned candidates0 = candidates_[i0];
+
+        // Ignore solved cells
+        if (solved(candidates0))
+            continue;
+
+        // Ignore cells with only already-tested candidate
+        candidates0 &= ~alreadyTested;
+        if (!candidates0)
+            continue;
+
+        std::vector<int> values = valuesFromCandidates(candidates0);
+        for (int v : values)
+        {
+            for (int u1 = u0 + 1; u1 < Board::SIZE; ++u1)
+            {
+                int i1 = unit[u1];
+                if (hasStrongLinkR(u0, u1, 1 << v, unit))
+                {
+                    links.emplace_back(StrongLink{ u0, u1, v });
+                    break;
+                }
+            }
+        }
+        alreadyTested |= candidates0;
+    }
+    return links;
+}
+
+std::vector<Analyzer::StrongLink> Analyzer::findStrongLinks(int i) const
 {
     std::vector<StrongLink> links;
 
-    std::vector<int> row = Board::Unit::row(Board::Unit::whichRow(index));
-    std::vector<StrongLink> rowLinks = findStrongLinks(index, row);
+    std::vector<int> row = Board::Unit::row(Board::Unit::whichRow(i));
+    std::vector<StrongLink> rowLinks = findStrongLinks(i, row);
     links.insert(links.end(), rowLinks.begin(), rowLinks.end());
 
-    std::vector<int> column = Board::Unit::column(Board::Unit::whichColumn(index));
-    std::vector<StrongLink> columnLinks = findStrongLinks(index, column);
+    std::vector<int> column = Board::Unit::column(Board::Unit::whichColumn(i));
+    std::vector<StrongLink> columnLinks = findStrongLinks(i, column);
     links.insert(links.end(), columnLinks.begin(), columnLinks.end());
 
-    std::vector<int> box = Board::Unit::box(Board::Unit::whichBox(index));
-    std::vector<StrongLink> boxLinks = findStrongLinks(index, box);
+    std::vector<int> box = Board::Unit::box(Board::Unit::whichBox(i));
+    std::vector<StrongLink> boxLinks = findStrongLinks(i, box);
     links.insert(links.end(), boxLinks.begin(), boxLinks.end());
 
     return links;
@@ -1714,12 +1639,50 @@ std::vector<Analyzer::StrongLink> Analyzer::findStrongLinks(int i0, std::vector<
     {
         for_each_index_except(unit, i0, [&](int i1) {
             if (hasStrongLink(i0, i1, v, unit))
-                links.emplace_back(StrongLink{i1, v});
+                links.emplace_back(StrongLink{ i0, i1, v });
         });
     }
     return links;
 }
 
+std::vector<Analyzer::StrongLink> Analyzer::findStrongLinksR(int u0,
+                                                             unsigned mask,
+                                                             std::vector<int> const & unit) const
+{
+    // This is a faster version of findStrongLinks. This one requires that no cells in the given unit in the range
+    // [0, u0) have candidates corresponding to mask.
+    //
+    // This version also returns the indexes in the unit rather than the board.
+
+#if defined(_DEBUG)
+    {
+        unsigned check = 0;
+        for (int t = 0; t < u0; ++t)
+        {
+            check |= unit[t];
+        }
+        assert(!(check & mask));
+    }
+#endif
+
+    std::vector<Analyzer::StrongLink> links;
+    int i0 = unit[u0];
+
+    std::vector<int> values = valuesFromCandidates(mask);
+    for (int v : values)
+    {
+        for (int u1 = u0 + 1; u1 < Board::SIZE; ++u1)
+        {
+            int i1 = unit[u1];
+            if (hasStrongLinkR(u0, u1, 1 << v, unit))
+            {
+                links.emplace_back(StrongLink{ u0, u1, v });
+                break;
+            }
+        };
+    }
+    return links;
+}
 
 bool Analyzer::hasStrongLink(int i0, int i1, int v, std::vector<int> const & unit) const
 {
@@ -1730,6 +1693,39 @@ bool Analyzer::hasStrongLink(int i0, int i1, int v, std::vector<int> const & uni
     for (int i : unit)
     {
         if (i != i0 && i != i1 && (candidates_[i] & mask))
+            return false;
+    }
+    return true;
+}
+
+bool Analyzer::hasStrongLinkR(int u0, int u1, unsigned mask, std::vector<int> const & unit) const
+{
+    // This is a faster version of hasStrongLink. This one requires that u0 < u1 and that no cells in the given
+    // unit in the range [0, u1) have candidates corresponding to mask, except u0.
+
+#if defined(_DEBUG)
+    {
+        assert(u0 < u1);
+        unsigned check = 0;
+        for (int t = 0; t < u1; ++t)
+        {
+            if (t != u0)
+                check |= unit[t];
+        }
+        assert(!(check & mask));
+    }
+#endif
+
+    int i0 = unit[u0];
+    int i1 = unit[u1];
+
+    if ((candidates_[i0] & candidates_[i1] & mask) == 0)
+        return false;
+
+    for (int u2 = u1 + 1; u2 < Board::SIZE; ++u2)
+    {
+        int i2 = unit[u2];
+        if ((candidates_[i2] & mask))
             return false;
     }
     return true;
