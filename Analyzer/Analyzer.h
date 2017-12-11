@@ -57,7 +57,9 @@ private:
 
     struct StrongLink
     {
+        int u0;
         int i0;
+        int u1;
         int i1;
         int value;
     };
@@ -133,9 +135,8 @@ private:
 
     std::vector<StrongLink> findStrongLinks(int i) const;
     std::vector<StrongLink> findStrongLinks(int i, std::vector<int> const & unit) const;
-    std::vector<Analyzer::StrongLink> findStrongLinksR(std::vector<int> const & unit) const;
-    std::vector<StrongLink> findStrongLinksR(int u0, unsigned mask, std::vector<int> const & unit) const;
-    bool hasStrongLink(int i0, int i1, int v, std::vector<int> const & unit) const;
+    std::vector<Analyzer::StrongLink> findStrongLinks(std::vector<int> const & unit) const;
+    bool hasStrongLink(int i0, int i1, unsigned mask, std::vector<int> const & unit) const;
     bool hasStrongLinkR(int u0, int u1, unsigned mask, std::vector<int> const & unit) const;
 
 #if defined(_DEBUG)

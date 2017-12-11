@@ -1456,12 +1456,13 @@ bool Analyzer::xWingRow(int                      r0,
                         std::vector<int> &       eliminatedValues,
                         std::vector<int> &       pivots) const
 {
-    std::vector<StrongLink> links = findStrongLinksR(row);
+    std::vector<StrongLink> links = findStrongLinks(row);
     for (auto link : links)
     {
-        int c0 = link.i0;
-        int c1 = link.i1;
+        int c0 = link.u0;
+        int c1 = link.u1;
         int v = link.value;
+        unsigned mask = 1 << v;
 
         for (int r1 = r0 + 1; r1 < Board::SIZE; ++r1)
         {
@@ -1471,7 +1472,7 @@ bool Analyzer::xWingRow(int                      r0,
 
             // If there is a strong link with the same value in the same columns in another row, then
             // this is an x-wing.
-            if (hasStrongLink(other0, other1, v, otherRow))
+            if (hasStrongLink(other0, other1, mask, otherRow))
             {
                 // Look for other cells in these two columns with the value as a candidate
                 for (int c : { c0, c1 })
@@ -1506,12 +1507,13 @@ bool Analyzer::xWingColumn(int                      c0,
                            std::vector<int> &       eliminatedValues,
                            std::vector<int> &       pivots) const
 {
-    std::vector<StrongLink> links = findStrongLinksR(column);
+    std::vector<StrongLink> links = findStrongLinks(column);
     for (auto link : links)
     {
-        int r0 = link.i0;
-        int r1 = link.i1;
+        int r0 = link.u0;
+        int r1 = link.u1;
         int v = link.value;
+        unsigned mask = 1 << v;
 
         for (int c1 = c0 + 1; c1 < Board::SIZE; ++c1)
         {
@@ -1521,13 +1523,13 @@ bool Analyzer::xWingColumn(int                      c0,
 
             // If there is a strong link with the same value in the same columns in another column, then
             // this is an x-wing.
-            if (hasStrongLink(other0, other1, v, otherColumn))
+            if (hasStrongLink(other0, other1, mask, otherColumn))
             {
-                // Look for other cells in these two columns with the value as a candidate
-                for (int c : { r0, r1 })
+                // Look for other cells in these two rows with the value as a candidate
+                for (int r : { r0, r1 })
                 {
-                    std::vector<int> column = Board::Unit::column(c);
-                    for_each_index_except(column, column[c0], column[c1], [&](int i) {
+                    std::vector<int> row = Board::Unit::row(r);
+                    for_each_index_except(row, row[c0], row[c1], [&](int i) {
                         if ((1 << v) & candidates_[i])
                             eliminatedIndexes.push_back(i);
                     });
@@ -1572,10 +1574,8 @@ unsigned Analyzer::allUnsolvedCandidates(std::vector<int>::const_iterator first,
     return candidates;
 }
 
-std::vector<Analyzer::StrongLink> Analyzer::findStrongLinksR(std::vector<int> const & unit) const
+std::vector<Analyzer::StrongLink> Analyzer::findStrongLinks(std::vector<int> const & unit) const
 {
-    // Unlike findStrongLinks, this version returns the indexes in the given unit rather than the board indexes.
-
     std::vector<StrongLink> links;
 
     unsigned alreadyTested = 0;
@@ -1596,12 +1596,14 @@ std::vector<Analyzer::StrongLink> Analyzer::findStrongLinksR(std::vector<int> co
         std::vector<int> values = valuesFromCandidates(candidates0);
         for (int v : values)
         {
+            unsigned mask = 1 << v;
             for (int u1 = u0 + 1; u1 < Board::SIZE; ++u1)
             {
                 int i1 = unit[u1];
-                if (hasStrongLinkR(u0, u1, 1 << v, unit))
+                if ((candidates_[i0] & candidates_[i1] & mask))
                 {
-                    links.emplace_back(StrongLink{ u0, u1, v });
+                    if (hasStrongLinkR(u0, u1, mask, unit))
+                        links.emplace_back(StrongLink{ u0, i0, u1, i1, v });
                     break;
                 }
             }
@@ -1634,62 +1636,24 @@ std::vector<Analyzer::StrongLink> Analyzer::findStrongLinks(int i0, std::vector<
 {
     std::vector<Analyzer::StrongLink> links;
     std::vector<int> values = valuesFromCandidates(candidates_[i0]);
-
     for (int v : values)
     {
+        unsigned mask = 1 << v;
         for_each_index_except(unit, i0, [&](int i1) {
-            if (hasStrongLink(i0, i1, v, unit))
-                links.emplace_back(StrongLink{ i0, i1, v });
+            if (hasStrongLink(i0, i1, mask, unit))
+                links.emplace_back(StrongLink{ -1, i0, -1, i1, v });
         });
     }
     return links;
 }
 
-std::vector<Analyzer::StrongLink> Analyzer::findStrongLinksR(int u0,
-                                                             unsigned mask,
-                                                             std::vector<int> const & unit) const
+bool Analyzer::hasStrongLink(int i0, int i1, unsigned mask, std::vector<int> const & unit) const
 {
-    // This is a faster version of findStrongLinks. This one requires that no cells in the given unit in the range
-    // [0, u0) have candidates corresponding to mask.
-    //
-    // This version also returns the indexes in the unit rather than the board.
-
-#if defined(_DEBUG)
-    {
-        unsigned check = 0;
-        for (int t = 0; t < u0; ++t)
-        {
-            check |= unit[t];
-        }
-        assert(!(check & mask));
-    }
-#endif
-
-    std::vector<Analyzer::StrongLink> links;
-    int i0 = unit[u0];
-
-    std::vector<int> values = valuesFromCandidates(mask);
-    for (int v : values)
-    {
-        for (int u1 = u0 + 1; u1 < Board::SIZE; ++u1)
-        {
-            int i1 = unit[u1];
-            if (hasStrongLinkR(u0, u1, 1 << v, unit))
-            {
-                links.emplace_back(StrongLink{ u0, u1, v });
-                break;
-            }
-        };
-    }
-    return links;
-}
-
-bool Analyzer::hasStrongLink(int i0, int i1, int v, std::vector<int> const & unit) const
-{
-    unsigned mask = 1 << v;
-    if ((candidates_[i0] & candidates_[i1] & mask) == 0)
+    // Not a strong link if the two cells don't share the candidate
+    if (!(candidates_[i0] & candidates_[i1] & mask))
         return false;
 
+    // Not a strong link if any other cells in the unit share the candidate
     for (int i : unit)
     {
         if (i != i0 && i != i1 && (candidates_[i] & mask))
@@ -1700,28 +1664,25 @@ bool Analyzer::hasStrongLink(int i0, int i1, int v, std::vector<int> const & uni
 
 bool Analyzer::hasStrongLinkR(int u0, int u1, unsigned mask, std::vector<int> const & unit) const
 {
-    // This is a faster version of hasStrongLink. This one requires that u0 < u1 and that no cells in the given
-    // unit in the range [0, u1) have candidates corresponding to mask, except u0.
+    // This is a faster version of hasStrongLink. This one requires that u0 < u1, cells u0 and u1 have candidates
+    // corresponding to mask, and that no other cells in the given unit in the range [0, u1) have candidates
+    // corresponding to mask.
 
 #if defined(_DEBUG)
     {
         assert(u0 < u1);
+        assert(candidates_[unit[u0]] & candidates_[unit[u1]] & mask);
         unsigned check = 0;
         for (int t = 0; t < u1; ++t)
         {
             if (t != u0)
-                check |= unit[t];
+                check |= candidates_[unit[t]];
         }
         assert(!(check & mask));
     }
 #endif
 
-    int i0 = unit[u0];
-    int i1 = unit[u1];
-
-    if ((candidates_[i0] & candidates_[i1] & mask) == 0)
-        return false;
-
+    // Not a strong link if any of the remaining cells in the unit share the candidate
     for (int u2 = u1 + 1; u2 < Board::SIZE; ++u2)
     {
         int i2 = unit[u2];
