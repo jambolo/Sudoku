@@ -133,10 +133,10 @@ public:
     static void next(int * r, int * c);
 
     // Returns indexes of all cells that depend on this one
-    static std::vector<int> const & dependents(int r, int c);
+    static std::vector<int> const & dependents(int i);
 
     // Returns indexes of all cells that depend on this one
-    static std::vector<int> const & dependents(int i);
+    static std::vector<int> dependents(int i0, int i1);
 
     // Returns the index of a row and column
     static int indexOf(int r, int c)

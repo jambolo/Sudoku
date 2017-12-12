@@ -49,9 +49,6 @@ static void printStep(Analyzer::Step const & step, Verbosity verbosity, int i = 
             printf("can be eliminated as candidate values for ");
             for (auto v : step.indexes)
             {
-                int r;
-                int c;
-                Board::Cell::locationOf(v, &r, &c);
                 printf("%s ", Board::Cell::name(v).c_str());
             }
             if (verbosity >= VERBOSE || verbosity >= DETAILED)

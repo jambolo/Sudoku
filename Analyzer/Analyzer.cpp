@@ -107,6 +107,11 @@ static int candidateCount(unsigned candidates)
     return count;
 }
 
+static unsigned candidate(int v)
+{
+    return 1 << v;
+}
+
 Analyzer::Analyzer(Board const & board, bool verbose /*= false*/)
     : board_(board)
     , verbose_(verbose)
@@ -244,6 +249,13 @@ Analyzer::Step Analyzer::next()
         return { Step::ELIMINATE, indexes, values, Step::X_WING, reason };
     }
 
+    if (yWingFound(indexes, values, reason))
+    {
+        eliminate(indexes, values);
+        assert(candidatesAreValid());
+        return { Step::ELIMINATE, indexes, values, Step::Y_WING, reason };
+    }
+
     done_  = true;
     stuck_ = true;
     return { Step::STUCK };
@@ -259,15 +271,15 @@ void Analyzer::drawPenciledBoard() const
         for (int c = 0; c < Board::SIZE; ++c)
         {
             unsigned candidates = candidates_[Board::Cell::indexOf(r, c)];
-            if (solved(candidates))
+            if (solved(candidates) && !board_.isEmpty(r, c))
             {
                 printf("       ");
             }
             else
             {
-                char x1 = (candidates & (1 << 1)) ? '1' : '.';
-                char x2 = (candidates & (1 << 2)) ? '2' : '.';
-                char x3 = (candidates & (1 << 3)) ? '3' : '.';
+                char x1 = (candidates & candidate(1)) ? '1' : '.';
+                char x2 = (candidates & candidate(2)) ? '2' : '.';
+                char x3 = (candidates & candidate(3)) ? '3' : '.';
                 printf(" %c %c %c ", x1, x2, x3);
             }
             if (c % 3 == 2)
@@ -281,16 +293,16 @@ void Analyzer::drawPenciledBoard() const
         for (int c = 0; c < Board::SIZE; ++c)
         {
             unsigned candidates = candidates_[Board::Cell::indexOf(r, c)];
-            if (solved(candidates))
+            if (solved(candidates) && !board_.isEmpty(r, c))
             {
                 int v = board_.get(r, c);
                 printf("   %d   ", v);
             }
             else
             {
-                char x4 = (candidates & (1 << 4)) ? '4' : '.';
-                char x5 = (candidates & (1 << 5)) ? '5' : '.';
-                char x6 = (candidates & (1 << 6)) ? '6' : '.';
+                char x4 = (candidates & candidate(4)) ? '4' : '.';
+                char x5 = (candidates & candidate(5)) ? '5' : '.';
+                char x6 = (candidates & candidate(6)) ? '6' : '.';
                 printf(" %c %c %c ", x4, x5, x6);
             }
             if (c % 3 == 2)
@@ -304,15 +316,15 @@ void Analyzer::drawPenciledBoard() const
         for (int c = 0; c < Board::SIZE; ++c)
         {
             unsigned candidates = candidates_[Board::Cell::indexOf(r, c)];
-            if (solved(candidates))
+            if (solved(candidates) && !board_.isEmpty(r, c))
             {
                 printf("       ");
             }
             else
             {
-                char x7 = (candidates & (1 << 7)) ? '7' : '.';
-                char x8 = (candidates & (1 << 8)) ? '8' : '.';
-                char x9 = (candidates & (1 << 9)) ? '9' : '.';
+                char x7 = (candidates & candidate(7)) ? '7' : '.';
+                char x8 = (candidates & candidate(8)) ? '8' : '.';
+                char x9 = (candidates & candidate(9)) ? '9' : '.';
                 printf(" %c %c %c ", x7, x8, x9);
             }
             if (c % 3 == 2)
@@ -334,7 +346,7 @@ void Analyzer::solve(int i, int x)
     board_.set(i, x);
 
     // The cell has only one candidate now
-    candidates_[i] = 1 << x;
+    candidates_[i] = candidate(x);
 
     // Eliminate this cell's value from its dependents' candidates
     std::vector<int> dependents = Board::Cell::dependents(i);
@@ -345,7 +357,7 @@ void Analyzer::eliminate(std::vector<int> const & indexes, int x)
 {
     for (int i : indexes)
     {
-        candidates_[i] &= ~(1 << x);
+        candidates_[i] &= ~candidate(x);
         assert(candidates_[i] != 0);
     }
 }
@@ -529,10 +541,10 @@ bool Analyzer::hiddenPair(std::vector<int> const & indexes,
     // Go through each possible pair of candidates and search for exactly two cells containing the one or more of a pair
     for (int x0 = 1; x0 <= Board::SIZE - 1; ++x0)
     {
-        unsigned m0 = 1 << x0;
+        unsigned m0 = candidate(x0);
         for (int x1 = x0 + 1; x1 <= Board::SIZE; ++x1)
         {
-            unsigned m1 = 1 << x1;
+            unsigned m1 = candidate(x1);
             unsigned m  = m0 | m1;
 
             // Count the number of cells with either of these two candidates
@@ -659,13 +671,13 @@ bool Analyzer::hiddenTriple(std::vector<int> const & indexes,
     // Go through each possible triple of candidates and search for exactly three cells containing the one or more of a triple
     for (int x0 = 1; x0 <= Board::SIZE - 2; ++x0)
     {
-        unsigned m0 = 1 << x0;
+        unsigned m0 = candidate(x0);
         for (int x1 = x0 + 1; x1 <= Board::SIZE - 1; ++x1)
         {
-            unsigned m1 = 1 << x1;
+            unsigned m1 = candidate(x1);
             for (int x2 = x1 + 1; x2 <= Board::SIZE; ++x2)
             {
-                unsigned m2 = 1 << x2;
+                unsigned m2 = candidate(x2);
                 unsigned m  = m0 | m1 | m2;
 
                 // Count the number of cells with any of these three candidates
@@ -797,16 +809,16 @@ bool Analyzer::hiddenQuad(std::vector<int> const & indexes,
     // Go through each possible quad of candidates and search for exactly four cells containing the one or more of a quad
     for (int x0 = 1; x0 <= Board::SIZE - 3; ++x0)
     {
-        unsigned m0 = 1 << x0;
+        unsigned m0 = candidate(x0);
         for (int x1 = x0 + 1; x1 <= Board::SIZE - 2; ++x1)
         {
-            unsigned m1 = 1 << x1;
+            unsigned m1 = candidate(x1);
             for (int x2 = x1 + 1; x2 <= Board::SIZE - 1; ++x2)
             {
-                unsigned m2 = 1 << x2;
+                unsigned m2 = candidate(x2);
                 for (int x3 = x2 + 1; x3 <= Board::SIZE; ++x3)
                 {
-                    unsigned m3 = 1 << x3;
+                    unsigned m3 = candidate(x3);
                     unsigned m  = m0 | m1 | m2 | m3;
 
                     // Count the number of cells with any of these four candidates
@@ -893,7 +905,7 @@ static std::string generateNakedPairReason(std::string const & unitType, char wh
     std::string reason = "Two other squares (" + Board::Cell::name(nakedIndexes[0]) +
                          " and " + Board::Cell::name(nakedIndexes[1]) +
                          ") in " + unitType + " " + which +
-                         " must be one of these two values, so these squares cannot";
+                         " must be one of these two values, so these squares cannot be either of these two values.";
     return reason;
 }
 
@@ -996,7 +1008,7 @@ static std::string generateNakedTripleReason(std::string const & unitType, char 
                          ", " + Board::Cell::name(nakedIndexes[1]) +
                          " and " + Board::Cell::name(nakedIndexes[2]) +
                          ") in " + unitType + " " + which +
-                         " must be one of these three values, so these squares cannot";
+                         " must be one of these three values, so these squares cannot be any of these three values.";
     return reason;
 }
 
@@ -1109,7 +1121,7 @@ static std::string generateNakedQuadReason(std::string const & unitType, char wh
                          ", " + Board::Cell::name(nakedIndexes[2]) +
                          " and " + Board::Cell::name(nakedIndexes[3]) +
                          ") in " + unitType + " " + which +
-                         " must be one of these four values, so these squares cannot";
+                         " must be one of these four values, so these squares cannot be any of these four values.";
     return reason;
 }
 
@@ -1338,14 +1350,20 @@ bool Analyzer::lockedCandidates(std::vector<int> const & indexes1,
                                 std::vector<int> &       eliminatedValues) const
 {
     // Indexes in the intersection
-    std::vector<int> intersection(Board::BOX_SIZE);
-    std::set_intersection(indexes1.begin(), indexes1.end(), indexes2.begin(), indexes2.end(), intersection.begin());
+    std::vector<int> intersection;
+    std::set_intersection(indexes1.begin(), indexes1.end(),
+                          indexes2.begin(), indexes2.end(),
+                          std::back_inserter(intersection));
 
     // Indexes not in the intersection
-    std::vector<int> others1(Board::SIZE - Board::BOX_SIZE);
-    std::set_difference(indexes1.begin(), indexes1.end(), intersection.begin(), intersection.end(), others1.begin());
-    std::vector<int> others2(Board::SIZE - Board::BOX_SIZE);
-    std::set_difference(indexes2.begin(), indexes2.end(), intersection.begin(), intersection.end(), others2.begin());
+    std::vector<int> others1;
+    std::set_difference(indexes1.begin(), indexes1.end(),
+                        intersection.begin(), intersection.end(),
+                        std::back_inserter(others1));
+    std::vector<int> others2;
+    std::set_difference(indexes2.begin(), indexes2.end(),
+                        intersection.begin(), intersection.end(),
+                        std::back_inserter(others2));
 
     // Candidates in the intersection
     unsigned intersectionCandidates = allCandidates(intersection);
@@ -1395,7 +1413,8 @@ static std::string generateXWingRowReason(int value, std::vector<int> const & pi
                          " can have the value " + std::to_string(value) +
                          ". These squares are in the same two columns, " + Board::Unit::columnName(c0) +
                          " and " + Board::Unit::columnName(c3) +
-                         ", so one of the squares in each column must have this value and none of the other squares in these columns can.";
+                         ", so one of the squares in each column must have this value and none of the other squares"
+                         " in these columns can.";
     return reason;
 }
 
@@ -1416,7 +1435,8 @@ static std::string generateXWingColumnReason(int value, std::vector<int> const &
                          " can have the value " + std::to_string(value) +
                          ". These squares are in the same two rows, " + Board::Unit::rowName(r0) +
                          " and " + Board::Unit::rowName(r3) +
-                         ". One of the squares in each row must have this value and so none of the other squares in these rows can.";
+                         ". One of the squares in each row must have this value and so none of the other squares in"
+                         " these rows can.";
     return reason;
 }
 
@@ -1456,13 +1476,13 @@ bool Analyzer::xWingRow(int                      r0,
                         std::vector<int> &       eliminatedValues,
                         std::vector<int> &       pivots) const
 {
-    std::vector<StrongLink> links = findStrongLinks(row);
+    StrongList links = findStrongLinks(row);
     for (auto link : links)
     {
         int c0        = link.u0;
         int c1        = link.u1;
         int v         = link.value;
-        unsigned mask = 1 << v;
+        unsigned mask = candidate(v);
 
         for (int r1 = r0 + 1; r1 < Board::SIZE; ++r1)
         {
@@ -1479,7 +1499,7 @@ bool Analyzer::xWingRow(int                      r0,
                 {
                     std::vector<int> column = Board::Unit::column(c);
                     for_each_index_except(column, column[r0], column[r1], [&](int i) {
-                        if ((1 << v) & candidates_[i])
+                        if (mask & candidates_[i])
                             eliminatedIndexes.push_back(i);
                     });
                 }
@@ -1507,13 +1527,13 @@ bool Analyzer::xWingColumn(int                      c0,
                            std::vector<int> &       eliminatedValues,
                            std::vector<int> &       pivots) const
 {
-    std::vector<StrongLink> links = findStrongLinks(column);
+    StrongList links = findStrongLinks(column);
     for (auto link : links)
     {
         int r0        = link.u0;
         int r1        = link.u1;
         int v         = link.value;
-        unsigned mask = 1 << v;
+        unsigned mask = candidate(v);
 
         for (int c1 = c0 + 1; c1 < Board::SIZE; ++c1)
         {
@@ -1530,7 +1550,7 @@ bool Analyzer::xWingColumn(int                      c0,
                 {
                     std::vector<int> row = Board::Unit::row(r);
                     for_each_index_except(row, row[c0], row[c1], [&](int i) {
-                        if ((1 << v) & candidates_[i])
+                        if (mask & candidates_[i])
                             eliminatedIndexes.push_back(i);
                     });
                 }
@@ -1552,6 +1572,83 @@ bool Analyzer::xWingColumn(int                      c0,
     return false;
 }
 
+static std::string generateYWingReason(std::vector<int> const & pivots, std::vector<int> const & values)
+{
+    std::string reason = "If square " + Board::Cell::name(pivots[0]) +
+                         " is " + std::to_string(values[0]) +
+                         ", then square " + Board::Cell::name(pivots[1]) +
+                         " must be " + std::to_string(values[2]) +
+                         ", or if square " + Board::Cell::name(pivots[0]) +
+                         " is " + std::to_string(values[1]) +
+                         " then square " + Board::Cell::name(pivots[2]) +
+                         " must be " + std::to_string(values[2]) +
+                         ". Either way, none of these squares can be " + std::to_string(values[2]) +  ".";
+        return reason;
+}
+
+bool Analyzer::yWingFound(std::vector<int> & indexes, std::vector<int> & values, std::string & reason) const
+{
+    // If a cell has a strong link of value A in a cell with only two candidates (A,C), and a strong link
+    // of a value B in another cell with two candidates (B,C), and the other candidate in those two
+    // cells are the value C, then any cells that can see both of those cells cannot have the value C
+    // because one of those two cells, (A,C) or (B,C), must have the value C.
+
+    std::vector<int> pivots;
+    std::vector<int> pivotValues;
+
+    bool found = !Board::ForEach::cell([&](int i) {
+        // Get all the strong links for this cell
+        StrongList links = findStrongLinks(i);
+
+        if (!links.empty())
+        {
+            int i0 = i;
+            for (StrongList::const_iterator link1 = links.begin(); link1 != std::prev(links.end()); ++link1)
+            {
+                int i1 = link1->i1;
+                int v1 = link1->value;
+                if (candidateCount(candidates_[i1]) == 2)
+                {
+                    for (StrongList::const_iterator link2 = std::next(link1); link2 != links.end(); ++link2)
+                    {
+                        int i2 = link2->i1;
+                        int v2 = link2->value;
+                        if (i1 != i2 && v1 != v2 && candidateCount(candidates_[i2]) == 2)
+                        {
+                            unsigned mask3 = (candidates_[i1] & ~candidate(v1)) & (candidates_[i2] & ~candidate(v2));
+                            if (mask3)
+                            {
+                                assert(candidateCount(mask3) == 1);
+                                // A Y-wing has been found. The candidate v3 can be removed from all cells that can
+                                // see both i1 and i2.
+                                int v3 = valueFromCandidates(mask3);
+                                std::vector<int> seen = Board::Cell::dependents(i1, i2);
+                                for (int s : seen)
+                                {
+                                    if (candidates_[s] & mask3)
+                                        indexes.push_back(s);
+                                }
+                                if (!indexes.empty())
+                                {
+                                    values.push_back(v3);
+                                    pivots = { i0, i1, i2 };
+                                    pivotValues = { v1, v2, v3 };
+                                    return false;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return true;
+    }); 
+
+    if (found)
+        reason = generateYWingReason(pivots, pivotValues);
+    return found;
+}
+
 unsigned Analyzer::allCandidates(std::vector<int> const & indexes) const
 {
     unsigned candidates = 0;
@@ -1566,7 +1663,7 @@ unsigned Analyzer::allCandidates(std::vector<int> const & indexes) const
 
 std::vector<Analyzer::StrongLink> Analyzer::findStrongLinks(std::vector<int> const & unit) const
 {
-    std::vector<StrongLink> links;
+    StrongList links;
 
     unsigned alreadyTested = 0;
     for (int u0 = 0; u0 < Board::SIZE - 1; ++u0)
@@ -1586,7 +1683,7 @@ std::vector<Analyzer::StrongLink> Analyzer::findStrongLinks(std::vector<int> con
         std::vector<int> values = valuesFromCandidates(candidates0);
         for (int v : values)
         {
-            unsigned mask = 1 << v;
+            unsigned mask = candidate(v);
             for (int u1 = u0 + 1; u1 < Board::SIZE; ++u1)
             {
                 int i1 = unit[u1];
@@ -1605,18 +1702,18 @@ std::vector<Analyzer::StrongLink> Analyzer::findStrongLinks(std::vector<int> con
 
 std::vector<Analyzer::StrongLink> Analyzer::findStrongLinks(int i) const
 {
-    std::vector<StrongLink> links;
+    StrongList links;
 
     std::vector<int> row = Board::Unit::row(Board::Unit::whichRow(i));
-    std::vector<StrongLink> rowLinks = findStrongLinks(i, row);
+    StrongList rowLinks = findStrongLinks(i, row);
     links.insert(links.end(), rowLinks.begin(), rowLinks.end());
 
     std::vector<int> column = Board::Unit::column(Board::Unit::whichColumn(i));
-    std::vector<StrongLink> columnLinks = findStrongLinks(i, column);
+    StrongList columnLinks = findStrongLinks(i, column);
     links.insert(links.end(), columnLinks.begin(), columnLinks.end());
 
     std::vector<int> box = Board::Unit::box(Board::Unit::whichBox(i));
-    std::vector<StrongLink> boxLinks = findStrongLinks(i, box);
+    StrongList boxLinks = findStrongLinks(i, box);
     links.insert(links.end(), boxLinks.begin(), boxLinks.end());
 
     return links;
@@ -1628,7 +1725,7 @@ std::vector<Analyzer::StrongLink> Analyzer::findStrongLinks(int i0, std::vector<
     std::vector<int> values = valuesFromCandidates(candidates_[i0]);
     for (int v : values)
     {
-        unsigned mask = 1 << v;
+        unsigned mask = candidate(v);
         for_each_index_except(unit, i0, [&](int i1) {
             if (hasStrongLink(i0, i1, mask, unit))
                 links.emplace_back(StrongLink { -1, i0, -1, i1, v });
@@ -1688,7 +1785,7 @@ bool Analyzer::candidatesAreValid()
     return Board::ForEach::cell([&] (int i) {
         int v = solvedBoard_.get(i);
         assert(v != Board::EMPTY); // Sanity check
-        return ((1 << v) & candidates_[i]) != 0;
+        return (candidate(v) & candidates_[i]) != 0;
     });
 }
 
@@ -1708,7 +1805,8 @@ const char * Analyzer::Step::techniqueName(Analyzer::Step::TechniqueId technique
         "naked triple",
         "naked quad",
         "locked candidates",
-        "x-wing"
+        "x-wing",
+        "y-wing"
     };
     assert((size_t)technique >= 0 && (size_t)technique < sizeof(NAMES) / sizeof(*NAMES));
     return NAMES[technique];

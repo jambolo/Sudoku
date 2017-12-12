@@ -24,7 +24,8 @@ public:
             NAKED_TRIPLE,
             NAKED_QUAD,
             LOCKED_CANDIDATES,
-            X_WING
+            X_WING,
+            Y_WING
         };
 
         ActionId action;
@@ -63,6 +64,7 @@ private:
         int i1;
         int value;
     };
+    using StrongList = std::vector<StrongLink>;
 
     void solve(int i, int x);
     void eliminate(std::vector<int> const & indexes, int x);
@@ -130,13 +132,15 @@ private:
                      std::vector<int> &       eliminatedValues,
                      std::vector<int> &       pivots) const;
 
+    bool yWingFound(std::vector<int> & indexes, std::vector<int> & values, std::string & reason) const;
+
     unsigned                allCandidates(std::vector<int> const & indexes) const;
 
-    std::vector<StrongLink> findStrongLinks(std::vector<int> const & unit) const;
-    std::vector<StrongLink> findStrongLinks(int i) const;
-    std::vector<StrongLink> findStrongLinks(int i, std::vector<int> const & unit) const;
-    bool                    hasStrongLink(int i0, int i1, unsigned mask, std::vector<int> const & unit) const;
-    bool                    hasStrongLinkR(int u0, int u1, unsigned mask, std::vector<int> const & unit) const;
+    StrongList findStrongLinks(std::vector<int> const & unit) const;
+    StrongList findStrongLinks(int i) const;
+    StrongList findStrongLinks(int i, std::vector<int> const & unit) const;
+    bool       hasStrongLink(int i0, int i1, unsigned mask, std::vector<int> const & unit) const;
+    bool       hasStrongLinkR(int u0, int u1, unsigned mask, std::vector<int> const & unit) const;
 
 #if defined(_DEBUG)
     bool candidatesAreValid();

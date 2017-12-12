@@ -71,13 +71,11 @@ bool Board::isEmpty(int i) const
 std::vector<int> Board::candidates(int r, int c) const
 {
     std::vector<int> values { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
-    std::vector<int> others = Cell::dependents(r, c);
+    std::vector<int> others = Cell::dependents(Cell::indexOf(r, c));
     for (int i : others)
     {
-        int otherR, otherC;
-        Cell::locationOf(i, &otherR, &otherC);
-        int x = board_[otherR][otherC];
-        values[x] = EMPTY;
+        int v = get(i);
+        values[v] = EMPTY;
     }
 
     // Remove EMPTYs
@@ -328,11 +326,6 @@ void Board::Cell::next(int * r, int * c)
     Cell::locationOf(Cell::indexOf(*r, *c) + 1, r, c);
 }
 
-std::vector<int> const & Board::Cell::dependents(int r, int c)
-{
-    return Cell::dependents(Cell::indexOf(r, c));
-}
-
 std::vector<int> const & Board::Cell::dependents(int i)
 {
     static std::vector<int> const DEPENDENTS_BY_INDEX[SIZE * SIZE] =
@@ -420,6 +413,17 @@ std::vector<int> const & Board::Cell::dependents(int i)
         {  8, 17, 26,  35,   44,    53,    60,   61,  62,  69,   70,   71,   72,  73, 74, 75, 76, 77, 78, 79 }
     };
     return DEPENDENTS_BY_INDEX[i];
+}
+
+std::vector<int> Board::Cell::dependents(int i0, int i1)
+{
+    std::vector<int> const & dependents0 = Board::Cell::dependents(i0);
+    std::vector<int> const & dependents1 = Board::Cell::dependents(i1);
+    std::vector<int> intersection;
+    std::set_intersection(dependents0.begin(), dependents0.end(),
+                          dependents1.begin(), dependents1.end(),
+                          std::back_inserter(intersection));
+    return intersection;
 }
 
 std::string Board::Cell::name(int index)
