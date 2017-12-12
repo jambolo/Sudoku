@@ -130,14 +130,13 @@ private:
                      std::vector<int> &       eliminatedValues,
                      std::vector<int> &       pivots) const;
 
-    unsigned allCandidates(std::vector<int>::const_iterator first, std::vector<int>::const_iterator last) const;
-    unsigned allUnsolvedCandidates(std::vector<int>::const_iterator first, std::vector<int>::const_iterator last) const;
+    unsigned                allCandidates(std::vector<int> const & indexes) const;
 
+    std::vector<StrongLink> findStrongLinks(std::vector<int> const & unit) const;
     std::vector<StrongLink> findStrongLinks(int i) const;
     std::vector<StrongLink> findStrongLinks(int i, std::vector<int> const & unit) const;
-    std::vector<Analyzer::StrongLink> findStrongLinks(std::vector<int> const & unit) const;
-    bool hasStrongLink(int i0, int i1, unsigned mask, std::vector<int> const & unit) const;
-    bool hasStrongLinkR(int u0, int u1, unsigned mask, std::vector<int> const & unit) const;
+    bool                    hasStrongLink(int i0, int i1, unsigned mask, std::vector<int> const & unit) const;
+    bool                    hasStrongLinkR(int u0, int u1, unsigned mask, std::vector<int> const & unit) const;
 
 #if defined(_DEBUG)
     bool candidatesAreValid();

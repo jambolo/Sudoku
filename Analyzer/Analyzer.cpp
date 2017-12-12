@@ -1210,7 +1210,7 @@ bool Analyzer::nakedQuad(std::vector<int> const & indexes,
                                     if (!eliminatedIndexes.empty())
                                     {
                                         eliminatedValues = valuesFromCandidates(cumulativeCandidates);
-                                        nakedIndexes = { i0, i1, i2, i3 };
+                                        nakedIndexes     = { i0, i1, i2, i3 };
                                         return true;
                                     }
                                 }
@@ -1348,10 +1348,10 @@ bool Analyzer::lockedCandidates(std::vector<int> const & indexes1,
     std::set_difference(indexes2.begin(), indexes2.end(), intersection.begin(), intersection.end(), others2.begin());
 
     // Candidates in the intersection
-    unsigned intersectionCandidates = allUnsolvedCandidates(intersection.begin(), intersection.end());
+    unsigned intersectionCandidates = allCandidates(intersection);
 
     // Candidates in set 1, not in intersection
-    unsigned otherCandidates1 = allUnsolvedCandidates(others1.begin(), others1.end());
+    unsigned otherCandidates1 = allCandidates(others1);
 
     // If any of the candidates in the intersection don't exist in the rest of set 1, then they are the ones to be eliminated from
     // set 2
@@ -1459,9 +1459,9 @@ bool Analyzer::xWingRow(int                      r0,
     std::vector<StrongLink> links = findStrongLinks(row);
     for (auto link : links)
     {
-        int c0 = link.u0;
-        int c1 = link.u1;
-        int v = link.value;
+        int c0        = link.u0;
+        int c1        = link.u1;
+        int v         = link.value;
         unsigned mask = 1 << v;
 
         for (int r1 = r0 + 1; r1 < Board::SIZE; ++r1)
@@ -1510,9 +1510,9 @@ bool Analyzer::xWingColumn(int                      c0,
     std::vector<StrongLink> links = findStrongLinks(column);
     for (auto link : links)
     {
-        int r0 = link.u0;
-        int r1 = link.u1;
-        int v = link.value;
+        int r0        = link.u0;
+        int r1        = link.u1;
+        int v         = link.value;
         unsigned mask = 1 << v;
 
         for (int c1 = c0 + 1; c1 < Board::SIZE; ++c1)
@@ -1552,22 +1552,12 @@ bool Analyzer::xWingColumn(int                      c0,
     return false;
 }
 
-unsigned Analyzer::allCandidates(std::vector<int>::const_iterator first, std::vector<int>::const_iterator last) const
+unsigned Analyzer::allCandidates(std::vector<int> const & indexes) const
 {
     unsigned candidates = 0;
-    for (std::vector<int>::const_iterator i = first; i != last; ++i)
+    for (int i : indexes)
     {
-        candidates |= candidates_[*i];
-    }
-    return candidates;
-}
-
-unsigned Analyzer::allUnsolvedCandidates(std::vector<int>::const_iterator first, std::vector<int>::const_iterator last) const
-{
-    unsigned candidates = 0;
-    for (std::vector<int>::const_iterator i = first; i != last; ++i)
-    {
-        unsigned c = candidates_[*i];
+        unsigned c = candidates_[i];
         if (!solved(c))
             candidates |= c;
     }
@@ -1603,7 +1593,7 @@ std::vector<Analyzer::StrongLink> Analyzer::findStrongLinks(std::vector<int> con
                 if ((candidates_[i0] & candidates_[i1] & mask))
                 {
                     if (hasStrongLinkR(u0, u1, mask, unit))
-                        links.emplace_back(StrongLink{ u0, i0, u1, i1, v });
+                        links.emplace_back(StrongLink { u0, i0, u1, i1, v });
                     break;
                 }
             }
@@ -1641,7 +1631,7 @@ std::vector<Analyzer::StrongLink> Analyzer::findStrongLinks(int i0, std::vector<
         unsigned mask = 1 << v;
         for_each_index_except(unit, i0, [&](int i1) {
             if (hasStrongLink(i0, i1, mask, unit))
-                links.emplace_back(StrongLink{ -1, i0, -1, i1, v });
+                links.emplace_back(StrongLink { -1, i0, -1, i1, v });
         });
     }
     return links;
@@ -1680,7 +1670,7 @@ bool Analyzer::hasStrongLinkR(int u0, int u1, unsigned mask, std::vector<int> co
         }
         assert(!(check & mask));
     }
-#endif
+#endif // if defined(_DEBUG)
 
     // Not a strong link if any of the remaining cells in the unit share the candidate
     for (int u2 = u1 + 1; u2 < Board::SIZE; ++u2)
