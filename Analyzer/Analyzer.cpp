@@ -1,5 +1,8 @@
 #include "Analyzer.h"
 
+#include "Candidates.h"
+#include "Link.h"
+
 #include "Board/Board.h"
 #if defined(_DEBUG)
 #include "Solver/Solver.h"
@@ -8,8 +11,6 @@
 #include <algorithm>
 #include <cassert>
 #include <numeric>
-
-static int const ALL_CANDIDATES = 0x3fe;
 
 // Calls a function for element of a vector except the specified ones
 static void for_each_index_except(std::vector<int> const & indexes, int x0, std::function<void(int)> f)
@@ -60,62 +61,10 @@ static void for_each_index_except(std::vector<int> const & indexes,
     }
 }
 
-// Returns true if there is only one candidate
-static bool solved(unsigned candidates)
-{
-    return (candidates & (candidates - 1)) == 0;
-}
-
-// Returns the value of the only candidate
-static int valueFromCandidates(unsigned candidates)
-{
-    int v = 0;
-    while (candidates)
-    {
-        candidates >>= 1;
-        ++v;
-        if (candidates & 1)
-            return v;
-    }
-    return 0;
-}
-
-// Returns a list of of candidates
-static std::vector<int> valuesFromCandidates(unsigned candidates)
-{
-    std::vector<int> values;
-    int v = 0;
-    while (candidates)
-    {
-        candidates >>= 1;
-        ++v;
-        if (candidates & 1)
-            values.push_back(v);
-    }
-    return values;
-}
-
-static int candidateCount(unsigned candidates)
-{
-    int count = 0;
-    while (candidates != 0)
-    {
-        candidates >>= 1;
-        if (candidates & 1)
-            ++count;
-    }
-    return count;
-}
-
-static unsigned candidate(int v)
-{
-    return 1 << v;
-}
-
 Analyzer::Analyzer(Board const & board, bool verbose /*= false*/)
     : board_(board)
     , verbose_(verbose)
-    , candidates_(Board::SIZE * Board::SIZE, ALL_CANDIDATES)
+    , candidates_(Board::SIZE * Board::SIZE, Candidates::ALL)
 #if defined(_DEBUG)
     , solvedBoard_(board)
 #endif // defined(_DEBUG)
@@ -271,15 +220,15 @@ void Analyzer::drawPenciledBoard() const
         for (int c = 0; c < Board::SIZE; ++c)
         {
             unsigned candidates = candidates_[Board::Cell::indexOf(r, c)];
-            if (solved(candidates) && !board_.isEmpty(r, c))
+            if (Candidates::solved(candidates) && !board_.isEmpty(r, c))
             {
                 printf("       ");
             }
             else
             {
-                char x1 = (candidates & candidate(1)) ? '1' : '.';
-                char x2 = (candidates & candidate(2)) ? '2' : '.';
-                char x3 = (candidates & candidate(3)) ? '3' : '.';
+                char x1 = (candidates & Candidates::fromValue(1)) ? '1' : '.';
+                char x2 = (candidates & Candidates::fromValue(2)) ? '2' : '.';
+                char x3 = (candidates & Candidates::fromValue(3)) ? '3' : '.';
                 printf(" %c %c %c ", x1, x2, x3);
             }
             if (c % 3 == 2)
@@ -293,16 +242,16 @@ void Analyzer::drawPenciledBoard() const
         for (int c = 0; c < Board::SIZE; ++c)
         {
             unsigned candidates = candidates_[Board::Cell::indexOf(r, c)];
-            if (solved(candidates) && !board_.isEmpty(r, c))
+            if (Candidates::solved(candidates) && !board_.isEmpty(r, c))
             {
                 int v = board_.get(r, c);
                 printf("   %d   ", v);
             }
             else
             {
-                char x4 = (candidates & candidate(4)) ? '4' : '.';
-                char x5 = (candidates & candidate(5)) ? '5' : '.';
-                char x6 = (candidates & candidate(6)) ? '6' : '.';
+                char x4 = (candidates & Candidates::fromValue(4)) ? '4' : '.';
+                char x5 = (candidates & Candidates::fromValue(5)) ? '5' : '.';
+                char x6 = (candidates & Candidates::fromValue(6)) ? '6' : '.';
                 printf(" %c %c %c ", x4, x5, x6);
             }
             if (c % 3 == 2)
@@ -316,15 +265,15 @@ void Analyzer::drawPenciledBoard() const
         for (int c = 0; c < Board::SIZE; ++c)
         {
             unsigned candidates = candidates_[Board::Cell::indexOf(r, c)];
-            if (solved(candidates) && !board_.isEmpty(r, c))
+            if (Candidates::solved(candidates) && !board_.isEmpty(r, c))
             {
                 printf("       ");
             }
             else
             {
-                char x7 = (candidates & candidate(7)) ? '7' : '.';
-                char x8 = (candidates & candidate(8)) ? '8' : '.';
-                char x9 = (candidates & candidate(9)) ? '9' : '.';
+                char x7 = (candidates & Candidates::fromValue(7)) ? '7' : '.';
+                char x8 = (candidates & Candidates::fromValue(8)) ? '8' : '.';
+                char x9 = (candidates & Candidates::fromValue(9)) ? '9' : '.';
                 printf(" %c %c %c ", x7, x8, x9);
             }
             if (c % 3 == 2)
@@ -346,7 +295,7 @@ void Analyzer::solve(int i, int x)
     board_.set(i, x);
 
     // The cell has only one candidate now
-    candidates_[i] = candidate(x);
+    candidates_[i] = Candidates::fromValue(x);
 
     // Eliminate this cell's value from its dependents' candidates
     std::vector<int> dependents = Board::Cell::dependents(i);
@@ -357,7 +306,7 @@ void Analyzer::eliminate(std::vector<int> const & indexes, int x)
 {
     for (int i : indexes)
     {
-        candidates_[i] &= ~candidate(x);
+        candidates_[i] &= ~Candidates::fromValue(x);
         assert(candidates_[i] != 0);
     }
 }
@@ -449,9 +398,9 @@ bool Analyzer::hiddenSingle(std::vector<int> const & indexes,
             unsigned exclusive = candidates_[s] & ~others;
             if (exclusive)
             {
-                assert(solved(exclusive));
+                assert(Candidates::solved(exclusive));
                 eliminatedIndexes.push_back(s);
-                eliminatedValues.push_back(valueFromCandidates(exclusive));
+                eliminatedValues.push_back(Candidates::value(exclusive));
                 return true;
             }
         }
@@ -541,10 +490,10 @@ bool Analyzer::hiddenPair(std::vector<int> const & indexes,
     // Go through each possible pair of candidates and search for exactly two cells containing the one or more of a pair
     for (int x0 = 1; x0 <= Board::SIZE - 1; ++x0)
     {
-        unsigned m0 = candidate(x0);
+        unsigned m0 = Candidates::fromValue(x0);
         for (int x1 = x0 + 1; x1 <= Board::SIZE; ++x1)
         {
-            unsigned m1 = candidate(x1);
+            unsigned m1 = Candidates::fromValue(x1);
             unsigned m  = m0 | m1;
 
             // Count the number of cells with either of these two candidates
@@ -577,8 +526,8 @@ bool Analyzer::hiddenPair(std::vector<int> const & indexes,
                 if (eliminatedCandidates)
                 {
                     eliminatedIndexes.assign(std::begin(found), std::end(found));
-                    eliminatedValues = valuesFromCandidates(eliminatedCandidates);
-                    hiddenValues     = valuesFromCandidates(m);
+                    eliminatedValues = Candidates::values(eliminatedCandidates);
+                    hiddenValues     = Candidates::values(m);
                     return true;
                 }
             }
@@ -671,13 +620,13 @@ bool Analyzer::hiddenTriple(std::vector<int> const & indexes,
     // Go through each possible triple of candidates and search for exactly three cells containing the one or more of a triple
     for (int x0 = 1; x0 <= Board::SIZE - 2; ++x0)
     {
-        unsigned m0 = candidate(x0);
+        unsigned m0 = Candidates::fromValue(x0);
         for (int x1 = x0 + 1; x1 <= Board::SIZE - 1; ++x1)
         {
-            unsigned m1 = candidate(x1);
+            unsigned m1 = Candidates::fromValue(x1);
             for (int x2 = x1 + 1; x2 <= Board::SIZE; ++x2)
             {
-                unsigned m2 = candidate(x2);
+                unsigned m2 = Candidates::fromValue(x2);
                 unsigned m  = m0 | m1 | m2;
 
                 // Count the number of cells with any of these three candidates
@@ -713,8 +662,8 @@ bool Analyzer::hiddenTriple(std::vector<int> const & indexes,
                     if (eliminatedCandidates)
                     {
                         eliminatedIndexes.assign(std::begin(found), std::end(found));
-                        eliminatedValues = valuesFromCandidates(eliminatedCandidates);
-                        hiddenValues     = valuesFromCandidates(m);
+                        eliminatedValues = Candidates::values(eliminatedCandidates);
+                        hiddenValues     = Candidates::values(m);
                         return true;
                     }
                 }
@@ -809,16 +758,16 @@ bool Analyzer::hiddenQuad(std::vector<int> const & indexes,
     // Go through each possible quad of candidates and search for exactly four cells containing the one or more of a quad
     for (int x0 = 1; x0 <= Board::SIZE - 3; ++x0)
     {
-        unsigned m0 = candidate(x0);
+        unsigned m0 = Candidates::fromValue(x0);
         for (int x1 = x0 + 1; x1 <= Board::SIZE - 2; ++x1)
         {
-            unsigned m1 = candidate(x1);
+            unsigned m1 = Candidates::fromValue(x1);
             for (int x2 = x1 + 1; x2 <= Board::SIZE - 1; ++x2)
             {
-                unsigned m2 = candidate(x2);
+                unsigned m2 = Candidates::fromValue(x2);
                 for (int x3 = x2 + 1; x3 <= Board::SIZE; ++x3)
                 {
-                    unsigned m3 = candidate(x3);
+                    unsigned m3 = Candidates::fromValue(x3);
                     unsigned m  = m0 | m1 | m2 | m3;
 
                     // Count the number of cells with any of these four candidates
@@ -857,8 +806,8 @@ bool Analyzer::hiddenQuad(std::vector<int> const & indexes,
                         if (eliminatedCandidates)
                         {
                             eliminatedIndexes.assign(std::begin(found), std::end(found));
-                            eliminatedValues = valuesFromCandidates(eliminatedCandidates);
-                            hiddenValues     = valuesFromCandidates(m);
+                            eliminatedValues = Candidates::values(eliminatedCandidates);
+                            hiddenValues     = Candidates::values(m);
                             return true;
                         }
                     }
@@ -889,10 +838,10 @@ bool Analyzer::nakedSingle(std::vector<int> & indexes, std::vector<int> & values
         if (board_.isEmpty(i))
         {
             unsigned candidates = candidates_[i];
-            if (solved(candidates))
+            if (Candidates::solved(candidates))
             {
                 indexes.push_back(i);
-                values.push_back(valueFromCandidates(candidates));
+                values.push_back(Candidates::value(candidates));
                 return false;
             }
         }
@@ -975,7 +924,7 @@ bool Analyzer::nakedPair(std::vector<int> const & indexes,
         int i0 = indexes[b0];
         unsigned candidates0 = candidates_[i0];
         unsigned cumulativeCandidates0 = candidates0;
-        int count0 = candidateCount(candidates0);
+        int count0 = Candidates::count(candidates0);
         if (count0 > 1 && count0 <= 2)
         {
             for (int b1 = b0 + 1; b1 < Board::SIZE; ++b1)
@@ -983,7 +932,7 @@ bool Analyzer::nakedPair(std::vector<int> const & indexes,
                 int i1 = indexes[b1];
                 unsigned candidates = candidates_[i1];
                 unsigned cumulativeCandidates = cumulativeCandidates0 | candidates;
-                if (candidateCount(candidates) > 1 && candidateCount(cumulativeCandidates) == 2)
+                if (Candidates::count(candidates) > 1 && Candidates::count(cumulativeCandidates) == 2)
                 {
                     for_each_index_except(indexes, i0, i1, [&] (int i) {
                         if (candidates_[i] & cumulativeCandidates)
@@ -991,7 +940,7 @@ bool Analyzer::nakedPair(std::vector<int> const & indexes,
                     });
                     if (!eliminatedIndexes.empty())
                     {
-                        eliminatedValues = valuesFromCandidates(cumulativeCandidates);
+                        eliminatedValues = Candidates::values(cumulativeCandidates);
                         nakedIndexes     = { i0, i1 };
                         return true;
                     }
@@ -1078,7 +1027,7 @@ bool Analyzer::nakedTriple(std::vector<int> const & indexes,
         int i0 = indexes[b0];
         unsigned candidates0 = candidates_[i0];
         unsigned cumulativeCandidates0 = candidates0;
-        int count0 = candidateCount(candidates0);
+        int count0 = Candidates::count(candidates0);
         if (count0 > 1 && count0 <= 3)
         {
             for (int b1 = b0 + 1; b1 < Board::SIZE - 1; ++b1)
@@ -1086,14 +1035,14 @@ bool Analyzer::nakedTriple(std::vector<int> const & indexes,
                 int i1 = indexes[b1];
                 unsigned candidates1 = candidates_[i1];
                 unsigned cumulativeCandidates1 = cumulativeCandidates0 | candidates1;
-                if (candidateCount(candidates1) > 1 && candidateCount(cumulativeCandidates1) <= 3)
+                if (Candidates::count(candidates1) > 1 && Candidates::count(cumulativeCandidates1) <= 3)
                 {
                     for (int b2 = b1 + 1; b2 < Board::SIZE; ++b2)
                     {
                         int i2 = indexes[b2];
                         unsigned candidates = candidates_[i2];
                         unsigned cumulativeCandidates = cumulativeCandidates1 | candidates;
-                        if (candidateCount(candidates) > 1 && candidateCount(cumulativeCandidates) == 3)
+                        if (Candidates::count(candidates) > 1 && Candidates::count(cumulativeCandidates) == 3)
                         {
                             for_each_index_except(indexes, i0, i1, i2, [&] (int i) {
                                 if (candidates_[i] & cumulativeCandidates)
@@ -1101,7 +1050,7 @@ bool Analyzer::nakedTriple(std::vector<int> const & indexes,
                             });
                             if (!eliminatedIndexes.empty())
                             {
-                                eliminatedValues = valuesFromCandidates(cumulativeCandidates);
+                                eliminatedValues = Candidates::values(cumulativeCandidates);
                                 nakedIndexes     = { i0, i1, i2 };
                                 return true;
                             }
@@ -1191,7 +1140,7 @@ bool Analyzer::nakedQuad(std::vector<int> const & indexes,
         int i0 = indexes[b0];
         unsigned candidates0 = candidates_[i0];
         unsigned cumulativeCandidates0 = candidates0;
-        int count0 = candidateCount(candidates0);
+        int count0 = Candidates::count(candidates0);
         if (count0 > 1 && count0 <= 4)
         {
             for (int b1 = b0 + 1; b1 < Board::SIZE - 2; ++b1)
@@ -1199,21 +1148,21 @@ bool Analyzer::nakedQuad(std::vector<int> const & indexes,
                 int i1 = indexes[b1];
                 unsigned candidates1 = candidates_[i1];
                 unsigned cumulativeCandidates1 = cumulativeCandidates0 | candidates1;
-                if (candidateCount(candidates1) > 1 && candidateCount(cumulativeCandidates1) <= 4)
+                if (Candidates::count(candidates1) > 1 && Candidates::count(cumulativeCandidates1) <= 4)
                 {
                     for (int b2 = b1 + 1; b2 < Board::SIZE - 1; ++b2)
                     {
                         int i2 = indexes[b2];
                         unsigned candidates2 = candidates_[i2];
                         unsigned cumulativeCandidates2 = cumulativeCandidates1 | candidates2;
-                        if (candidateCount(candidates2) > 1 && candidateCount(cumulativeCandidates2) <= 4)
+                        if (Candidates::count(candidates2) > 1 && Candidates::count(cumulativeCandidates2) <= 4)
                         {
                             for (int b3 = b2 + 1; b3 < Board::SIZE; ++b3)
                             {
                                 int i3 = indexes[b3];
                                 unsigned candidates = candidates_[i3];
                                 unsigned cumulativeCandidates = cumulativeCandidates2 | candidates;
-                                if (candidateCount(candidates) > 1 && candidateCount(cumulativeCandidates) == 4)
+                                if (Candidates::count(candidates) > 1 && Candidates::count(cumulativeCandidates) == 4)
                                 {
                                     for_each_index_except(indexes, i0, i1, i2, i3, [&] (int i) {
                                         if (candidates_[i] & cumulativeCandidates)
@@ -1221,7 +1170,7 @@ bool Analyzer::nakedQuad(std::vector<int> const & indexes,
                                     });
                                     if (!eliminatedIndexes.empty())
                                     {
-                                        eliminatedValues = valuesFromCandidates(cumulativeCandidates);
+                                        eliminatedValues = Candidates::values(cumulativeCandidates);
                                         nakedIndexes     = { i0, i1, i2, i3 };
                                         return true;
                                     }
@@ -1383,7 +1332,7 @@ bool Analyzer::lockedCandidates(std::vector<int> const & indexes1,
         }
         if (!eliminatedIndexes.empty())
         {
-            std::vector<int> uniqueCandidates = valuesFromCandidates(unique1);
+            std::vector<int> uniqueCandidates = Candidates::values(unique1);
             eliminatedValues.insert(eliminatedValues.end(), uniqueCandidates.begin(), uniqueCandidates.end());
         }
 
@@ -1476,13 +1425,13 @@ bool Analyzer::xWingRow(int                      r0,
                         std::vector<int> &       eliminatedValues,
                         std::vector<int> &       pivots) const
 {
-    StrongList links = findStrongLinks(row);
+    Link::Strong::List links = Link::Strong::find(candidates_, row);
     for (auto link : links)
     {
         int c0        = link.u0;
         int c1        = link.u1;
         int v         = link.value;
-        unsigned mask = candidate(v);
+        unsigned mask = Candidates::fromValue(v);
 
         for (int r1 = r0 + 1; r1 < Board::SIZE; ++r1)
         {
@@ -1492,7 +1441,7 @@ bool Analyzer::xWingRow(int                      r0,
 
             // If there is a strong link with the same value in the same columns in another row, then
             // this is an x-wing.
-            if (hasStrongLink(other0, other1, mask, otherRow))
+            if (Link::Strong::exists(candidates_, other0, other1, mask, otherRow))
             {
                 // Look for other cells in these two columns with the value as a candidate
                 for (int c : { c0, c1 })
@@ -1527,13 +1476,13 @@ bool Analyzer::xWingColumn(int                      c0,
                            std::vector<int> &       eliminatedValues,
                            std::vector<int> &       pivots) const
 {
-    StrongList links = findStrongLinks(column);
+    Link::Strong::List links = Link::Strong::find(candidates_, column);
     for (auto link : links)
     {
         int r0        = link.u0;
         int r1        = link.u1;
         int v         = link.value;
-        unsigned mask = candidate(v);
+        unsigned mask = Candidates::fromValue(v);
 
         for (int c1 = c0 + 1; c1 < Board::SIZE; ++c1)
         {
@@ -1543,7 +1492,7 @@ bool Analyzer::xWingColumn(int                      c0,
 
             // If there is a strong link with the same value in the same columns in another column, then
             // this is an x-wing.
-            if (hasStrongLink(other0, other1, mask, otherColumn))
+            if (Link::Strong::exists(candidates_, other0, other1, mask, otherColumn))
             {
                 // Look for other cells in these two rows with the value as a candidate
                 for (int r : { r0, r1 })
@@ -1598,30 +1547,30 @@ bool Analyzer::yWingFound(std::vector<int> & indexes, std::vector<int> & values,
 
     bool found = !Board::ForEach::cell([&](int i) {
         // Get all the strong links for this cell
-        StrongList links = findStrongLinks(i);
+        Link::Strong::List links = Link::Strong::find(candidates_, i);
 
         if (!links.empty())
         {
             int i0 = i;
-            for (StrongList::const_iterator link1 = links.begin(); link1 != std::prev(links.end()); ++link1)
+            for (Link::Strong::List::const_iterator link1 = links.begin(); link1 != std::prev(links.end()); ++link1)
             {
                 int i1 = link1->i1;
                 int v1 = link1->value;
-                if (candidateCount(candidates_[i1]) == 2)
+                if (Candidates::count(candidates_[i1]) == 2)
                 {
-                    for (StrongList::const_iterator link2 = std::next(link1); link2 != links.end(); ++link2)
+                    for (Link::Strong::List::const_iterator link2 = std::next(link1); link2 != links.end(); ++link2)
                     {
                         int i2 = link2->i1;
                         int v2 = link2->value;
-                        if (i1 != i2 && v1 != v2 && candidateCount(candidates_[i2]) == 2)
+                        if (i1 != i2 && v1 != v2 && Candidates::count(candidates_[i2]) == 2)
                         {
-                            unsigned mask3 = (candidates_[i1] & ~candidate(v1)) & (candidates_[i2] & ~candidate(v2));
+                            unsigned mask3 = (candidates_[i1] & ~Candidates::fromValue(v1)) & (candidates_[i2] & ~Candidates::fromValue(v2));
                             if (mask3)
                             {
-                                assert(candidateCount(mask3) == 1);
+                                assert(Candidates::count(mask3) == 1);
                                 // A Y-wing has been found. The candidate v3 can be removed from all cells that can
                                 // see both i1 and i2.
-                                int v3 = valueFromCandidates(mask3);
+                                int v3 = Candidates::value(mask3);
                                 std::vector<int> seen = Board::Cell::dependents(i1, i2);
                                 for (int s : seen)
                                 {
@@ -1655,128 +1604,10 @@ unsigned Analyzer::allCandidates(std::vector<int> const & indexes) const
     for (int i : indexes)
     {
         unsigned c = candidates_[i];
-        if (!solved(c))
+        if (!Candidates::solved(c))
             candidates |= c;
     }
     return candidates;
-}
-
-std::vector<Analyzer::StrongLink> Analyzer::findStrongLinks(std::vector<int> const & unit) const
-{
-    StrongList links;
-
-    unsigned alreadyTested = 0;
-    for (int u0 = 0; u0 < Board::SIZE - 1; ++u0)
-    {
-        int i0 = unit[u0];
-        unsigned candidates0 = candidates_[i0];
-
-        // Ignore solved cells
-        if (solved(candidates0))
-            continue;
-
-        // Ignore cells with only already-tested candidate
-        candidates0 &= ~alreadyTested;
-        if (!candidates0)
-            continue;
-
-        std::vector<int> values = valuesFromCandidates(candidates0);
-        for (int v : values)
-        {
-            unsigned mask = candidate(v);
-            for (int u1 = u0 + 1; u1 < Board::SIZE; ++u1)
-            {
-                int i1 = unit[u1];
-                if ((candidates_[i0] & candidates_[i1] & mask))
-                {
-                    if (hasStrongLinkR(u0, u1, mask, unit))
-                        links.emplace_back(StrongLink { u0, i0, u1, i1, v });
-                    break;
-                }
-            }
-        }
-        alreadyTested |= candidates0;
-    }
-    return links;
-}
-
-std::vector<Analyzer::StrongLink> Analyzer::findStrongLinks(int i) const
-{
-    StrongList links;
-
-    std::vector<int> row = Board::Unit::row(Board::Unit::whichRow(i));
-    StrongList rowLinks = findStrongLinks(i, row);
-    links.insert(links.end(), rowLinks.begin(), rowLinks.end());
-
-    std::vector<int> column = Board::Unit::column(Board::Unit::whichColumn(i));
-    StrongList columnLinks = findStrongLinks(i, column);
-    links.insert(links.end(), columnLinks.begin(), columnLinks.end());
-
-    std::vector<int> box = Board::Unit::box(Board::Unit::whichBox(i));
-    StrongList boxLinks = findStrongLinks(i, box);
-    links.insert(links.end(), boxLinks.begin(), boxLinks.end());
-
-    return links;
-}
-
-std::vector<Analyzer::StrongLink> Analyzer::findStrongLinks(int i0, std::vector<int> const & unit) const
-{
-    std::vector<Analyzer::StrongLink> links;
-    std::vector<int> values = valuesFromCandidates(candidates_[i0]);
-    for (int v : values)
-    {
-        unsigned mask = candidate(v);
-        for_each_index_except(unit, i0, [&](int i1) {
-            if (hasStrongLink(i0, i1, mask, unit))
-                links.emplace_back(StrongLink { -1, i0, -1, i1, v });
-        });
-    }
-    return links;
-}
-
-bool Analyzer::hasStrongLink(int i0, int i1, unsigned mask, std::vector<int> const & unit) const
-{
-    // Not a strong link if the two cells don't share the candidate
-    if (!(candidates_[i0] & candidates_[i1] & mask))
-        return false;
-
-    // Not a strong link if any other cells in the unit share the candidate
-    for (int i : unit)
-    {
-        if (i != i0 && i != i1 && (candidates_[i] & mask))
-            return false;
-    }
-    return true;
-}
-
-bool Analyzer::hasStrongLinkR(int u0, int u1, unsigned mask, std::vector<int> const & unit) const
-{
-    // This is a faster version of hasStrongLink. This one requires that u0 < u1, cells u0 and u1 have candidates
-    // corresponding to mask, and that no other cells in the given unit in the range [0, u1) have candidates
-    // corresponding to mask.
-
-#if defined(_DEBUG)
-    {
-        assert(u0 < u1);
-        assert(candidates_[unit[u0]] & candidates_[unit[u1]] & mask);
-        unsigned check = 0;
-        for (int t = 0; t < u1; ++t)
-        {
-            if (t != u0)
-                check |= candidates_[unit[t]];
-        }
-        assert(!(check & mask));
-    }
-#endif // if defined(_DEBUG)
-
-    // Not a strong link if any of the remaining cells in the unit share the candidate
-    for (int u2 = u1 + 1; u2 < Board::SIZE; ++u2)
-    {
-        int i2 = unit[u2];
-        if ((candidates_[i2] & mask))
-            return false;
-    }
-    return true;
 }
 
 #if defined(_DEBUG)
@@ -1785,7 +1616,7 @@ bool Analyzer::candidatesAreValid()
     return Board::ForEach::cell([&] (int i) {
         int v = solvedBoard_.get(i);
         assert(v != Board::EMPTY); // Sanity check
-        return (candidate(v) & candidates_[i]) != 0;
+        return (Candidates::fromValue(v) & candidates_[i]) != 0;
     });
 }
 

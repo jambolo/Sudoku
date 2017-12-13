@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Board/Board.h"
+#include "Candidates.h"
 #include <functional>
 #include <string>
 #include <vector>
@@ -33,6 +34,8 @@ public:
         std::vector<int>    values;
         TechniqueId         technique;
         std::string         reason;
+
+        // Returns the name of the TechniqueId
         static char const * techniqueName(TechniqueId technique);
     };
 
@@ -55,16 +58,6 @@ public:
     void drawPenciledBoard() const;
 
 private:
-
-    struct StrongLink
-    {
-        int u0;
-        int i0;
-        int u1;
-        int i1;
-        int value;
-    };
-    using StrongList = std::vector<StrongLink>;
 
     void solve(int i, int x);
     void eliminate(std::vector<int> const & indexes, int x);
@@ -134,25 +127,20 @@ private:
 
     bool yWingFound(std::vector<int> & indexes, std::vector<int> & values, std::string & reason) const;
 
-    unsigned                allCandidates(std::vector<int> const & indexes) const;
-
-    StrongList findStrongLinks(std::vector<int> const & unit) const;
-    StrongList findStrongLinks(int i) const;
-    StrongList findStrongLinks(int i, std::vector<int> const & unit) const;
-    bool       hasStrongLink(int i0, int i1, unsigned mask, std::vector<int> const & unit) const;
-    bool       hasStrongLinkR(int u0, int u1, unsigned mask, std::vector<int> const & unit) const;
+    // Returns all unsolved candidates in the cells specified by the indexes
+    unsigned allCandidates(std::vector<int> const & indexes) const;
 
 #if defined(_DEBUG)
+    // Returns true if the candidates data is consistent with the solution
     bool candidatesAreValid();
 #endif // defined(_DEBUG)
 
-    Board board_;                       // Current state of the board
-    bool verbose_;                      // If true, then generate explanations
-    std::vector<unsigned> candidates_;  // Masks of possible values for each cell
-    bool done_  = false;                // True if the analyzer can do no more, either because it is stumped or the board is solved
-    bool stuck_ = false;                // True if the analyzer can do no more, either because it is stumped
-
+    Board board_;                  // Current state of the board
+    bool verbose_;                 // If true, then generate explanations
+    Candidates::List candidates_;  // Masks of possible values for each cell
+    bool done_  = false;           // True if the analyzer can do no more, either because it is stumped or the board is solved
+    bool stuck_ = false;           // True if the analyzer can do no more, either because it is stumped
 #if defined(_DEBUG)
-    Board solvedBoard_;                 // All results are checked against this board
+    Board solvedBoard_;            // All results are checked against this board
 #endif // defined(_DEBUG)
 };

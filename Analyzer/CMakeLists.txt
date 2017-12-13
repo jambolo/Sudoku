@@ -3,6 +3,10 @@ cmake_minimum_required (VERSION 3.8)
 set(SOURCES
     Analyzer.cpp
     Analyzer.h
+    Candidates.cpp
+    Candidates.h
+    Link.cpp
+    Link.h
 )
 
 set(INTERFACE_INCLUDE_PATHS

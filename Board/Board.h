@@ -170,25 +170,25 @@ public:
     // Returns the indexes for the given box
     static std::vector<int> const & box(int b);
 
-    // Returns the row containing the cell
+    // Returns the row containing the cell by index
     static int whichRow(int i)
     {
         return i / Board::SIZE;
     }
 
-    // Returns the column containing the cell
+    // Returns the column containing the cell by index
     static int whichColumn(int i)
     {
         return i % Board::SIZE;
     }
 
-    // Returns the box containing the cell
+    // Returns the box containing the cell by location
     static int whichBox(int r, int c)
     {
         return r / Board::BOX_SIZE * Board::BOX_SIZE + c / Board::BOX_SIZE;
     }
 
-    // Returns the box containing the cell
+    // Returns the box containing the cell by index
     static int whichBox(int i)
     {
         int r, c;
