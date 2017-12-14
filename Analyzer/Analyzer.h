@@ -2,7 +2,6 @@
 
 #include "Board/Board.h"
 #include "Candidates.h"
-#include <functional>
 #include <string>
 #include <vector>
 
@@ -40,7 +39,7 @@ public:
     };
 
     Analyzer(Board const & board, bool verbose = false);
-    Analyzer(Board const & board, std::vector<unsigned> const & candidates, bool verbose = false);
+    Analyzer(Board const & board, Candidates::List const & candidates, bool verbose = false);
 
     // Determines the next solution step
     Step next();
@@ -54,58 +53,14 @@ public:
     // Returns true if the analyzer can make no more progress because it is stuck
     bool stuck() const { return stuck_; }
 
-    // Draws the board with candidates
-    void drawPenciledBoard() const;
+    // Draws a board with candidates
+    void drawCandidates() const;
 
 private:
 
     void solve(int i, int x);
     void eliminate(std::vector<int> const & indexes, int x);
     void eliminate(std::vector<int> const & indexes, std::vector<int> const & values);
-
-    bool nakedSingleFound(std::vector<int> & indexes, std::vector<int> & values, std::string & reason) const;
-    bool nakedSingle(std::vector<int> & indexes, std::vector<int> & values) const;
-
-    bool nakedPairFound(std::vector<int> & indexes, std::vector<int> & values, std::string & reason) const;
-    bool nakedPair(std::vector<int> const & indexes,
-                   std::vector<int> &       eliminatedIndexes,
-                   std::vector<int> &       eliminatedValues,
-                   std::vector<int> &       nakedIndexes) const;
-
-    bool nakedTripleFound(std::vector<int> & indexes, std::vector<int> & values, std::string & reason) const;
-    bool nakedTriple(std::vector<int> const & indexes,
-                     std::vector<int> &       eliminatedIndexes,
-                     std::vector<int> &       eliminatedValues,
-                     std::vector<int> &       nakedIndexes) const;
-
-    bool nakedQuadFound(std::vector<int> & indexes, std::vector<int> & values, std::string & reason) const;
-    bool nakedQuad(std::vector<int> const & indexes,
-                   std::vector<int> &       eliminatedIndexes,
-                   std::vector<int> &       eliminatedValues,
-                   std::vector<int> &       nakedIndexes) const;
-
-    bool lockedCandidatesFound(std::vector<int> & indexes, std::vector<int> & values, std::string & reason) const;
-    bool lockedCandidates(std::vector<int> const & indexes1,
-                          std::vector<int> const & indexes2,
-                          std::vector<int> &       eliminatedIndexes,
-                          std::vector<int> &       eliminatedValues) const;
-
-    bool xWingFound(std::vector<int> & indexes, std::vector<int> & values, std::string & reason) const;
-    bool xWingRow(int                      r0,
-                  std::vector<int> const & row,
-                  std::vector<int> &       eliminatedIndexes,
-                  std::vector<int> &       eliminatedValues,
-                  std::vector<int> &       pivots) const;
-    bool xWingColumn(int                      c0,
-                     std::vector<int> const & column,
-                     std::vector<int> &       eliminatedIndexes,
-                     std::vector<int> &       eliminatedValues,
-                     std::vector<int> &       pivots) const;
-
-    bool yWingFound(std::vector<int> & indexes, std::vector<int> & values, std::string & reason) const;
-
-    // Returns all unsolved candidates in the cells specified by the indexes
-    unsigned allCandidates(std::vector<int> const & indexes) const;
 
 #if defined(_DEBUG)
     // Returns true if the candidates data is consistent with the solution

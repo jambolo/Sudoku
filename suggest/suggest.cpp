@@ -155,7 +155,7 @@ int main(int argc, char ** argv)
     {
         printf("Board to solve:\n");
         if (verbosity >= DETAILED)
-            analyzer.drawPenciledBoard();
+            analyzer.drawCandidates();
         else
             analyzer.board().draw();
         printf("\n");
@@ -169,12 +169,12 @@ int main(int argc, char ** argv)
             Analyzer::Step step = analyzer.next();
             printStep(step, verbosity, i++);
             if (verbosity >= CHATTY && (step.action == Analyzer::Step::SOLVE || step.action == Analyzer::Step::ELIMINATE))
-                analyzer.drawPenciledBoard();
+                analyzer.drawCandidates();
         } while (!analyzer.done());
 
         printf("\n");
         if (analyzer.stuck() && verbosity >= DETAILED)
-            analyzer.drawPenciledBoard();
+            analyzer.drawCandidates();
         else
             analyzer.board().draw();
         printf("\n");
@@ -188,12 +188,12 @@ int main(int argc, char ** argv)
             step = analyzer.next();
             printStep(step, verbosity, i++);
             if (verbosity >= CHATTY && step.action == Analyzer::Step::ELIMINATE)
-                analyzer.drawPenciledBoard();
+                analyzer.drawCandidates();
         } while (step.action == Analyzer::Step::ELIMINATE);
 
         printf("\n");
         if (verbosity >= DETAILED)
-            analyzer.drawPenciledBoard();
+            analyzer.drawCandidates();
         else if (verbosity >= VERBOSE)
             analyzer.board().draw();
     }

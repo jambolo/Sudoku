@@ -9,6 +9,14 @@ set(SOURCES
     Hidden.h
     Link.cpp
     Link.h
+    LockedCandidates.cpp
+    LockedCandidates.h
+    Naked.cpp
+    Naked.h
+    XWing.cpp
+    XWing.h
+    YWing.cpp
+    YWing.h
 )
 
 set(INTERFACE_INCLUDE_PATHS
