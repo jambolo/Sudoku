@@ -149,7 +149,7 @@ int main(int argc, char ** argv)
         return 4;
     }
 
-    Analyzer analyzer(board, verbosity >= VERBOSE);
+    Analyzer analyzer(board);
 
     if (verbosity >= VERBOSE)
     {

@@ -17,9 +17,8 @@
 #include <cassert>
 #include <numeric>
 
-Analyzer::Analyzer(Board const & board, bool verbose /*= false*/)
+Analyzer::Analyzer(Board const & board)
     : board_(board)
-    , verbose_(verbose)
     , candidates_(Board::SIZE * Board::SIZE, Candidates::ALL)
 #if defined(_DEBUG)
     , solvedBoard_(board)
@@ -50,9 +49,8 @@ Analyzer::Analyzer(Board const & board, bool verbose /*= false*/)
 #endif // defined(_DEBUG)
 }
 
-Analyzer::Analyzer(Board const & board, Candidates::List const & candidates, bool verbose /*= false*/)
+Analyzer::Analyzer(Board const & board, Candidates::List const & candidates)
     : board_(board)
-    , verbose_(verbose)
     , candidates_(candidates)
 #if defined(_DEBUG)
     , solvedBoard_(board)

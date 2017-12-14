@@ -38,8 +38,8 @@ public:
         static char const * techniqueName(TechniqueId technique);
     };
 
-    Analyzer(Board const & board, bool verbose = false);
-    Analyzer(Board const & board, Candidates::List const & candidates, bool verbose = false);
+    Analyzer(Board const & board);
+    Analyzer(Board const & board, Candidates::List const & candidates);
 
     // Determines the next solution step
     Step next();
@@ -68,7 +68,6 @@ private:
 #endif // defined(_DEBUG)
 
     Board board_;                  // Current state of the board
-    bool verbose_;                 // If true, then generate explanations
     Candidates::List candidates_;  // Masks of possible values for each cell
     bool done_  = false;           // True if the analyzer can do no more, either because it is stumped or the board is solved
     bool stuck_ = false;           // True if the analyzer can do no more, either because it is stumped
