@@ -63,29 +63,6 @@ private:
     void eliminate(std::vector<int> const & indexes, int x);
     void eliminate(std::vector<int> const & indexes, std::vector<int> const & values);
 
-    bool hiddenSingleFound(std::vector<int> & indexes, std::vector<int> & values, std::string & reason) const;
-    bool hiddenSingle(std::vector<int> const & indexes,
-                      std::vector<int> &       eliminatedIndexes,
-                      std::vector<int> &       eliminatedValues) const;
-
-    bool hiddenPairFound(std::vector<int> & indexes, std::vector<int> & values, std::string & reason) const;
-    bool hiddenPair(std::vector<int> const & indexes,
-                    std::vector<int> &       eliminatedIndexes,
-                    std::vector<int> &       eliminatedValues,
-                    std::vector<int> &       hiddenValues) const;
-
-    bool hiddenTripleFound(std::vector<int> & indexes, std::vector<int> & values, std::string & reason) const;
-    bool hiddenTriple(std::vector<int> const & indexes,
-                      std::vector<int> &       eliminatedIndexes,
-                      std::vector<int> &       eliminatedValues,
-                      std::vector<int> &       hiddenValues) const;
-
-    bool hiddenQuadFound(std::vector<int> & indexes, std::vector<int> & values, std::string & reason) const;
-    bool hiddenQuad(std::vector<int> const & indexes,
-                    std::vector<int> &       eliminatedIndexes,
-                    std::vector<int> &       eliminatedValues,
-                    std::vector<int> &       hiddenValues) const;
-
     bool nakedSingleFound(std::vector<int> & indexes, std::vector<int> & values, std::string & reason) const;
     bool nakedSingle(std::vector<int> & indexes, std::vector<int> & values) const;
 

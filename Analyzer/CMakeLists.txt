@@ -5,6 +5,8 @@ set(SOURCES
     Analyzer.h
     Candidates.cpp
     Candidates.h
+    Hidden.cpp
+    Hidden.h
     Link.cpp
     Link.h
 )
