@@ -171,30 +171,25 @@ public:
     static std::vector<int> const & box(int b);
 
     // Returns the row containing the cell by index
-    static int whichRow(int i)
-    {
-        return i / Board::SIZE;
-    }
+    static int whichRow(int i);
 
     // Returns the column containing the cell by index
-    static int whichColumn(int i)
-    {
-        return i % Board::SIZE;
-    }
+    static int whichColumn(int i);
 
     // Returns the box containing the cell by location
-    static int whichBox(int r, int c)
-    {
-        return r / Board::BOX_SIZE * Board::BOX_SIZE + c / Board::BOX_SIZE;
-    }
+    static int whichBox(int r, int c);
 
     // Returns the box containing the cell by index
-    static int whichBox(int i)
-    {
-        int r, c;
-        Cell::locationOf(i, &r, &c);
-        return whichBox(r, c);
-    }
+    static int whichBox(int i);
+
+    // Returns the offset from the beginning of the row for the index
+    static int offsetInRow(int i);
+
+    // Returns the offset from the beginning of the column for the index
+    static int offsetInColumn(int i);
+
+    // Returns the offset from the beginning of the box for the index
+    static int offsetInBox(int i);
 
     // Returns the name of the given row
     static char rowName(int r)

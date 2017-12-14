@@ -30,10 +30,10 @@ public:
         };
 
         ActionId action;
-        std::vector<int>    indexes;
-        std::vector<int>    values;
-        TechniqueId         technique;
-        std::string         reason;
+        std::vector<int> indexes;
+        std::vector<int> values;
+        TechniqueId      technique;
+        std::string      reason;
 
         // Returns the name of the TechniqueId
         static char const * techniqueName(TechniqueId technique);
