@@ -12,55 +12,6 @@
 #include <cassert>
 #include <numeric>
 
-// Calls a function for element of a vector except the specified ones
-static void for_each_index_except(std::vector<int> const & indexes, int x0, std::function<void(int)> f)
-{
-    for (int i : indexes)
-    {
-        if (i != x0)
-            f(i);
-    }
-}
-
-// Calls a function for element of a vector except the specified ones
-static void for_each_index_except(std::vector<int> const & indexes, int x0, int x1, std::function<void(int)> f)
-{
-    for (int i : indexes)
-    {
-        if (i != x0 && i != x1)
-            f(i);
-    }
-}
-
-// Calls a function for element of a vector except the specified ones
-static void for_each_index_except(std::vector<int> const & indexes,
-                                  int                      x0,
-                                  int                      x1,
-                                  int                      x2,
-                                  std::function<void(int)> f)
-{
-    for (int i : indexes)
-    {
-        if (i != x0 && i != x1 && i != x2)
-            f(i);
-    }
-}
-
-// Calls a function for element of a vector except the specified ones
-static void for_each_index_except(std::vector<int> const & indexes,
-                                  int                      x0,
-                                  int                      x1,
-                                  int                      x2,
-                                  int                      x3,
-                                  std::function<void(int)> f)
-{
-    for (int i : indexes)
-    {
-        if (i != x0 && i != x1 && i != x2 && i != x3)
-            f(i);
-    }
-}
-
 Analyzer::Analyzer(Board const & board, bool verbose /*= false*/)
     : board_(board)
     , verbose_(verbose)
@@ -391,7 +342,7 @@ bool Analyzer::hiddenSingle(std::vector<int> const & indexes,
         if (board_.isEmpty(s))
         {
             unsigned others = 0;
-            for_each_index_except(indexes, s, [&] (int i) {
+            Board::ForEach::indexExcept(indexes, s, [&] (int i) {
                 others |= candidates_[i];
             });
 
@@ -934,7 +885,7 @@ bool Analyzer::nakedPair(std::vector<int> const & indexes,
                 unsigned cumulativeCandidates = cumulativeCandidates0 | candidates;
                 if (Candidates::count(candidates) > 1 && Candidates::count(cumulativeCandidates) == 2)
                 {
-                    for_each_index_except(indexes, i0, i1, [&] (int i) {
+                    Board::ForEach::indexExcept(indexes, i0, i1, [&] (int i) {
                         if (candidates_[i] & cumulativeCandidates)
                             eliminatedIndexes.push_back(i);
                     });
@@ -1044,7 +995,7 @@ bool Analyzer::nakedTriple(std::vector<int> const & indexes,
                         unsigned cumulativeCandidates = cumulativeCandidates1 | candidates;
                         if (Candidates::count(candidates) > 1 && Candidates::count(cumulativeCandidates) == 3)
                         {
-                            for_each_index_except(indexes, i0, i1, i2, [&] (int i) {
+                            Board::ForEach::indexExcept(indexes, i0, i1, i2, [&] (int i) {
                                 if (candidates_[i] & cumulativeCandidates)
                                     eliminatedIndexes.push_back(i);
                             });
@@ -1164,7 +1115,7 @@ bool Analyzer::nakedQuad(std::vector<int> const & indexes,
                                 unsigned cumulativeCandidates = cumulativeCandidates2 | candidates;
                                 if (Candidates::count(candidates) > 1 && Candidates::count(cumulativeCandidates) == 4)
                                 {
-                                    for_each_index_except(indexes, i0, i1, i2, i3, [&] (int i) {
+                                    Board::ForEach::indexExcept(indexes, i0, i1, i2, i3, [&] (int i) {
                                         if (candidates_[i] & cumulativeCandidates)
                                             eliminatedIndexes.push_back(i);
                                     });
@@ -1447,7 +1398,7 @@ bool Analyzer::xWingRow(int                      r0,
                 for (int c : { c0, c1 })
                 {
                     std::vector<int> column = Board::Unit::column(c);
-                    for_each_index_except(column, column[r0], column[r1], [&](int i) {
+                    Board::ForEach::indexExcept(column, column[r0], column[r1], [&](int i) {
                         if (mask & candidates_[i])
                             eliminatedIndexes.push_back(i);
                     });
@@ -1498,7 +1449,7 @@ bool Analyzer::xWingColumn(int                      c0,
                 for (int r : { r0, r1 })
                 {
                     std::vector<int> row = Board::Unit::row(r);
-                    for_each_index_except(row, row[c0], row[c1], [&](int i) {
+                    Board::ForEach::indexExcept(row, row[c0], row[c1], [&](int i) {
                         if (mask & candidates_[i])
                             eliminatedIndexes.push_back(i);
                     });

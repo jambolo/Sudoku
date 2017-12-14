@@ -124,6 +124,18 @@ public:
     // Calls a function for each box on the board except the specified ones, passing in the box number and
     // the indexes of the cells in the box. Returns true if all boxes were processed successfully.
     static bool boxExcept(int x0, int x1, int x2, std::function<bool(int, std::vector<int> const &)> f);
+
+    // Calls a function for element of a vector except the specified ones
+    static void indexExcept(std::vector<int> const & indexes, int x0, std::function<void(int)> f);
+
+    // Calls a function for element of a vector except the specified ones
+    static void indexExcept(std::vector<int> const & indexes, int x0, int x1, std::function<void(int)> f);
+
+    // Calls a function for element of a vector except the specified ones
+    static void indexExcept(std::vector<int> const & indexes, int x0, int x1, int x3, std::function<void(int)> f);
+
+    // Calls a function for element of a vector except the specified ones
+    static void indexExcept(std::vector<int> const & indexes, int x0, int x1, int x3, int x4, std::function<void(int)> f);
 };
 
 class Board::Cell
