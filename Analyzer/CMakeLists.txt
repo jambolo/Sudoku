@@ -13,6 +13,8 @@ set(SOURCES
     LockedCandidates.h
     Naked.cpp
     Naked.h
+    SimpleColoring.cpp
+    SimpleColoring.h
     XWing.cpp
     XWing.h
     YWing.cpp

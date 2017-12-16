@@ -1,34 +1,35 @@
 #include "LockedCandidates.h"
 
 #include <algorithm>
+#include <iterator>
 #include <string>
 #include <vector>
 
 std::string LockedCandidates::generateReason(std::string const & unit1,
-                                                  char                which1,
-                                                  std::string const & unit2,
-                                                  char                which2)
+                                             char                which1,
+                                             std::string const & unit2,
+                                             char                which2)
 {
     std::string reason = "Since the portion of " +
-                        unit2 +
-                        " " +
-                        which2 +
-                        " within " +
-                        unit1 +
-                        " " +
-                        which1 +
-                        " must contain these values, they cannot be anywhere else in " +
-                        unit2 +
-                        " " +
-                        which2;
+                         unit2 +
+                         " " +
+                         which2 +
+                         " within " +
+                         unit1 +
+                         " " +
+                         which1 +
+                         " must contain these values, they cannot be anywhere else in " +
+                         unit2 +
+                         " " +
+                         which2;
     return reason;
 }
 
-bool LockedCandidates::exists(Board const & board,
-    Candidates::List const & candidates,
-    std::vector<int> & indexes,
-    std::vector<int> & values,
-    std::string & reason)
+bool LockedCandidates::exists(Board const &            board,
+                              Candidates::List const & candidates,
+                              std::vector<int> &       indexes,
+                              std::vector<int> &       values,
+                              std::string &            reason)
 {
     // For the intersection of each row or column with a box, if there are candidates that exist within the
     // intersection but not in the rest of the row/column, then success if those candidates exist in the box.
@@ -122,11 +123,11 @@ bool LockedCandidates::exists(Board const & board,
     return false;
 }
 
-bool LockedCandidates::find(Candidates::List const &     candidates,
-                                std::vector<int> const & indexes1,
-                                std::vector<int> const & indexes2,
-                                std::vector<int> &       eliminatedIndexes,
-                                std::vector<int> &       eliminatedValues)
+bool LockedCandidates::find(Candidates::List const & candidates,
+                            std::vector<int> const & indexes1,
+                            std::vector<int> const & indexes2,
+                            std::vector<int> &       eliminatedIndexes,
+                            std::vector<int> &       eliminatedValues)
 {
     // Indexes in the intersection
     std::vector<int> intersection;
@@ -180,7 +181,7 @@ bool LockedCandidates::find(Candidates::List const &     candidates,
 }
 
 Candidates::Type LockedCandidates::allCandidates(Candidates::List const & candidates,
-    std::vector<int> const & indexes)
+                                                 std::vector<int> const & indexes)
 {
     Candidates::Type all = 0;
     for (int i : indexes)

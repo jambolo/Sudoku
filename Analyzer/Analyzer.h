@@ -25,10 +25,11 @@ public:
             NAKED_QUAD,
             LOCKED_CANDIDATES,
             X_WING,
-            Y_WING
+            Y_WING,
+            SIMPLE_COLORING
         };
 
-        ActionId action;
+        ActionId         action;
         std::vector<int> indexes;
         std::vector<int> values;
         TechniqueId      technique;

@@ -13,6 +13,7 @@
 #include "Solver/Solver.h"
 #endif // defined(_DEBUG)
 
+#include "SimpleColoring.h"
 #include <algorithm>
 #include <cassert>
 #include <numeric>
@@ -159,6 +160,13 @@ Analyzer::Step Analyzer::next()
         return { Step::ELIMINATE, indexes, values, Step::Y_WING, reason };
     }
 
+    if (SimpleColoring::exists(board_, candidates_, indexes, values, reason))
+    {
+        eliminate(indexes, values);
+        assert(candidatesAreValid());
+        return { Step::ELIMINATE, indexes, values, Step::SIMPLE_COLORING, reason };
+    }
+
     done_  = true;
     stuck_ = true;
     return { Step::STUCK };
@@ -300,7 +308,8 @@ const char * Analyzer::Step::techniqueName(Analyzer::Step::TechniqueId technique
         "naked quad",
         "locked candidates",
         "x-wing",
-        "y-wing"
+        "y-wing",
+        "simple coloring"
     };
     assert((size_t)technique >= 0 && (size_t)technique < sizeof(NAMES) / sizeof(*NAMES));
     return NAMES[technique];
