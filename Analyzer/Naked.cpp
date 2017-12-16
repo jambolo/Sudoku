@@ -4,14 +4,14 @@
 
 #include "Board/Board.h"
 
-#include <vector>
 #include <string>
+#include <vector>
 
-bool Naked::singleExists(Board const & board,
-    Candidates::List const & candidates,
-    std::vector<int> & indexes,
-    std::vector<int> & values,
-    std::string & reason)
+bool Naked::singleExists(Board const &            board,
+                         Candidates::List const & candidates,
+                         std::vector<int> &       indexes,
+                         std::vector<int> &       values,
+                         std::string &            reason)
 {
     // For each unsolved cell, if it only has one candidate, then success
 
@@ -23,11 +23,11 @@ bool Naked::singleExists(Board const & board,
     return false;
 }
 
-bool Naked::pairExists(Board const & board,
-    Candidates::List const & candidates,
-    std::vector<int> & indexes,
-    std::vector<int> & values,
-    std::string & reason)
+bool Naked::pairExists(Board const &            board,
+                       Candidates::List const & candidates,
+                       std::vector<int> &       indexes,
+                       std::vector<int> &       values,
+                       std::string &            reason)
 {
     // For each exclusive pair in a unit, if there are other candidates that overlap, then success.
 
@@ -80,11 +80,11 @@ bool Naked::pairExists(Board const & board,
     return false;
 }
 
-bool Naked::tripleExists(Board const & board,
-    Candidates::List const & candidates,
-    std::vector<int> & indexes,
-    std::vector<int> & values,
-    std::string & reason)
+bool Naked::tripleExists(Board const &            board,
+                         Candidates::List const & candidates,
+                         std::vector<int> &       indexes,
+                         std::vector<int> &       values,
+                         std::string &            reason)
 {
     // For each exclusive triple in a unit, if there are other candidates that overlap, then success.
 
@@ -137,11 +137,11 @@ bool Naked::tripleExists(Board const & board,
     return false;
 }
 
-bool Naked::quadExists(Board const & board,
-    Candidates::List const & candidates,
-    std::vector<int> & indexes,
-    std::vector<int> & values,
-    std::string & reason)
+bool Naked::quadExists(Board const &            board,
+                       Candidates::List const & candidates,
+                       std::vector<int> &       indexes,
+                       std::vector<int> &       values,
+                       std::string &            reason)
 {
     // For each exclusive quad in a unit, if there are other candidates that overlap, then success.
 
@@ -194,10 +194,10 @@ bool Naked::quadExists(Board const & board,
     return false;
 }
 
-bool Naked::single(Board const & board,
-    Candidates::List const & candidates,
-    std::vector<int> & indexes,
-    std::vector<int> & values)
+bool Naked::single(Board const &            board,
+                   Candidates::List const & candidates,
+                   std::vector<int> &       indexes,
+                   std::vector<int> &       values)
 {
     return !Board::ForEach::cell([&](int i) {
         if (board.isEmpty(i))
@@ -215,10 +215,10 @@ bool Naked::single(Board const & board,
 }
 
 bool Naked::pair(Candidates::List const & candidates,
-    std::vector<int> const & indexes,
-    std::vector<int> &       eliminatedIndexes,
-    std::vector<int> &       eliminatedValues,
-    std::vector<int> &       nakedIndexes)
+                 std::vector<int> const & indexes,
+                 std::vector<int> &       eliminatedIndexes,
+                 std::vector<int> &       eliminatedValues,
+                 std::vector<int> &       nakedIndexes)
 {
     for (int b0 = 0; b0 < Board::SIZE - 1; ++b0)
     {
@@ -242,7 +242,7 @@ bool Naked::pair(Candidates::List const & candidates,
                     if (!eliminatedIndexes.empty())
                     {
                         eliminatedValues = Candidates::values(cumulativeCandidates);
-                        nakedIndexes = { i0, i1 };
+                        nakedIndexes     = { i0, i1 };
                         return true;
                     }
                 }
@@ -253,10 +253,10 @@ bool Naked::pair(Candidates::List const & candidates,
 }
 
 bool Naked::triple(Candidates::List const & candidates,
-    std::vector<int> const & indexes,
-    std::vector<int> &       eliminatedIndexes,
-    std::vector<int> &       eliminatedValues,
-    std::vector<int> &       nakedIndexes)
+                   std::vector<int> const & indexes,
+                   std::vector<int> &       eliminatedIndexes,
+                   std::vector<int> &       eliminatedValues,
+                   std::vector<int> &       nakedIndexes)
 {
     for (int b0 = 0; b0 < Board::SIZE - 2; ++b0)
     {
@@ -287,7 +287,7 @@ bool Naked::triple(Candidates::List const & candidates,
                             if (!eliminatedIndexes.empty())
                             {
                                 eliminatedValues = Candidates::values(cumulativeCandidates);
-                                nakedIndexes = { i0, i1, i2 };
+                                nakedIndexes     = { i0, i1, i2 };
                                 return true;
                             }
                         }
@@ -300,10 +300,10 @@ bool Naked::triple(Candidates::List const & candidates,
 }
 
 bool Naked::quad(Candidates::List const & candidates,
-    std::vector<int> const & indexes,
-    std::vector<int> &       eliminatedIndexes,
-    std::vector<int> &       eliminatedValues,
-    std::vector<int> &       nakedIndexes)
+                 std::vector<int> const & indexes,
+                 std::vector<int> &       eliminatedIndexes,
+                 std::vector<int> &       eliminatedValues,
+                 std::vector<int> &       nakedIndexes)
 {
     for (int b0 = 0; b0 < Board::SIZE - 3; ++b0)
     {
@@ -341,7 +341,7 @@ bool Naked::quad(Candidates::List const & candidates,
                                     if (!eliminatedIndexes.empty())
                                     {
                                         eliminatedValues = Candidates::values(cumulativeCandidates);
-                                        nakedIndexes = { i0, i1, i2, i3 };
+                                        nakedIndexes     = { i0, i1, i2, i3 };
                                         return true;
                                     }
                                 }
@@ -358,45 +358,45 @@ bool Naked::quad(Candidates::List const & candidates,
 std::string Naked::pairReason(std::string const & unit, char which, std::vector<int> const & indexes)
 {
     std::string reason = "Two other squares (" +
-        Board::Cell::name(indexes[0]) +
-        " and " +
-        Board::Cell::name(indexes[1]) +
-        ") in " +
-        unit +
-        " " +
-        which +
-        " must be one of these two values, so these squares cannot be either of these two values.";
+                         Board::Cell::name(indexes[0]) +
+                         " and " +
+                         Board::Cell::name(indexes[1]) +
+                         ") in " +
+                         unit +
+                         " " +
+                         which +
+                         " must be one of these two values, so these squares cannot be either of these two values.";
     return reason;
 }
 
 std::string Naked::tripleReason(std::string const & unit, char which, std::vector<int> const & indexes)
 {
     std::string reason = std::string("Three other squares (") +
-        Board::Cell::name(indexes[0]) +
-        ", " +
-        Board::Cell::name(indexes[1]) +
-        " and " +
-        Board::Cell::name(indexes[2]) +
-        ") in " +
-        unit + " " + which +
-        " must be one of these three values, so these squares cannot be any of these three values.";
+                         Board::Cell::name(indexes[0]) +
+                         ", " +
+                         Board::Cell::name(indexes[1]) +
+                         " and " +
+                         Board::Cell::name(indexes[2]) +
+                         ") in " +
+                         unit + " " + which +
+                         " must be one of these three values, so these squares cannot be any of these three values.";
     return reason;
 }
 
 std::string Naked::quadReason(std::string const & unit, char which, std::vector<int> const & indexes)
 {
     std::string reason = "Four other squares (" +
-        Board::Cell::name(indexes[0]) +
-        ", " +
-        Board::Cell::name(indexes[1]) +
-        ", " +
-        Board::Cell::name(indexes[2]) +
-        " and " +
-        Board::Cell::name(indexes[3]) +
-        ") in " +
-        unit +
-        " " +
-        which +
-        " must be one of these four values, so these squares cannot be any of these four values.";
+                         Board::Cell::name(indexes[0]) +
+                         ", " +
+                         Board::Cell::name(indexes[1]) +
+                         ", " +
+                         Board::Cell::name(indexes[2]) +
+                         " and " +
+                         Board::Cell::name(indexes[3]) +
+                         ") in " +
+                         unit +
+                         " " +
+                         which +
+                         " must be one of these four values, so these squares cannot be any of these four values.";
     return reason;
 }

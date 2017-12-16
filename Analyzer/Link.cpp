@@ -1,7 +1,7 @@
 #include "Link.h"
 
-#include "Candidates.h"
 #include "Board/Board.h"
+#include "Candidates.h"
 
 #include <cassert>
 #include <vector>
@@ -13,15 +13,15 @@ std::vector<Strong> Strong::find(Candidates::List const & candidates, int i)
     List links;
 
     std::vector<int> row = Board::Unit::row(Board::Unit::whichRow(i));
-    List rowLinks = find(candidates, Board::Unit::offsetInRow(i), row);
+    List rowLinks        = find(candidates, Board::Unit::offsetInRow(i), row);
     links.insert(links.end(), rowLinks.begin(), rowLinks.end());
 
     std::vector<int> column = Board::Unit::column(Board::Unit::whichColumn(i));
-    List columnLinks = find(candidates, Board::Unit::offsetInColumn(i), column);
+    List columnLinks        = find(candidates, Board::Unit::offsetInColumn(i), column);
     links.insert(links.end(), columnLinks.begin(), columnLinks.end());
 
     std::vector<int> box = Board::Unit::box(Board::Unit::whichBox(i));
-    List boxLinks = find(candidates, Board::Unit::offsetInBox(i), box);
+    List boxLinks        = find(candidates, Board::Unit::offsetInBox(i), box);
     links.insert(links.end(), boxLinks.begin(), boxLinks.end());
 
     return links;
@@ -56,7 +56,7 @@ std::vector<Strong> Strong::find(Candidates::List const & candidates, std::vecto
                 if ((candidates[i0] & candidates[i1] & mask))
                 {
                     if (existsIncremental(candidates, u0, u1, mask, unit))
-                        links.emplace_back(Strong{ u0, i0, u1, i1, v });
+                        links.emplace_back(Strong { u0, i0, u1, i1, v });
                     break;
                 }
             }
@@ -80,17 +80,17 @@ std::vector<Strong> Strong::find(Candidates::List const & candidates, int u0, st
             if (i1 != i0)
             {
                 if (exists(candidates, i0, i1, mask, unit))
-                    links.emplace_back(Strong{ u0, i0, u1, i1, v });
+                    links.emplace_back(Strong { u0, i0, u1, i1, v });
             }
-        };
+        }
     }
     return links;
 }
 
 bool Strong::exists(Candidates::List const & candidates,
-                    int i0,
-                    int i1,
-                    Candidates::Type mask,
+                    int                      i0,
+                    int                      i1,
+                    Candidates::Type         mask,
                     std::vector<int> const & unit)
 {
     // Not a strong link if the two cells don't share the candidate
@@ -107,9 +107,9 @@ bool Strong::exists(Candidates::List const & candidates,
 }
 
 bool Strong::existsIncremental(Candidates::List const & candidates,
-                               int u0,
-                               int u1,
-                               Candidates::Type mask,
+                               int                      u0,
+                               int                      u1,
+                               Candidates::Type         mask,
                                std::vector<int> const & unit)
 {
     // This is a faster version of exists(). This one requires that u0 < u1, and that no other cells in the given

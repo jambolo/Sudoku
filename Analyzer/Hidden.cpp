@@ -6,11 +6,11 @@
 
 #include <cassert>
 
-bool Hidden::singleExists(Board const & board,
-    Candidates::List const & candidates,
-    std::vector<int> & indexes,
-    std::vector<int> & values,
-    std::string & reason)
+bool Hidden::singleExists(Board const &            board,
+                          Candidates::List const & candidates,
+                          std::vector<int> &       indexes,
+                          std::vector<int> &       values,
+                          std::string &            reason)
 {
     bool found;
     int which;
@@ -48,8 +48,8 @@ bool Hidden::singleExists(Board const & board,
     if (found)
     {
         reason = std::string("This is the only square in column ") +
-            Board::Unit::columnName(which) +
-                     " that can have this value.";
+                 Board::Unit::columnName(which) +
+                 " that can have this value.";
         return true;
     }
 
@@ -75,11 +75,11 @@ bool Hidden::singleExists(Board const & board,
     return false;
 }
 
-bool Hidden::single(Board const & board,
-                        Candidates::List const & candidates,
-                        std::vector<int> const & indexes,
-                            std::vector<int> &       eliminatedIndexes,
-                            std::vector<int> &       eliminatedValues)
+bool Hidden::single(Board const &            board,
+                    Candidates::List const & candidates,
+                    std::vector<int> const & indexes,
+                    std::vector<int> &       eliminatedIndexes,
+                    std::vector<int> &       eliminatedValues)
 {
     for (int s : indexes)
     {
@@ -106,17 +106,17 @@ bool Hidden::single(Board const & board,
 static std::string generateHiddenPairReason(std::string const & unitType, char which, std::vector<int> const & hiddenValues)
 {
     std::string reason = "Only these two squares in " + unitType + " " + which +
-        " can be " + std::to_string(hiddenValues[0]) +
-        " or " + std::to_string(hiddenValues[1]) +
-        ", so they cannot be any other values.";
+                         " can be " + std::to_string(hiddenValues[0]) +
+                         " or " + std::to_string(hiddenValues[1]) +
+                         ", so they cannot be any other values.";
     return reason;
 }
 
-bool Hidden::pairExists(Board const & board,
-    Candidates::List const & candidates,
-    std::vector<int> & indexes,
-    std::vector<int> & values,
-    std::string & reason)
+bool Hidden::pairExists(Board const &            board,
+                        Candidates::List const & candidates,
+                        std::vector<int> &       indexes,
+                        std::vector<int> &       values,
+                        std::string &            reason)
 {
     // For each exclusive pair in a unit, if they have additional candidates, then success.
 
@@ -179,10 +179,10 @@ bool Hidden::pairExists(Board const & board,
 }
 
 bool Hidden::pair(Candidates::List const & candidates,
-    std::vector<int> const & indexes,
-    std::vector<int> &       eliminatedIndexes,
-    std::vector<int> &       eliminatedValues,
-    std::vector<int> &       hiddenValues)
+                  std::vector<int> const & indexes,
+                  std::vector<int> &       eliminatedIndexes,
+                  std::vector<int> &       eliminatedValues,
+                  std::vector<int> &       hiddenValues)
 {
     // Go through each possible pair of candidates and search for exactly two cells containing the one or more of a pair
     for (int x0 = 1; x0 <= Board::SIZE - 1; ++x0)
@@ -191,10 +191,10 @@ bool Hidden::pair(Candidates::List const & candidates,
         for (int x1 = x0 + 1; x1 <= Board::SIZE; ++x1)
         {
             Candidates::Type m1 = Candidates::fromValue(x1);
-            Candidates::Type m = m0 | m1;
+            Candidates::Type m  = m0 | m1;
 
             // Count the number of cells with either of these two candidates
-            int nFound = 0;
+            int nFound    = 0;
             int found[2];
             int counts[2] = { 0 };
             for (int i : indexes)
@@ -224,7 +224,7 @@ bool Hidden::pair(Candidates::List const & candidates,
                 {
                     eliminatedIndexes.assign(std::begin(found), std::end(found));
                     eliminatedValues = Candidates::values(eliminatedCandidates);
-                    hiddenValues = Candidates::values(m);
+                    hiddenValues     = Candidates::values(m);
                     return true;
                 }
             }
@@ -237,18 +237,18 @@ bool Hidden::pair(Candidates::List const & candidates,
 static std::string generateHiddenTripleReason(std::string const & unitType, char which, std::vector<int> const & hiddenValues)
 {
     std::string reason = "Only these three squares in " + unitType + " " + which +
-        " can be " + std::to_string(hiddenValues[0]) +
-        ", " + std::to_string(hiddenValues[1]) +
-        ", or " + std::to_string(hiddenValues[2]) +
-        ", so they cannot be any other values.";
+                         " can be " + std::to_string(hiddenValues[0]) +
+                         ", " + std::to_string(hiddenValues[1]) +
+                         ", or " + std::to_string(hiddenValues[2]) +
+                         ", so they cannot be any other values.";
     return reason;
 }
 
-bool Hidden::tripleExists(Board const & board,
-    Candidates::List const & candidates,
-    std::vector<int> & indexes,
-    std::vector<int> & values,
-    std::string & reason)
+bool Hidden::tripleExists(Board const &            board,
+                          Candidates::List const & candidates,
+                          std::vector<int> &       indexes,
+                          std::vector<int> &       values,
+                          std::string &            reason)
 {
     // For each exclusive triple in a unit, if they have additional candidates, then success.
 
@@ -311,10 +311,10 @@ bool Hidden::tripleExists(Board const & board,
 }
 
 bool Hidden::triple(Candidates::List const & candidates,
-    std::vector<int> const & indexes,
-    std::vector<int> &       eliminatedIndexes,
-    std::vector<int> &       eliminatedValues,
-    std::vector<int> &       hiddenValues)
+                    std::vector<int> const & indexes,
+                    std::vector<int> &       eliminatedIndexes,
+                    std::vector<int> &       eliminatedValues,
+                    std::vector<int> &       hiddenValues)
 {
     // Go through each possible triple of candidates and search for exactly three cells containing the one or more of a triple
     for (int x0 = 1; x0 <= Board::SIZE - 2; ++x0)
@@ -326,10 +326,10 @@ bool Hidden::triple(Candidates::List const & candidates,
             for (int x2 = x1 + 1; x2 <= Board::SIZE; ++x2)
             {
                 Candidates::Type m2 = Candidates::fromValue(x2);
-                Candidates::Type m = m0 | m1 | m2;
+                Candidates::Type m  = m0 | m1 | m2;
 
                 // Count the number of cells with any of these three candidates
-                int nFound = 0;
+                int nFound    = 0;
                 int found[3];
                 int counts[3] = { 0 };
                 for (int i : indexes)
@@ -357,12 +357,13 @@ bool Hidden::triple(Candidates::List const & candidates,
                 // then success
                 if (nFound == 3 && counts[0] >= 2 && counts[1] >= 2 && counts[2] >= 2)
                 {
-                    Candidates::Type eliminatedCandidates = (candidates[found[0]] | candidates[found[1]] | candidates[found[2]]) & ~m;
+                    Candidates::Type eliminatedCandidates = (candidates[found[0]] | candidates[found[1]] | candidates[found[2]]) &
+                                                            ~m;
                     if (eliminatedCandidates)
                     {
                         eliminatedIndexes.assign(std::begin(found), std::end(found));
                         eliminatedValues = Candidates::values(eliminatedCandidates);
-                        hiddenValues = Candidates::values(m);
+                        hiddenValues     = Candidates::values(m);
                         return true;
                     }
                 }
@@ -376,19 +377,19 @@ bool Hidden::triple(Candidates::List const & candidates,
 static std::string generateHiddenQuadReason(std::string const & unitType, char which, std::vector<int> const & hiddenValues)
 {
     std::string reason = "Only these four squares in " + unitType + " " + which +
-        " can be " + std::to_string(hiddenValues[0]) +
-        ", " + std::to_string(hiddenValues[1]) +
-        ", " + std::to_string(hiddenValues[2]) +
-        ", or " + std::to_string(hiddenValues[3]) +
-        ", so they cannot be any other values.";
+                         " can be " + std::to_string(hiddenValues[0]) +
+                         ", " + std::to_string(hiddenValues[1]) +
+                         ", " + std::to_string(hiddenValues[2]) +
+                         ", or " + std::to_string(hiddenValues[3]) +
+                         ", so they cannot be any other values.";
     return reason;
 }
 
-bool Hidden::quadExists(Board const & board,
-    Candidates::List const & candidates,
-    std::vector<int> & indexes,
-    std::vector<int> & values,
-    std::string & reason)
+bool Hidden::quadExists(Board const &            board,
+                        Candidates::List const & candidates,
+                        std::vector<int> &       indexes,
+                        std::vector<int> &       values,
+                        std::string &            reason)
 {
     // For each exclusive quad in a unit, if they have additional candidates, then success.
 
@@ -451,10 +452,10 @@ bool Hidden::quadExists(Board const & board,
 }
 
 bool Hidden::quad(Candidates::List const & candidates,
-    std::vector<int> const & indexes,
-    std::vector<int> &       eliminatedIndexes,
-    std::vector<int> &       eliminatedValues,
-    std::vector<int> &       hiddenValues)
+                  std::vector<int> const & indexes,
+                  std::vector<int> &       eliminatedIndexes,
+                  std::vector<int> &       eliminatedValues,
+                  std::vector<int> &       hiddenValues)
 {
     // Go through each possible quad of candidates and search for exactly four cells containing the one or more of a quad
     for (int x0 = 1; x0 <= Board::SIZE - 3; ++x0)
@@ -469,10 +470,10 @@ bool Hidden::quad(Candidates::List const & candidates,
                 for (int x3 = x2 + 1; x3 <= Board::SIZE; ++x3)
                 {
                     Candidates::Type m3 = Candidates::fromValue(x3);
-                    Candidates::Type m = m0 | m1 | m2 | m3;
+                    Candidates::Type m  = m0 | m1 | m2 | m3;
 
                     // Count the number of cells with any of these four candidates
-                    int nFound = 0;
+                    int nFound    = 0;
                     int found[4];
                     int counts[4] = { 0 };
                     for (int i : indexes)
@@ -508,7 +509,7 @@ bool Hidden::quad(Candidates::List const & candidates,
                         {
                             eliminatedIndexes.assign(std::begin(found), std::end(found));
                             eliminatedValues = Candidates::values(eliminatedCandidates);
-                            hiddenValues = Candidates::values(m);
+                            hiddenValues     = Candidates::values(m);
                             return true;
                         }
                     }
@@ -519,6 +520,3 @@ bool Hidden::quad(Candidates::List const & candidates,
 
     return false;
 }
-
-
-

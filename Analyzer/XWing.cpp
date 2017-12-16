@@ -9,11 +9,11 @@
 #include <string>
 #include <vector>
 
-bool XWing::exists(Board const & board,
-    Candidates::List const & candidates,
-    std::vector<int> & indexes,
-    std::vector<int> & values,
-    std::string & reason)
+bool XWing::exists(Board const &            board,
+                   Candidates::List const & candidates,
+                   std::vector<int> &       indexes,
+                   std::vector<int> &       values,
+                   std::string &            reason)
 {
     // If a value is a candidate in a row (or column) in exactly two cells and it is a candidate in another row
     // (or column) in exactly the same two columns (or rows) as the first row (or or column), then it cannot be
@@ -44,18 +44,18 @@ bool XWing::exists(Board const & board,
 }
 
 bool XWing::findRow(Candidates::List const & candidates,
-    int                      r0,
-                        std::vector<int> const & row,
-                        std::vector<int> &       eliminatedIndexes,
-                        std::vector<int> &       eliminatedValues,
-                        std::vector<int> &       pivots)
+                    int                      r0,
+                    std::vector<int> const & row,
+                    std::vector<int> &       eliminatedIndexes,
+                    std::vector<int> &       eliminatedValues,
+                    std::vector<int> &       pivots)
 {
     Link::Strong::List links = Link::Strong::find(candidates, row);
     for (auto link : links)
     {
-        int c0        = link.u0;
-        int c1        = link.u1;
-        int v         = link.value;
+        int c0 = link.u0;
+        int c1 = link.u1;
+        int v  = link.value;
         Candidates::Type mask = Candidates::fromValue(v);
 
         for (int r1 = r0 + 1; r1 < Board::SIZE; ++r1)
@@ -96,18 +96,18 @@ bool XWing::findRow(Candidates::List const & candidates,
 }
 
 bool XWing::findColumn(Candidates::List const & candidates,
-    int                      c0,
-                           std::vector<int> const & column,
-                           std::vector<int> &       eliminatedIndexes,
-                           std::vector<int> &       eliminatedValues,
-                           std::vector<int> &       pivots)
+                       int                      c0,
+                       std::vector<int> const & column,
+                       std::vector<int> &       eliminatedIndexes,
+                       std::vector<int> &       eliminatedValues,
+                       std::vector<int> &       pivots)
 {
     Link::Strong::List links = Link::Strong::find(candidates, column);
     for (auto link : links)
     {
-        int r0        = link.u0;
-        int r1        = link.u1;
-        int v         = link.value;
+        int r0 = link.u0;
+        int r1 = link.u1;
+        int v  = link.value;
         Candidates::Type mask = Candidates::fromValue(v);
 
         for (int c1 = c0 + 1; c1 < Board::SIZE; ++c1)
@@ -156,16 +156,16 @@ std::string XWing::rowReason(int value, std::vector<int> const & pivots)
     Board::Cell::locationOf(pivots[3], &r3, &c3);
 
     std::string reason = "Only " + Board::Cell::name(pivots[0]) +
-        " and " + Board::Cell::name(pivots[1]) +
-        " in row " + Board::Unit::rowName(r0) +
-        " and only " + Board::Cell::name(pivots[2]) +
-        " and " + Board::Cell::name(pivots[3]) +
-        " in row " + Board::Unit::rowName(r3) +
-        " can have the value " + std::to_string(value) +
-        ". These squares are in the same two columns, " + Board::Unit::columnName(c0) +
-        " and " + Board::Unit::columnName(c3) +
-        ", so one of the squares in each column must have this value and none of the other squares"
-        " in these columns can.";
+                         " and " + Board::Cell::name(pivots[1]) +
+                         " in row " + Board::Unit::rowName(r0) +
+                         " and only " + Board::Cell::name(pivots[2]) +
+                         " and " + Board::Cell::name(pivots[3]) +
+                         " in row " + Board::Unit::rowName(r3) +
+                         " can have the value " + std::to_string(value) +
+                         ". These squares are in the same two columns, " + Board::Unit::columnName(c0) +
+                         " and " + Board::Unit::columnName(c3) +
+                         ", so one of the squares in each column must have this value and none of the other squares"
+                         " in these columns can.";
     return reason;
 }
 
@@ -178,15 +178,15 @@ std::string XWing::columnReason(int value, std::vector<int> const & pivots)
     Board::Cell::locationOf(pivots[3], &r3, &c3);
 
     std::string reason = "Only " + Board::Cell::name(pivots[0]) +
-        " and " + Board::Cell::name(pivots[1]) +
-        " in column " + Board::Unit::columnName(c0) +
-        " and only " + Board::Cell::name(pivots[2]) +
-        " and " + Board::Cell::name(pivots[3]) +
-        " in column " + Board::Unit::columnName(c3) +
-        " can have the value " + std::to_string(value) +
-        ". These squares are in the same two rows, " + Board::Unit::rowName(r0) +
-        " and " + Board::Unit::rowName(r3) +
-        ". One of the squares in each row must have this value and so none of the other squares in"
-        " these rows can.";
+                         " and " + Board::Cell::name(pivots[1]) +
+                         " in column " + Board::Unit::columnName(c0) +
+                         " and only " + Board::Cell::name(pivots[2]) +
+                         " and " + Board::Cell::name(pivots[3]) +
+                         " in column " + Board::Unit::columnName(c3) +
+                         " can have the value " + std::to_string(value) +
+                         ". These squares are in the same two rows, " + Board::Unit::rowName(r0) +
+                         " and " + Board::Unit::rowName(r3) +
+                         ". One of the squares in each row must have this value and so none of the other squares in"
+                         " these rows can.";
     return reason;
 }

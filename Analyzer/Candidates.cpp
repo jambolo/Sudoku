@@ -44,6 +44,3 @@ int Candidates::count(Candidates::Type candidates)
     }
     return count;
 }
-
-
-
