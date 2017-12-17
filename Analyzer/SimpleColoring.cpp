@@ -5,6 +5,8 @@
 
 #include "Board/Board.h"
 
+#include <algorithm>
+#include <iterator>
 #include <set>
 #include <string>
 #include <vector>
@@ -23,7 +25,7 @@ bool SimpleColoring::exists(std::vector<int> & indexes, std::vector<int> & value
             std::set<int> red;
             std::set<int> green;
             infer(v, i, red, green);
-            
+
             // If any red cell can see any other red cells, then the value cannot be a candidate in any red cells
             std::vector<int> collisions;
             if (collisionsFound(red, collisions))
@@ -42,7 +44,7 @@ bool SimpleColoring::exists(std::vector<int> & indexes, std::vector<int> & value
                 reason = generateReason(v, collisions, green);
                 return false;
             }
-            
+
             // If any cell with a candidate v can see both a red cell and a green cell, then the cell cannot have v as a candidate
         }
         return true;

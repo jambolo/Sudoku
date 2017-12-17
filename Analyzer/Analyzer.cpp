@@ -83,81 +83,114 @@ Analyzer::Step Analyzer::next()
     std::vector<int> values;
     std::string reason;
 
-    if (Naked::singleExists(board_, candidates_, indexes, values, reason))
     {
-        solve(indexes.front(), values.front());
-        assert(candidatesAreValid());
-        return { Step::SOLVE, indexes, values, Step::NAKED_SINGLE, reason };
+        Naked naked(board_, candidates_);
+        if (naked.singleExists(indexes, values, reason))
+        {
+            solve(indexes.front(), values.front());
+            assert(candidatesAreValid());
+            return { Step::SOLVE, indexes, values, Step::NAKED_SINGLE, reason };
+        }
     }
 
-    if (Hidden::singleExists(board_, candidates_, indexes, values, reason))
     {
-        solve(indexes.front(), values.front());
-        assert(candidatesAreValid());
-        return { Step::SOLVE, indexes, values, Step::HIDDEN_SINGLE, reason };
+        Hidden hidden(board_, candidates_);
+        if (hidden.singleExists(indexes, values, reason))
+        {
+            solve(indexes.front(), values.front());
+            assert(candidatesAreValid());
+            return { Step::SOLVE, indexes, values, Step::HIDDEN_SINGLE, reason };
+        }
     }
 
-    if (Naked::pairExists(board_, candidates_, indexes, values, reason))
     {
-        eliminate(indexes, values);
-        assert(candidatesAreValid());
-        return { Step::ELIMINATE, indexes, values, Step::NAKED_PAIR, reason };
+        Naked naked(board_, candidates_);
+        if (naked.pairExists(indexes, values, reason))
+        {
+            eliminate(indexes, values);
+            assert(candidatesAreValid());
+            return { Step::ELIMINATE, indexes, values, Step::NAKED_PAIR, reason };
+        }
     }
 
-    if (Naked::tripleExists(board_, candidates_, indexes, values, reason))
     {
-        eliminate(indexes, values);
-        assert(candidatesAreValid());
-        return { Step::ELIMINATE, indexes, values, Step::NAKED_TRIPLE, reason };
+        Naked naked(board_, candidates_);
+        if (naked.tripleExists(indexes, values, reason))
+        {
+            eliminate(indexes, values);
+            assert(candidatesAreValid());
+            return { Step::ELIMINATE, indexes, values, Step::NAKED_TRIPLE, reason };
+        }
     }
 
-    if (Naked::quadExists(board_, candidates_, indexes, values, reason))
     {
-        eliminate(indexes, values);
-        assert(candidatesAreValid());
-        return { Step::ELIMINATE, indexes, values, Step::NAKED_QUAD, reason };
+        Naked naked(board_, candidates_);
+        if (naked.quadExists(indexes, values, reason))
+        {
+            eliminate(indexes, values);
+            assert(candidatesAreValid());
+            return { Step::ELIMINATE, indexes, values, Step::NAKED_QUAD, reason };
+        }
     }
 
-    if (LockedCandidates::exists(board_, candidates_, indexes, values, reason))
     {
-        eliminate(indexes, values);
-        assert(candidatesAreValid());
-        return { Step::ELIMINATE, indexes, values, Step::LOCKED_CANDIDATES, reason };
+        LockedCandidates lockedCandidates(board_, candidates_);
+        if (lockedCandidates.exists(indexes, values, reason))
+        {
+            eliminate(indexes, values);
+            assert(candidatesAreValid());
+            return { Step::ELIMINATE, indexes, values, Step::LOCKED_CANDIDATES, reason };
+        }
     }
 
-    if (Hidden::pairExists(board_, candidates_, indexes, values, reason))
     {
-        eliminate(indexes, values);
-        assert(candidatesAreValid());
-        return { Step::ELIMINATE, indexes, values, Step::HIDDEN_PAIR, reason };
+        Hidden hidden(board_, candidates_);
+        if (hidden.pairExists(indexes, values, reason))
+        {
+            eliminate(indexes, values);
+            assert(candidatesAreValid());
+            return { Step::ELIMINATE, indexes, values, Step::HIDDEN_PAIR, reason };
+        }
     }
 
-    if (Hidden::tripleExists(board_, candidates_, indexes, values, reason))
     {
-        eliminate(indexes, values);
-        assert(candidatesAreValid());
-        return { Step::ELIMINATE, indexes, values, Step::HIDDEN_TRIPLE, reason };
+        Hidden hidden(board_, candidates_);
+        if (hidden.tripleExists(indexes, values, reason))
+        {
+            eliminate(indexes, values);
+            assert(candidatesAreValid());
+            return { Step::ELIMINATE, indexes, values, Step::HIDDEN_TRIPLE, reason };
+        }
     }
 
-    if (Hidden::quadExists(board_, candidates_, indexes, values, reason))
     {
-        eliminate(indexes, values);
-        assert(candidatesAreValid());
-        return { Step::ELIMINATE, indexes, values, Step::HIDDEN_QUAD, reason };
+        Hidden hidden(board_, candidates_);
+        if (hidden.quadExists(indexes, values, reason))
+        {
+            eliminate(indexes, values);
+            assert(candidatesAreValid());
+            return { Step::ELIMINATE, indexes, values, Step::HIDDEN_QUAD, reason };
+        }
     }
 
-    if (XWing::exists(board_, candidates_, indexes, values, reason))
     {
-        eliminate(indexes, values);
-        assert(candidatesAreValid());
-        return { Step::ELIMINATE, indexes, values, Step::X_WING, reason };
+        XWing xWing(candidates_);
+        if (xWing.exists(indexes, values, reason))
+        {
+            eliminate(indexes, values);
+            assert(candidatesAreValid());
+            return { Step::ELIMINATE, indexes, values, Step::X_WING, reason };
+        }
     }
 
-    if (YWing::exists(board_, candidates_, indexes, values, reason))
     {
-        eliminate(indexes, values);
-        assert(candidatesAreValid());
-        return { Step::ELIMINATE, indexes, values, Step::Y_WING, reason };
+        YWing yWing(candidates_);
+        if (yWing.exists(indexes, values, reason))
+        {
+            eliminate(indexes, values);
+            assert(candidatesAreValid());
+            return { Step::ELIMINATE, indexes, values, Step::Y_WING, reason };
+        }
     }
 
     {
@@ -169,7 +202,7 @@ Analyzer::Step Analyzer::next()
             return { Step::ELIMINATE, indexes, values, Step::SIMPLE_COLORING, reason };
         }
     }
-    
+
     done_  = true;
     stuck_ = true;
     return { Step::STUCK };

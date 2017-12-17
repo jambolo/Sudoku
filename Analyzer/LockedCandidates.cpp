@@ -25,11 +25,9 @@ std::string LockedCandidates::generateReason(std::string const & unit1,
     return reason;
 }
 
-bool LockedCandidates::exists(Board const &            board,
-                              Candidates::List const & candidates,
-                              std::vector<int> &       indexes,
-                              std::vector<int> &       values,
-                              std::string &            reason)
+bool LockedCandidates::exists(std::vector<int> & indexes,
+                              std::vector<int> & values,
+                              std::string &      reason)
 {
     // For the intersection of each row or column with a box, if there are candidates that exist within the
     // intersection but not in the rest of the row/column, then success if those candidates exist in the box.
@@ -42,7 +40,7 @@ bool LockedCandidates::exists(Board const &            board,
         {
             int b = Board::Unit::whichBox(r, c);
             std::vector<int> box = Board::Unit::box(b);
-            if (find(candidates, row, box, indexes, values))
+            if (find(row, box, indexes, values))
             {
                 which1 = r;
                 which2 = b;
@@ -62,7 +60,7 @@ bool LockedCandidates::exists(Board const &            board,
         {
             int b = Board::Unit::whichBox(r, c);
             std::vector<int> box = Board::Unit::box(b);
-            if (find(candidates, column, box, indexes, values))
+            if (find(column, box, indexes, values))
             {
                 which1 = c;
                 which2 = b;
@@ -85,7 +83,7 @@ bool LockedCandidates::exists(Board const &            board,
         {
             int b = Board::Unit::whichBox(r, c);
             std::vector<int> box = Board::Unit::box(b);
-            if (find(candidates, box, row, indexes, values))
+            if (find(box, row, indexes, values))
             {
                 which1 = b;
                 which2 = r;
@@ -105,7 +103,7 @@ bool LockedCandidates::exists(Board const &            board,
         {
             int b = Board::Unit::whichBox(r, c);
             std::vector<int> box = Board::Unit::box(b);
-            if (find(candidates, box, column, indexes, values))
+            if (find(box, column, indexes, values))
             {
                 which1 = b;
                 which2 = c;
@@ -123,8 +121,7 @@ bool LockedCandidates::exists(Board const &            board,
     return false;
 }
 
-bool LockedCandidates::find(Candidates::List const & candidates,
-                            std::vector<int> const & indexes1,
+bool LockedCandidates::find(std::vector<int> const & indexes1,
                             std::vector<int> const & indexes2,
                             std::vector<int> &       eliminatedIndexes,
                             std::vector<int> &       eliminatedValues)
@@ -146,10 +143,10 @@ bool LockedCandidates::find(Candidates::List const & candidates,
                         std::back_inserter(others2));
 
     // Candidates in the intersection
-    Candidates::Type intersectionCandidates = allCandidates(candidates, intersection);
+    Candidates::Type intersectionCandidates = allCandidates(intersection);
 
     // Candidates in set 1, not in intersection
-    Candidates::Type otherCandidates1 = allCandidates(candidates, others1);
+    Candidates::Type otherCandidates1 = allCandidates(others1);
 
     // If any of the candidates in the intersection don't exist in the rest of set 1, then they are the ones to be
     // eliminated from set 2
@@ -158,7 +155,7 @@ bool LockedCandidates::find(Candidates::List const & candidates,
     {
         for (int i : others2)
         {
-            if (candidates[i] & unique1)
+            if (candidates_[i] & unique1)
                 eliminatedIndexes.push_back(i);
         }
         if (!eliminatedIndexes.empty())
@@ -180,13 +177,12 @@ bool LockedCandidates::find(Candidates::List const & candidates,
     return !eliminatedIndexes.empty();
 }
 
-Candidates::Type LockedCandidates::allCandidates(Candidates::List const & candidates,
-                                                 std::vector<int> const & indexes)
+Candidates::Type LockedCandidates::allCandidates(std::vector<int> const & indexes)
 {
     Candidates::Type all = 0;
     for (int i : indexes)
     {
-        Candidates::Type c = candidates[i];
+        Candidates::Type c = candidates_[i];
         if (!Candidates::solved(c))
             all |= c;
     }

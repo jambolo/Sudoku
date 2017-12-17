@@ -8,23 +8,21 @@
 class LockedCandidates
 {
 public:
-    static bool exists(Board const &            board,
-                       Candidates::List const & candidates,
-                       std::vector<int> &       indexes,
-                       std::vector<int> &       values,
-                       std::string &            reason);
+    LockedCandidates(Board const & board, Candidates::List const & candidates) : board_(board), candidates_(candidates) {}
+
+    // Returns true if locked candidates exist
+    bool exists(std::vector<int> & indexes, std::vector<int> & values, std::string & reason);
 
 private:
-    static bool find(Candidates::List const & candidates,
-                     std::vector<int> const & indexes1,
-                     std::vector<int> const & indexes2,
-                     std::vector<int> &       eliminatedIndexes,
-                     std::vector<int> &       eliminatedValues);
-    static std::string generateReason(std::string const & unit1,
-                                      char                which1,
-                                      std::string const & unit2,
-                                      char                which2);
+    bool find(std::vector<int> const & indexes1,
+              std::vector<int> const & indexes2,
+              std::vector<int> &       eliminatedIndexes,
+              std::vector<int> &       eliminatedValues);
+    static std::string generateReason(std::string const & unit1, char which1, std::string const & unit2, char which2);
 
     // Returns all unsolved candidates in the cells specified by the indexes
-    static Candidates::Type allCandidates(Candidates::List const & candidates, std::vector<int> const & indexes);
+    Candidates::Type allCandidates(std::vector<int> const & indexes);
+
+    Board const & board_;
+    Candidates::List const & candidates_;
 };

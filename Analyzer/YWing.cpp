@@ -9,11 +9,7 @@
 #include <string>
 #include <vector>
 
-bool YWing::exists(Board const &            board,
-                   Candidates::List const & candidates,
-                   std::vector<int> &       indexes,
-                   std::vector<int> &       values,
-                   std::string &            reason)
+bool YWing::exists(std::vector<int> & indexes, std::vector<int> & values, std::string & reason)
 {
     // If a cell has a strong link of value A in a cell with only two candidates (A,C), and a strong link
     // of a value B in another cell with two candidates (B,C), and the other candidate in those two
@@ -25,7 +21,7 @@ bool YWing::exists(Board const &            board,
 
     bool found = !Board::ForEach::cell([&](int i) {
         // Get all the strong links for this cell
-        Link::Strong::List links = Link::Strong::find(candidates, i);
+        Link::Strong::List links = Link::Strong::find(candidates_, i);
 
         if (!links.empty())
         {
@@ -34,16 +30,16 @@ bool YWing::exists(Board const &            board,
             {
                 int i1 = link1->i1;
                 int v1 = link1->value;
-                if (Candidates::count(candidates[i1]) == 2)
+                if (Candidates::count(candidates_[i1]) == 2)
                 {
                     for (Link::Strong::List::const_iterator link2 = std::next(link1); link2 != links.end(); ++link2)
                     {
                         int i2 = link2->i1;
                         int v2 = link2->value;
-                        if (i1 != i2 && v1 != v2 && Candidates::count(candidates[i2]) == 2)
+                        if (i1 != i2 && v1 != v2 && Candidates::count(candidates_[i2]) == 2)
                         {
-                            Candidates::Type mask3 = (candidates[i1] & ~Candidates::fromValue(v1)) &
-                                                     (candidates[i2] & ~Candidates::fromValue(v2));
+                            Candidates::Type mask3 = (candidates_[i1] & ~Candidates::fromValue(v1)) &
+                                                     (candidates_[i2] & ~Candidates::fromValue(v2));
                             if (mask3)
                             {
                                 assert(Candidates::count(mask3) == 1);
@@ -53,7 +49,7 @@ bool YWing::exists(Board const &            board,
                                 std::vector<int> seen = Board::Cell::dependents(i1, i2);
                                 for (int s : seen)
                                 {
-                                    if (candidates[s] & mask3)
+                                    if (candidates_[s] & mask3)
                                         indexes.push_back(s);
                                 }
                                 if (!indexes.empty())
