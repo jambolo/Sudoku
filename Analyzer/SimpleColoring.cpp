@@ -18,8 +18,8 @@ bool SimpleColoring::exists(std::vector<int> & indexes, std::vector<int> & value
     // graph with the same inference as those two cells can have that candidate.
 
     return !Board::ForEach::cell([&] (int i) {
-        std::vector<int> values = Candidates::values(candidates_[i]);
-        for (int v : values)
+        std::vector<int> cellValues = Candidates::values(candidates_[i]);
+        for (int v : cellValues)
         {
             // Separate linked cells into red and green
             std::set<int> red;
