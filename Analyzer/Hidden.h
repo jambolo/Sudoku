@@ -16,23 +16,23 @@ public:
                              std::vector<int> &       values,
                              std::string &            reason);
 
-    static bool Hidden::pairExists(Board const &            board,
-                                   Candidates::List const & candidates,
-                                   std::vector<int> &       indexes,
-                                   std::vector<int> &       values,
-                                   std::string &            reason);
+    static bool pairExists(Board const &            board,
+                           Candidates::List const & candidates,
+                           std::vector<int> &       indexes,
+                           std::vector<int> &       values,
+                           std::string &            reason);
 
-    static bool Hidden::tripleExists(Board const &            board,
-                                     Candidates::List const & candidates,
-                                     std::vector<int> &       indexes,
-                                     std::vector<int> &       values,
-                                     std::string &            reason);
+    static bool tripleExists(Board const &            board,
+                             Candidates::List const & candidates,
+                             std::vector<int> &       indexes,
+                             std::vector<int> &       values,
+                             std::string &            reason);
 
-    static bool Hidden::quadExists(Board const &            board,
-                                   Candidates::List const & candidates,
-                                   std::vector<int> &       indexes,
-                                   std::vector<int> &       values,
-                                   std::string &            reason);
+    static bool quadExists(Board const &            board,
+                           Candidates::List const & candidates,
+                           std::vector<int> &       indexes,
+                           std::vector<int> &       values,
+                           std::string &            reason);
 
 private:
     static bool single(Board const &            board,

@@ -160,13 +160,16 @@ Analyzer::Step Analyzer::next()
         return { Step::ELIMINATE, indexes, values, Step::Y_WING, reason };
     }
 
-    if (SimpleColoring::exists(board_, candidates_, indexes, values, reason))
     {
-        eliminate(indexes, values);
-        assert(candidatesAreValid());
-        return { Step::ELIMINATE, indexes, values, Step::SIMPLE_COLORING, reason };
+        SimpleColoring simpleColoring(candidates_);
+        if (simpleColoring.exists(indexes, values, reason))
+        {
+            eliminate(indexes, values);
+            assert(candidatesAreValid());
+            return { Step::ELIMINATE, indexes, values, Step::SIMPLE_COLORING, reason };
+        }
     }
-
+    
     done_  = true;
     stuck_ = true;
     return { Step::STUCK };
