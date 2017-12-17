@@ -66,8 +66,6 @@ private:
 #if defined(_DEBUG)
     // Returns true if the candidates data is consistent with the solution
     bool candidatesAreValid();
-#else
-    bool candidatesAreValid() { return false; } // should never be called
 #endif // defined(_DEBUG)
 
     Board board_;                  // Current state of the board

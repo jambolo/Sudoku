@@ -1,5 +1,6 @@
 #include "Candidates.h"
 
+#include "Board/Board.h"
 #include <cassert>
 #include <vector>
 
@@ -43,4 +44,16 @@ int Candidates::count(Candidates::Type candidates)
             ++count;
     }
     return count;
+}
+
+std::vector<int> Candidates::findAll(List const & candidates, int v)
+{
+    std::vector<int> found;
+    for (int i = 0; i < Board::SIZE * Board::SIZE; ++i)
+    {
+        Type c = candidates[i];
+        if (!solved(c) && (c & fromValue(v)))
+            found.push_back(i);
+    }
+    return found;
 }

@@ -8,7 +8,7 @@
 class LockedCandidates
 {
 public:
-    LockedCandidates(Board const & board, Candidates::List const & candidates) : board_(board), candidates_(candidates) {}
+    LockedCandidates(Candidates::List const & candidates) : candidates_(candidates) {}
 
     // Returns true if locked candidates exist
     bool exists(std::vector<int> & indexes, std::vector<int> & values, std::string & reason);
@@ -23,6 +23,5 @@ private:
     // Returns all unsolved candidates in the cells specified by the indexes
     Candidates::Type allCandidates(std::vector<int> const & indexes);
 
-    Board const & board_;
     Candidates::List const & candidates_;
 };

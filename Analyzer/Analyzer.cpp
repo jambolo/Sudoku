@@ -5,6 +5,7 @@
 #include "Link.h"
 #include "LockedCandidates.h"
 #include "Naked.h"
+#include "SimpleColoring.h"
 #include "XWing.h"
 #include "YWing.h"
 
@@ -13,10 +14,15 @@
 #include "Solver/Solver.h"
 #endif // defined(_DEBUG)
 
-#include "SimpleColoring.h"
 #include <algorithm>
 #include <cassert>
 #include <numeric>
+
+#if defined(_DEBUG)
+#define XCODE_COMPATIBLE_ASSERT assert
+#else
+#define XCODE_COMPATIBLE_ASSERT(...)
+#endif
 
 Analyzer::Analyzer(Board const & board)
     : board_(board)
@@ -27,8 +33,8 @@ Analyzer::Analyzer(Board const & board)
 {
 #if defined(_DEBUG)
     // Validate the board
-    assert(board_.consistent());
-    assert(Solver::hasUniqueSolution(board_));
+    XCODE_COMPATIBLE_ASSERT(board_.consistent());
+    XCODE_COMPATIBLE_ASSERT(Solver::hasUniqueSolution(board_));
 
     // Create the solved board for debugging purposes
     Solver::solve(solvedBoard_);
@@ -46,7 +52,7 @@ Analyzer::Analyzer(Board const & board)
 
 #if defined(_DEBUG)
     // Sanity check -- validate the candidates
-    assert(candidatesAreValid());
+    XCODE_COMPATIBLE_ASSERT(candidatesAreValid());
 #endif // defined(_DEBUG)
 }
 
@@ -58,20 +64,20 @@ Analyzer::Analyzer(Board const & board, Candidates::List const & candidates)
 #endif // defined(_DEBUG)
 {
 #if defined(_DEBUG)
-    assert(board_.consistent());
-    assert(Solver::hasUniqueSolution(board_));
+    XCODE_COMPATIBLE_ASSERT(board_.consistent());
+    XCODE_COMPATIBLE_ASSERT(Solver::hasUniqueSolution(board_));
 
     // Create the solved board for debugging purposes
     Solver::solve(solvedBoard_);
 
     // Sanity check -- validate the candidates
-    assert(candidatesAreValid());
+    XCODE_COMPATIBLE_ASSERT(candidatesAreValid());
 #endif // defined(_DEBUG)
 }
 
 Analyzer::Step Analyzer::next()
 {
-    assert(candidatesAreValid());
+    XCODE_COMPATIBLE_ASSERT(candidatesAreValid());
 
     if (board_.completed())
     {
@@ -88,7 +94,7 @@ Analyzer::Step Analyzer::next()
         if (naked.singleExists(indexes, values, reason))
         {
             solve(indexes.front(), values.front());
-            assert(candidatesAreValid());
+            XCODE_COMPATIBLE_ASSERT(candidatesAreValid());
             return { Step::SOLVE, indexes, values, Step::NAKED_SINGLE, reason };
         }
     }
@@ -98,7 +104,7 @@ Analyzer::Step Analyzer::next()
         if (hidden.singleExists(indexes, values, reason))
         {
             solve(indexes.front(), values.front());
-            assert(candidatesAreValid());
+            XCODE_COMPATIBLE_ASSERT(candidatesAreValid());
             return { Step::SOLVE, indexes, values, Step::HIDDEN_SINGLE, reason };
         }
     }
@@ -108,7 +114,7 @@ Analyzer::Step Analyzer::next()
         if (naked.pairExists(indexes, values, reason))
         {
             eliminate(indexes, values);
-            assert(candidatesAreValid());
+            XCODE_COMPATIBLE_ASSERT(candidatesAreValid());
             return { Step::ELIMINATE, indexes, values, Step::NAKED_PAIR, reason };
         }
     }
@@ -118,7 +124,7 @@ Analyzer::Step Analyzer::next()
         if (naked.tripleExists(indexes, values, reason))
         {
             eliminate(indexes, values);
-            assert(candidatesAreValid());
+            XCODE_COMPATIBLE_ASSERT(candidatesAreValid());
             return { Step::ELIMINATE, indexes, values, Step::NAKED_TRIPLE, reason };
         }
     }
@@ -128,17 +134,17 @@ Analyzer::Step Analyzer::next()
         if (naked.quadExists(indexes, values, reason))
         {
             eliminate(indexes, values);
-            assert(candidatesAreValid());
+            XCODE_COMPATIBLE_ASSERT(candidatesAreValid());
             return { Step::ELIMINATE, indexes, values, Step::NAKED_QUAD, reason };
         }
     }
 
     {
-        LockedCandidates lockedCandidates(board_, candidates_);
+        LockedCandidates lockedCandidates(candidates_);
         if (lockedCandidates.exists(indexes, values, reason))
         {
             eliminate(indexes, values);
-            assert(candidatesAreValid());
+            XCODE_COMPATIBLE_ASSERT(candidatesAreValid());
             return { Step::ELIMINATE, indexes, values, Step::LOCKED_CANDIDATES, reason };
         }
     }
@@ -148,7 +154,7 @@ Analyzer::Step Analyzer::next()
         if (hidden.pairExists(indexes, values, reason))
         {
             eliminate(indexes, values);
-            assert(candidatesAreValid());
+            XCODE_COMPATIBLE_ASSERT(candidatesAreValid());
             return { Step::ELIMINATE, indexes, values, Step::HIDDEN_PAIR, reason };
         }
     }
@@ -158,7 +164,7 @@ Analyzer::Step Analyzer::next()
         if (hidden.tripleExists(indexes, values, reason))
         {
             eliminate(indexes, values);
-            assert(candidatesAreValid());
+            XCODE_COMPATIBLE_ASSERT(candidatesAreValid());
             return { Step::ELIMINATE, indexes, values, Step::HIDDEN_TRIPLE, reason };
         }
     }
@@ -168,7 +174,7 @@ Analyzer::Step Analyzer::next()
         if (hidden.quadExists(indexes, values, reason))
         {
             eliminate(indexes, values);
-            assert(candidatesAreValid());
+            XCODE_COMPATIBLE_ASSERT(candidatesAreValid());
             return { Step::ELIMINATE, indexes, values, Step::HIDDEN_QUAD, reason };
         }
     }
@@ -178,7 +184,7 @@ Analyzer::Step Analyzer::next()
         if (xWing.exists(indexes, values, reason))
         {
             eliminate(indexes, values);
-            assert(candidatesAreValid());
+            XCODE_COMPATIBLE_ASSERT(candidatesAreValid());
             return { Step::ELIMINATE, indexes, values, Step::X_WING, reason };
         }
     }
@@ -188,7 +194,7 @@ Analyzer::Step Analyzer::next()
         if (yWing.exists(indexes, values, reason))
         {
             eliminate(indexes, values);
-            assert(candidatesAreValid());
+            XCODE_COMPATIBLE_ASSERT(candidatesAreValid());
             return { Step::ELIMINATE, indexes, values, Step::Y_WING, reason };
         }
     }
@@ -198,7 +204,7 @@ Analyzer::Step Analyzer::next()
         if (simpleColoring.exists(indexes, values, reason))
         {
             eliminate(indexes, values);
-            assert(candidatesAreValid());
+            XCODE_COMPATIBLE_ASSERT(candidatesAreValid());
             return { Step::ELIMINATE, indexes, values, Step::SIMPLE_COLORING, reason };
         }
     }
@@ -305,7 +311,7 @@ void Analyzer::eliminate(std::vector<int> const & indexes, int x)
     for (int i : indexes)
     {
         candidates_[i] &= ~Candidates::fromValue(x);
-        assert(candidates_[i] != 0);
+        XCODE_COMPATIBLE_ASSERT(candidates_[i] != 0);
     }
 }
 
@@ -322,7 +328,7 @@ bool Analyzer::candidatesAreValid()
 {
     return Board::ForEach::cell([&] (int i) {
         int v = solvedBoard_.get(i);
-        assert(v != Board::EMPTY); // Sanity check
+        XCODE_COMPATIBLE_ASSERT(v != Board::EMPTY); // Sanity check
         return (Candidates::fromValue(v) & candidates_[i]) != 0;
     });
 }
@@ -347,6 +353,6 @@ const char * Analyzer::Step::techniqueName(Analyzer::Step::TechniqueId technique
         "y-wing",
         "simple coloring"
     };
-    assert((size_t)technique >= 0 && (size_t)technique < sizeof(NAMES) / sizeof(*NAMES));
+    XCODE_COMPATIBLE_ASSERT((size_t)technique >= 0 && (size_t)technique < sizeof(NAMES) / sizeof(*NAMES));
     return NAMES[technique];
 }

@@ -30,4 +30,7 @@ public:
     {
         return 1 << v;
     }
+    
+    // Finds all unsolved cells with v as a candidate
+    static std::vector<int> findAll(List const & candidates, int v);
 };
