@@ -1,4 +1,4 @@
-#include "YWing.h"
+#include "XYWing.h"
 
 #include "Candidates.h"
 #include "Link.h"
@@ -9,7 +9,7 @@
 #include <string>
 #include <vector>
 
-bool YWing::exists(std::vector<int> & indexes, std::vector<int> & values, std::string & reason)
+bool XYWing::exists(std::vector<int> & indexes, std::vector<int> & values, std::string & reason)
 {
     // If a cell has a strong link of value A in a cell with only two candidates (A,C), and a strong link
     // of a value B in another cell with two candidates (B,C), and the other candidate in those two
@@ -73,7 +73,7 @@ bool YWing::exists(std::vector<int> & indexes, std::vector<int> & values, std::s
     return found;
 }
 
-std::string YWing::generateReason(std::vector<int> const & pivots, std::vector<int> const & values)
+std::string XYWing::generateReason(std::vector<int> const & pivots, std::vector<int> const & values)
 {
     std::string reason = "If square " +
                          Board::Cell::name(pivots[0]) +

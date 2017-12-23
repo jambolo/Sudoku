@@ -7,7 +7,7 @@
 #include "Naked.h"
 #include "SimpleColoring.h"
 #include "XWing.h"
-#include "YWing.h"
+#include "XYWing.h"
 
 #include "Board/Board.h"
 #if defined(_DEBUG)
@@ -190,12 +190,12 @@ Analyzer::Step Analyzer::next()
     }
 
     {
-        YWing yWing(candidates_);
+        XYWing yWing(candidates_);
         if (yWing.exists(indexes, values, reason))
         {
             eliminate(indexes, values);
             XCODE_COMPATIBLE_ASSERT(candidatesAreValid());
-            return { Step::ELIMINATE, indexes, values, Step::Y_WING, reason };
+            return { Step::ELIMINATE, indexes, values, Step::XY_WING, reason };
         }
     }
 
@@ -350,7 +350,7 @@ const char * Analyzer::Step::techniqueName(Analyzer::Step::TechniqueId technique
         "naked quad",
         "locked candidates",
         "x-wing",
-        "y-wing",
+        "xy-wing",
         "simple coloring"
     };
     XCODE_COMPATIBLE_ASSERT((size_t)technique >= 0 && (size_t)technique < sizeof(NAMES) / sizeof(*NAMES));

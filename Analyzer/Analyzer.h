@@ -25,7 +25,7 @@ public:
             NAKED_QUAD,
             LOCKED_CANDIDATES,
             X_WING,
-            Y_WING,
+            XY_WING,
             SIMPLE_COLORING
         };
 

@@ -17,8 +17,8 @@ set(SOURCES
     SimpleColoring.h
     XWing.cpp
     XWing.h
-    YWing.cpp
-    YWing.h
+    XYWing.cpp
+    XYWing.h
 )
 
 set(INTERFACE_INCLUDE_PATHS

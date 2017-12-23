@@ -5,12 +5,12 @@
 #include <string>
 #include <vector>
 
-class YWing
+class XYWing
 {
 public:
-    YWing(Candidates::List const & candidates) : candidates_(candidates) {}
+    XYWing(Candidates::List const & candidates) : candidates_(candidates) {}
 
-    // Returns true if a y-wing exists
+    // Returns true if a xy-wing exists
     bool exists(std::vector<int> & indexes, std::vector<int> & values, std::string & reason);
 
 private:
