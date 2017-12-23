@@ -48,8 +48,8 @@ bool XWing::findRow(int                      r0,
     Link::Strong::List links = Link::Strong::find(candidates_, row);
     for (auto link : links)
     {
-        int c0 = link.u0;
-        int c1 = link.u1;
+        int c0 = Board::Group::whichColumn(link.i0);
+        int c1 = Board::Group::whichColumn(link.i1);
         int v  = link.value;
         Candidates::Type mask = Candidates::fromValue(v);
 
@@ -99,8 +99,8 @@ bool XWing::findColumn(int                      c0,
     Link::Strong::List links = Link::Strong::find(candidates_, column);
     for (auto link : links)
     {
-        int r0 = link.u0;
-        int r1 = link.u1;
+        int r0 = Board::Group::whichRow(link.i0);
+        int r1 = Board::Group::whichRow(link.i1);
         int v  = link.value;
         Candidates::Type mask = Candidates::fromValue(v);
 

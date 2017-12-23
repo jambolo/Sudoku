@@ -8,26 +8,26 @@
 
 using namespace Link;
 
-std::vector<Strong> Strong::find(Candidates::List const & candidates, int i)
+Strong::List Strong::find(Candidates::List const & candidates, int i)
 {
     List links;
 
     std::vector<int> row = Board::Group::row(Board::Group::whichRow(i));
-    List rowLinks        = find(candidates, Board::Group::offsetInRow(i), row);
+    List rowLinks        = find(candidates, i, row);
     links.insert(links.end(), rowLinks.begin(), rowLinks.end());
 
     std::vector<int> column = Board::Group::column(Board::Group::whichColumn(i));
-    List columnLinks        = find(candidates, Board::Group::offsetInColumn(i), column);
+    List columnLinks        = find(candidates, i, column);
     links.insert(links.end(), columnLinks.begin(), columnLinks.end());
 
     std::vector<int> box = Board::Group::box(Board::Group::whichBox(i));
-    List boxLinks        = find(candidates, Board::Group::offsetInBox(i), box);
+    List boxLinks        = find(candidates, i, box);
     links.insert(links.end(), boxLinks.begin(), boxLinks.end());
 
     return links;
 }
 
-std::vector<Strong> Strong::find(Candidates::List const & candidates, std::vector<int> const & group)
+Strong::List Strong::find(Candidates::List const & candidates, std::vector<int> const & group)
 {
     List links;
 
@@ -41,7 +41,7 @@ std::vector<Strong> Strong::find(Candidates::List const & candidates, std::vecto
         if (Candidates::solved(candidates0))
             continue;
 
-        // Ignore cells with only already-tested candidate
+        // Ignore cells with only already-tested candidates
         candidates0 &= ~alreadyTested;
         if (!candidates0)
             continue;
@@ -56,8 +56,8 @@ std::vector<Strong> Strong::find(Candidates::List const & candidates, std::vecto
                 if ((candidates[i0] & candidates[i1] & mask))
                 {
                     if (existsIncremental(candidates, u0, u1, mask, group))
-                        links.emplace_back(Strong { u0, i0, u1, i1, v });
-                    break;
+                        links.emplace_back(Strong { v, i0, i1 });
+                    break; // These share a candidate, so more strong links for this value whether this is a strong link or not
                 }
             }
         }
@@ -66,23 +66,20 @@ std::vector<Strong> Strong::find(Candidates::List const & candidates, std::vecto
     return links;
 }
 
-std::vector<Strong> Strong::find(Candidates::List const & candidates, int u0, std::vector<int> const & group)
+Strong::List Strong::find(Candidates::List const & candidates, int i0, std::vector<int> const & group)
 {
-    int i0 = group[u0];
-    std::vector<Strong> links;
+    List links;
     std::vector<int> values = Candidates::values(candidates[i0]);
     for (int v : values)
     {
         Candidates::Type mask = Candidates::fromValue(v);
-        for (int u1 = 0; u1 < Board::SIZE; ++u1)
-        {
-            int i1 = group[u1];
-            if (i1 != i0)
+        Board::ForEach::indexExcept(group, i0, [&] (int i1) {
+            if (exists(candidates, i0, i1, mask, group))
             {
-                if (exists(candidates, i0, i1, mask, group))
-                    links.emplace_back(Strong { u0, i0, u1, i1, v });
+                links.emplace_back(Strong { v, i0, i1 });
+                return; // Only one strong link can exist in a group for any candidate
             }
-        }
+        });
     }
     return links;
 }

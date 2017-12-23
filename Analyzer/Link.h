@@ -5,15 +5,14 @@
 
 namespace Link
 {
+
 struct Strong
 {
     using List = std::vector<Strong>;
 
-    int u0;
-    int i0;
-    int u1;
-    int i1;
     int value;
+    int i0;
+    int i1;
 
     // Returns all strong links to cell i
     static List find(Candidates::List const & candidates, int i);
@@ -45,4 +44,5 @@ struct Weak
     std::vector<int> indexes;
     int value;
 };
+
 } // namespace Link
