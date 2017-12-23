@@ -18,7 +18,7 @@ private:
               std::vector<int> const & indexes2,
               std::vector<int> &       eliminatedIndexes,
               std::vector<int> &       eliminatedValues);
-    static std::string generateReason(std::string const & unit1, char which1, std::string const & unit2, char which2);
+    static std::string generateReason(std::string const & group1, char which1, std::string const & group2, char which2);
 
     // Returns all unsolved candidates in the cells specified by the indexes
     Candidates::Type allCandidates(std::vector<int> const & indexes);

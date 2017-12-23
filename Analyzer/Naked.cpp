@@ -21,7 +21,7 @@ bool Naked::singleExists(std::vector<int> & indexes, std::vector<int> & values, 
 
 bool Naked::pairExists(std::vector<int> & indexes, std::vector<int> & values, std::string & reason)
 {
-    // For each exclusive pair in a unit, if there are other candidates that overlap, then success.
+    // For each exclusive pair in a group, if there are other candidates that overlap, then success.
 
     bool found;
     int which;
@@ -37,7 +37,7 @@ bool Naked::pairExists(std::vector<int> & indexes, std::vector<int> & values, st
     });
     if (found)
     {
-        reason = pairReason("row", Board::Unit::rowName(which), nakedIndexes);
+        reason = pairReason("row", Board::Group::rowName(which), nakedIndexes);
         return true;
     }
 
@@ -51,7 +51,7 @@ bool Naked::pairExists(std::vector<int> & indexes, std::vector<int> & values, st
     });
     if (found)
     {
-        reason = pairReason("column", Board::Unit::columnName(which), nakedIndexes);
+        reason = pairReason("column", Board::Group::columnName(which), nakedIndexes);
         return true;
     }
 
@@ -65,7 +65,7 @@ bool Naked::pairExists(std::vector<int> & indexes, std::vector<int> & values, st
     });
     if (found)
     {
-        reason = pairReason("box", Board::Unit::boxName(which), nakedIndexes);
+        reason = pairReason("box", Board::Group::boxName(which), nakedIndexes);
         return true;
     }
 
@@ -76,7 +76,7 @@ bool Naked::tripleExists(std::vector<int> & indexes,
                          std::vector<int> & values,
                          std::string &      reason)
 {
-    // For each exclusive triple in a unit, if there are other candidates that overlap, then success.
+    // For each exclusive triple in a group, if there are other candidates that overlap, then success.
 
     bool found;
     int which;
@@ -92,7 +92,7 @@ bool Naked::tripleExists(std::vector<int> & indexes,
     });
     if (found)
     {
-        reason = tripleReason("row", Board::Unit::rowName(which), nakedIndexes);
+        reason = tripleReason("row", Board::Group::rowName(which), nakedIndexes);
         return true;
     }
 
@@ -106,7 +106,7 @@ bool Naked::tripleExists(std::vector<int> & indexes,
     });
     if (found)
     {
-        reason = tripleReason("column", Board::Unit::columnName(which), nakedIndexes);
+        reason = tripleReason("column", Board::Group::columnName(which), nakedIndexes);
         return true;
     }
 
@@ -120,7 +120,7 @@ bool Naked::tripleExists(std::vector<int> & indexes,
     });
     if (found)
     {
-        reason = tripleReason("box", Board::Unit::boxName(which), nakedIndexes);
+        reason = tripleReason("box", Board::Group::boxName(which), nakedIndexes);
         return true;
     }
 
@@ -129,7 +129,7 @@ bool Naked::tripleExists(std::vector<int> & indexes,
 
 bool Naked::quadExists(std::vector<int> & indexes, std::vector<int> & values, std::string & reason)
 {
-    // For each exclusive quad in a unit, if there are other candidates that overlap, then success.
+    // For each exclusive quad in a group, if there are other candidates that overlap, then success.
 
     bool found;
     int which;
@@ -145,7 +145,7 @@ bool Naked::quadExists(std::vector<int> & indexes, std::vector<int> & values, st
     });
     if (found)
     {
-        reason = quadReason("row", Board::Unit::rowName(which), nakedIndexes);
+        reason = quadReason("row", Board::Group::rowName(which), nakedIndexes);
         return true;
     }
 
@@ -159,7 +159,7 @@ bool Naked::quadExists(std::vector<int> & indexes, std::vector<int> & values, st
     });
     if (found)
     {
-        reason = quadReason("column", Board::Unit::columnName(which), nakedIndexes);
+        reason = quadReason("column", Board::Group::columnName(which), nakedIndexes);
         return true;
     }
 
@@ -173,7 +173,7 @@ bool Naked::quadExists(std::vector<int> & indexes, std::vector<int> & values, st
     });
     if (found)
     {
-        reason = quadReason("box", Board::Unit::boxName(which), nakedIndexes);
+        reason = quadReason("box", Board::Group::boxName(which), nakedIndexes);
         return true;
     }
 
@@ -335,21 +335,21 @@ bool Naked::quad(std::vector<int> const & indexes,
     return false;
 }
 
-std::string Naked::pairReason(std::string const & unit, char which, std::vector<int> const & indexes)
+std::string Naked::pairReason(std::string const & group, char which, std::vector<int> const & indexes)
 {
     std::string reason = "Two other squares (" +
                          Board::Cell::name(indexes[0]) +
                          " and " +
                          Board::Cell::name(indexes[1]) +
                          ") in " +
-                         unit +
+                         group +
                          " " +
                          which +
                          " must be one of these two values, so these squares cannot be either of these two values.";
     return reason;
 }
 
-std::string Naked::tripleReason(std::string const & unit, char which, std::vector<int> const & indexes)
+std::string Naked::tripleReason(std::string const & group, char which, std::vector<int> const & indexes)
 {
     std::string reason = std::string("Three other squares (") +
                          Board::Cell::name(indexes[0]) +
@@ -358,12 +358,12 @@ std::string Naked::tripleReason(std::string const & unit, char which, std::vecto
                          " and " +
                          Board::Cell::name(indexes[2]) +
                          ") in " +
-                         unit + " " + which +
+                         group + " " + which +
                          " must be one of these three values, so these squares cannot be any of these three values.";
     return reason;
 }
 
-std::string Naked::quadReason(std::string const & unit, char which, std::vector<int> const & indexes)
+std::string Naked::quadReason(std::string const & group, char which, std::vector<int> const & indexes)
 {
     std::string reason = "Four other squares (" +
                          Board::Cell::name(indexes[0]) +
@@ -374,7 +374,7 @@ std::string Naked::quadReason(std::string const & unit, char which, std::vector<
                          " and " +
                          Board::Cell::name(indexes[3]) +
                          ") in " +
-                         unit +
+                         group +
                          " " +
                          which +
                          " must be one of these four values, so these squares cannot be any of these four values.";

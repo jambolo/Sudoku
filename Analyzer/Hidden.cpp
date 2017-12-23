@@ -25,7 +25,7 @@ bool Hidden::singleExists(std::vector<int> & indexes, std::vector<int> & values,
     if (found)
     {
         reason = std::string("This is the only square in row ") +
-                 Board::Unit::rowName(which) +
+                 Board::Group::rowName(which) +
                  " that can have this value.";
         return true;
     }
@@ -44,7 +44,7 @@ bool Hidden::singleExists(std::vector<int> & indexes, std::vector<int> & values,
     if (found)
     {
         reason = std::string("This is the only square in column ") +
-                 Board::Unit::columnName(which) +
+                 Board::Group::columnName(which) +
                  " that can have this value.";
         return true;
     }
@@ -63,7 +63,7 @@ bool Hidden::singleExists(std::vector<int> & indexes, std::vector<int> & values,
     if (found)
     {
         reason = std::string("This is the only square in box ") +
-                 Board::Unit::boxName(which) +
+                 Board::Group::boxName(which) +
                  " that can have this value.";
         return true;
     }
@@ -95,9 +95,9 @@ bool Hidden::single(std::vector<int> const & indexes, std::vector<int> & elimina
     return false;
 }
 
-static std::string generateHiddenPairReason(std::string const & unitType, char which, std::vector<int> const & hiddenValues)
+static std::string generateHiddenPairReason(std::string const & groupType, char which, std::vector<int> const & hiddenValues)
 {
-    std::string reason = "Only these two squares in " + unitType + " " + which +
+    std::string reason = "Only these two squares in " + groupType + " " + which +
                          " can be " + std::to_string(hiddenValues[0]) +
                          " or " + std::to_string(hiddenValues[1]) +
                          ", so they cannot be any other values.";
@@ -106,7 +106,7 @@ static std::string generateHiddenPairReason(std::string const & unitType, char w
 
 bool Hidden::pairExists(std::vector<int> & indexes, std::vector<int> & values, std::string & reason)
 {
-    // For each exclusive pair in a unit, if they have additional candidates_, then success.
+    // For each exclusive pair in a group, if they have additional candidates_, then success.
 
     bool found;
     int which;
@@ -125,7 +125,7 @@ bool Hidden::pairExists(std::vector<int> & indexes, std::vector<int> & values, s
     });
     if (found)
     {
-        reason = generateHiddenPairReason("row", Board::Unit::rowName(which), hidden);
+        reason = generateHiddenPairReason("row", Board::Group::rowName(which), hidden);
         return true;
     }
 
@@ -142,7 +142,7 @@ bool Hidden::pairExists(std::vector<int> & indexes, std::vector<int> & values, s
     });
     if (found)
     {
-        reason = generateHiddenPairReason("column", Board::Unit::columnName(which), hidden);
+        reason = generateHiddenPairReason("column", Board::Group::columnName(which), hidden);
         return true;
     }
 
@@ -159,7 +159,7 @@ bool Hidden::pairExists(std::vector<int> & indexes, std::vector<int> & values, s
     });
     if (found)
     {
-        reason = generateHiddenPairReason("box", Board::Unit::boxName(which), hidden);
+        reason = generateHiddenPairReason("box", Board::Group::boxName(which), hidden);
         return true;
     }
 
@@ -221,9 +221,9 @@ bool Hidden::pair(std::vector<int> const & indexes,
     return false;
 }
 
-static std::string generateHiddenTripleReason(std::string const & unitType, char which, std::vector<int> const & hiddenValues)
+static std::string generateHiddenTripleReason(std::string const & groupType, char which, std::vector<int> const & hiddenValues)
 {
-    std::string reason = "Only these three squares in " + unitType + " " + which +
+    std::string reason = "Only these three squares in " + groupType + " " + which +
                          " can be " + std::to_string(hiddenValues[0]) +
                          ", " + std::to_string(hiddenValues[1]) +
                          ", or " + std::to_string(hiddenValues[2]) +
@@ -233,7 +233,7 @@ static std::string generateHiddenTripleReason(std::string const & unitType, char
 
 bool Hidden::tripleExists(std::vector<int> & indexes, std::vector<int> & values, std::string & reason)
 {
-    // For each exclusive triple in a unit, if they have additional candidates_, then success.
+    // For each exclusive triple in a group, if they have additional candidates_, then success.
 
     bool found;
     int which;
@@ -252,7 +252,7 @@ bool Hidden::tripleExists(std::vector<int> & indexes, std::vector<int> & values,
     });
     if (found)
     {
-        reason = generateHiddenTripleReason("row", Board::Unit::rowName(which), hidden);
+        reason = generateHiddenTripleReason("row", Board::Group::rowName(which), hidden);
         return true;
     }
 
@@ -269,7 +269,7 @@ bool Hidden::tripleExists(std::vector<int> & indexes, std::vector<int> & values,
     });
     if (found)
     {
-        reason = generateHiddenTripleReason("column", Board::Unit::columnName(which), hidden);
+        reason = generateHiddenTripleReason("column", Board::Group::columnName(which), hidden);
         return true;
     }
 
@@ -286,7 +286,7 @@ bool Hidden::tripleExists(std::vector<int> & indexes, std::vector<int> & values,
     });
     if (found)
     {
-        reason = generateHiddenTripleReason("box", Board::Unit::boxName(which), hidden);
+        reason = generateHiddenTripleReason("box", Board::Group::boxName(which), hidden);
         return true;
     }
 
@@ -357,9 +357,9 @@ bool Hidden::triple(std::vector<int> const & indexes,
     return false;
 }
 
-static std::string generateHiddenQuadReason(std::string const & unitType, char which, std::vector<int> const & hiddenValues)
+static std::string generateHiddenQuadReason(std::string const & groupType, char which, std::vector<int> const & hiddenValues)
 {
-    std::string reason = "Only these four squares in " + unitType + " " + which +
+    std::string reason = "Only these four squares in " + groupType + " " + which +
                          " can be " + std::to_string(hiddenValues[0]) +
                          ", " + std::to_string(hiddenValues[1]) +
                          ", " + std::to_string(hiddenValues[2]) +
@@ -370,7 +370,7 @@ static std::string generateHiddenQuadReason(std::string const & unitType, char w
 
 bool Hidden::quadExists(std::vector<int> & indexes, std::vector<int> & values, std::string & reason)
 {
-    // For each exclusive quad in a unit, if they have additional candidates_, then success.
+    // For each exclusive quad in a group, if they have additional candidates_, then success.
 
     bool found;
     int which;
@@ -389,7 +389,7 @@ bool Hidden::quadExists(std::vector<int> & indexes, std::vector<int> & values, s
     });
     if (found)
     {
-        reason = generateHiddenQuadReason("row", Board::Unit::rowName(which), hidden);
+        reason = generateHiddenQuadReason("row", Board::Group::rowName(which), hidden);
         return true;
     }
 
@@ -406,7 +406,7 @@ bool Hidden::quadExists(std::vector<int> & indexes, std::vector<int> & values, s
     });
     if (found)
     {
-        reason = generateHiddenQuadReason("column", Board::Unit::columnName(which), hidden);
+        reason = generateHiddenQuadReason("column", Board::Group::columnName(which), hidden);
         return true;
     }
 
@@ -423,7 +423,7 @@ bool Hidden::quadExists(std::vector<int> & indexes, std::vector<int> & values, s
     });
     if (found)
     {
-        reason = generateHiddenQuadReason("box", Board::Unit::boxName(which), hidden);
+        reason = generateHiddenQuadReason("box", Board::Group::boxName(which), hidden);
         return true;
     }
 

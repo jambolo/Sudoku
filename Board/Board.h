@@ -7,7 +7,7 @@ class Board
 {
 public:
     class ForEach;
-    class Unit;
+    class Group;
     class Cell;
 
     Board();
@@ -59,7 +59,7 @@ public:
     void draw() const;
 
 private:
-    bool        consistent(std::vector<int> const & unit) const;
+    bool        consistent(std::vector<int> const & group) const;
     bool        boxIsConsistent(int b) const;
     bool        columnIsConsistent(int c) const;
     bool        rowIsConsistent(int r) const;
@@ -170,7 +170,7 @@ public:
     static std::string name(int r, int c);
 };
 
-class Board::Unit
+class Board::Group
 {
 public:
     // Returns the indexes for the given row

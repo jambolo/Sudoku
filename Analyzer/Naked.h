@@ -37,9 +37,9 @@ private:
               std::vector<int> &       eliminatedValues,
               std::vector<int> &       nakedIndexes);
 
-    static std::string pairReason(std::string const & unit, char which, std::vector<int> const & indexes);
-    static std::string tripleReason(std::string const & unit, char which, std::vector<int> const & indexes);
-    static std::string quadReason(std::string const & unit, char which, std::vector<int> const & indexes);
+    static std::string pairReason(std::string const & group, char which, std::vector<int> const & indexes);
+    static std::string tripleReason(std::string const & group, char which, std::vector<int> const & indexes);
+    static std::string quadReason(std::string const & group, char which, std::vector<int> const & indexes);
 
     Board const & board_;
     Candidates::List const & candidates_;

@@ -242,7 +242,7 @@ void Analyzer::drawCandidates() const
         }
         printf("\n");
 
-        printf("%c |", Board::Unit::rowName(r));
+        printf("%c |", Board::Group::rowName(r));
         for (int c = 0; c < Board::SIZE; ++c)
         {
             Candidates::Type candidates = candidates_[Board::Cell::indexOf(r, c)];

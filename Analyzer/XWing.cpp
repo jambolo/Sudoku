@@ -55,7 +55,7 @@ bool XWing::findRow(int                      r0,
 
         for (int r1 = r0 + 1; r1 < Board::SIZE; ++r1)
         {
-            std::vector<int> otherRow = Board::Unit::row(r1);
+            std::vector<int> otherRow = Board::Group::row(r1);
             int other0 = otherRow[c0];
             int other1 = otherRow[c1];
 
@@ -66,7 +66,7 @@ bool XWing::findRow(int                      r0,
                 // Look for other cells in these two columns with the value as a candidate
                 for (int c : { c0, c1 })
                 {
-                    std::vector<int> column = Board::Unit::column(c);
+                    std::vector<int> column = Board::Group::column(c);
                     Board::ForEach::indexExcept(column, column[r0], column[r1], [&](int i) {
                         if (mask & candidates_[i])
                             eliminatedIndexes.push_back(i);
@@ -106,7 +106,7 @@ bool XWing::findColumn(int                      c0,
 
         for (int c1 = c0 + 1; c1 < Board::SIZE; ++c1)
         {
-            std::vector<int> otherColumn = Board::Unit::column(c1);
+            std::vector<int> otherColumn = Board::Group::column(c1);
             int other0 = otherColumn[r0];
             int other1 = otherColumn[r1];
 
@@ -117,7 +117,7 @@ bool XWing::findColumn(int                      c0,
                 // Look for other cells in these two rows with the value as a candidate
                 for (int r : { r0, r1 })
                 {
-                    std::vector<int> row = Board::Unit::row(r);
+                    std::vector<int> row = Board::Group::row(r);
                     Board::ForEach::indexExcept(row, row[c0], row[c1], [&](int i) {
                         if (mask & candidates_[i])
                             eliminatedIndexes.push_back(i);
@@ -154,19 +154,19 @@ std::string XWing::rowReason(int value, std::vector<int> const & pivots)
                          " and " +
                          Board::Cell::name(pivots[1]) +
                          " in row " +
-                         Board::Unit::rowName(r0) +
+                         Board::Group::rowName(r0) +
                          " and only " +
                          Board::Cell::name(pivots[2]) +
                          " and " +
                          Board::Cell::name(pivots[3]) +
                          " in row " +
-                         Board::Unit::rowName(r3) +
+                         Board::Group::rowName(r3) +
                          " can have the value " +
                          std::to_string(value) +
                          ". These squares are in the same two columns, " +
-                         Board::Unit::columnName(c0) +
+                         Board::Group::columnName(c0) +
                          " and " +
-                         Board::Unit::columnName(c3) +
+                         Board::Group::columnName(c3) +
                          ", so one of the squares in each column must have this value and none of the other squares"
                          " in these columns can.";
     return reason;
@@ -185,19 +185,19 @@ std::string XWing::columnReason(int value, std::vector<int> const & pivots)
                          " and " +
                          Board::Cell::name(pivots[1]) +
                          " in column " +
-                         Board::Unit::columnName(c0) +
+                         Board::Group::columnName(c0) +
                          " and only " +
                          Board::Cell::name(pivots[2]) +
                          " and " +
                          Board::Cell::name(pivots[3]) +
                          " in column " +
-                         Board::Unit::columnName(c3) +
+                         Board::Group::columnName(c3) +
                          " can have the value " +
                          std::to_string(value) +
                          ". These squares are in the same two rows, " +
-                         Board::Unit::rowName(r0) +
+                         Board::Group::rowName(r0) +
                          " and " +
-                         Board::Unit::rowName(r3) +
+                         Board::Group::rowName(r3) +
                          ". One of the squares in each row must have this value and so none of the other squares in"
                          " these rows can.";
     return reason;
