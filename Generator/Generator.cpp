@@ -10,7 +10,7 @@
 Board Generator::generate(int difficulty /* = 0*/)
 {
     if (difficulty <= 0)
-        difficulty = Board::SIZE * Board::SIZE;
+        difficulty = Board::NUM_CELLS;
 
     // Generate a random solved board
     Board board;
@@ -58,7 +58,7 @@ bool Generator::attempt(Board & board, int r /* = 0*/, int c /* = -1*/)
 
 std::vector<int> Generator::randomizedIndexes()
 {
-    std::vector<int> indexes(Board::SIZE * Board::SIZE);
+    std::vector<int> indexes(Board::NUM_CELLS);
     std::iota(indexes.begin(), indexes.end(), 0);
     std::random_shuffle(indexes.begin(), indexes.end());
     return indexes;

@@ -18,9 +18,10 @@ public:
     // Serializes the board as a string 0f '0'-'9' in row-major order
     void serialize(std::string & out) const;
 
-    static int constexpr SIZE     = 9;
-    static int constexpr BOX_SIZE = 3;
-    static int constexpr EMPTY    = 0;
+    static int constexpr SIZE      = 9;
+    static int constexpr BOX_SIZE  = 3;
+    static int constexpr EMPTY     = 0;
+    static int constexpr NUM_CELLS = SIZE * SIZE;
 
     // Sets the value of a cell (1 - 9, or EMPTY)
     void set(int r, int c, int x) { board_[r][c] = x; }

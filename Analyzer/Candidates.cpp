@@ -49,7 +49,7 @@ int Candidates::count(Candidates::Type candidates)
 std::vector<int> Candidates::findAll(List const & candidates, int v)
 {
     std::vector<int> found;
-    for (int i = 0; i < Board::SIZE * Board::SIZE; ++i)
+    for (int i = 0; i < Board::NUM_CELLS; ++i)
     {
         Type c = candidates[i];
         if (!solved(c) && (c & fromValue(v)))

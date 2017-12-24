@@ -26,7 +26,7 @@
 
 Analyzer::Analyzer(Board const & board)
     : board_(board)
-    , candidates_(Board::SIZE * Board::SIZE, Candidates::ALL)
+    , candidates_(Board::NUM_CELLS, Candidates::ALL)
 #if defined(_DEBUG)
     , solvedBoard_(board)
 #endif // defined(_DEBUG)
