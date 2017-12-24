@@ -3,10 +3,27 @@
 #include "Board/Board.h"
 #include "Candidates.h"
 
+#include <algorithm>
 #include <cassert>
 #include <vector>
 
 using namespace Link;
+
+// BUG: For some unknown reason, overloading operator < produces an error
+static inline bool less(Strong const & lhs, Strong const & rhs)
+{
+    if (lhs.value < rhs.value) return true;
+    if (rhs.value < lhs.value) return false;
+    if (lhs.i0 < rhs.i0) return true;
+    if (rhs.i0 < lhs.i0) return false;
+    return (lhs.i1 < rhs.i1);
+}
+
+// BUG: For some unknown reason, overloading operator == produces an error
+static inline bool equal(Strong const & lhs, Strong const & rhs)
+{
+    return (lhs.value == rhs.value) && (lhs.i0 == rhs.i0) && (lhs.i1 == rhs.i1);
+}
 
 Strong::List Strong::find(Candidates::List const & candidates, int i)
 {
@@ -23,6 +40,9 @@ Strong::List Strong::find(Candidates::List const & candidates, int i)
     std::vector<int> box = Board::Group::box(Board::Group::whichBox(i));
     List boxLinks        = find(candidates, i, box);
     links.insert(links.end(), boxLinks.begin(), boxLinks.end());
+
+    std::sort(links.begin(), links.end(), less);
+    links.erase(std::unique(links.begin(), links.end(), equal), links.end());
 
     return links;
 }
