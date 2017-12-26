@@ -31,6 +31,9 @@ bool XYWing::exists(std::vector<int> & indexes, std::vector<int> & values, std::
             return !Candidates::biValue(candidates_[link.i1]);
         }), links.end());
 
+        if (links.empty())
+            return true;
+
         for (Link::Weak::List::const_iterator link1 = links.begin(); link1 != std::prev(links.end()); ++link1)
         {
             int i1 = link1->i1;
@@ -45,7 +48,8 @@ bool XYWing::exists(std::vector<int> & indexes, std::vector<int> & values, std::
                     continue;
 
                 Candidates::Type candidates2 = candidates_[i2];
-                Candidates::Type candidates3 = (candidates1 & ~Candidates::fromValue(v1)) & (candidates2 & ~Candidates::fromValue(v2));
+                Candidates::Type candidates3 = (candidates1 & ~Candidates::fromValue(v1)) &
+                                               (candidates2 & ~Candidates::fromValue(v2));
                 if (candidates3)
                 {
                     assert(Candidates::count(candidates3) == 1);

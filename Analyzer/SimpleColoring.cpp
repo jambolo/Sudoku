@@ -18,6 +18,9 @@ bool SimpleColoring::exists(std::vector<int> & indexes, std::vector<int> & value
     // graph with the same inference as those two cells can have that candidate.
 
     return !Board::ForEach::cell([&] (int i) {
+        if (Candidates::solved(candidates_[i]))
+            return true;
+
         std::vector<int> cellCandidateValues = Candidates::values(candidates_[i]);
         for (int v : cellCandidateValues)
         {
@@ -45,7 +48,8 @@ bool SimpleColoring::exists(std::vector<int> & indexes, std::vector<int> & value
                 return false;
             }
 
-            // If any cell with a candidate v not in the chain can see both a red cell and a green cell, then the cell cannot have v as a candidate
+            // If any cell with a candidate v not in the chain can see both a red cell and a green cell, then the cell cannot have v
+            // as a candidate
             int other;
             std::vector<int> redDependents;
             std::vector<int> greenDependents;
@@ -63,7 +67,8 @@ bool SimpleColoring::exists(std::vector<int> & indexes, std::vector<int> & value
 
 std::string SimpleColoring::generateReason(int v, std::vector<int> const & collisions, std::set<int> const & eliminated)
 {
-    std::string reason = "These squares cannot have that value because if any of them it did, it would lead to a contradiction in which";
+    std::string reason =
+        "These squares cannot have that value because if any of them it did, it would lead to a contradiction in which";
     for (int i : collisions)
     {
         reason += " " + Board::Cell::name(i);
@@ -78,7 +83,7 @@ std::string SimpleColoring::generateReason(int v, int i, std::vector<int> const 
     combined.insert(combined.end(), red.begin(), red.end());
     combined.insert(combined.end(), green.begin(), green.end());
     std::sort(combined.begin(), combined.end());
-    
+
     std::string reason = Board::Cell::name(i) +
                          " cannot be " +
                          std::to_string(v) +
@@ -114,16 +119,16 @@ bool SimpleColoring::collisionsFound(std::set<int> const & indexes, std::vector<
     return false;
 }
 
-bool SimpleColoring::canSeeBoth(int v,
+bool SimpleColoring::canSeeBoth(int                   v,
                                 std::set<int> const & red,
                                 std::set<int> const & green,
-                                int & other,
-                                std::vector<int> & redDependents,
-                                std::vector<int> & greenDependents)
+                                int &                 other,
+                                std::vector<int> &    redDependents,
+                                std::vector<int> &    greenDependents)
 {
     if (!red.empty() && !green.empty())
     {
-        // Remove all cells in the chain from all cells with the candidate to get all cells with the candidate not in the chain
+        // Get all cells with the candidate not in the chain
         std::vector<int> others = Candidates::findAll(candidates_, v);
         {
             std::vector<int> temp;
@@ -135,27 +140,35 @@ bool SimpleColoring::canSeeBoth(int v,
             std::set_difference(others.begin(), others.end(), green.begin(), green.end(), std::back_inserter(temp));
             others = std::move(temp);
         }
-        
-        // If any cell not in the chain can see both a red cell and a green cell, then the candidate can be eliminated from that cell
+
+        // If any cell not in the chain can see both a red cell and a green cell, then the candidate can be eliminated from that
+        // cell
         if (!others.empty())
         {
             for (int o : others)
             {
                 std::vector<int> const & dependents = Board::Cell::dependents(o);
-                std::set_intersection(dependents.begin(), dependents.end(), red.begin(), red.end(), std::back_inserter(redDependents));
+                std::set_intersection(dependents.begin(),
+                                      dependents.end(),
+                                      red.begin(),
+                                      red.end(),
+                                      std::back_inserter(redDependents));
                 if (!redDependents.empty())
                 {
-                    std::set_intersection(dependents.begin(), dependents.end(), green.begin(), green.end(), std::back_inserter(greenDependents));
+                    std::set_intersection(dependents.begin(),
+                                          dependents.end(),
+                                          green.begin(),
+                                          green.end(),
+                                          std::back_inserter(greenDependents));
                     if (!greenDependents.empty())
                     {
                         other = o;
                         return true;
                     }
+                    redDependents.clear();
                 }
-                
             }
         }
     }
     return false;
 }
-
