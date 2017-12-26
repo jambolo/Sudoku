@@ -16,6 +16,12 @@ public:
         return (candidates & (candidates - 1)) == 0;
     }
 
+    // Returns true if there are exactly two candidates
+    static bool biValue(Type candidates)
+    {
+        return count(candidates) == 2;
+    }
+
     // Returns the value of the only candidate
     static int value(Type candidates);
 
@@ -30,7 +36,7 @@ public:
     {
         return 1 << v;
     }
-    
+
     // Finds all unsolved cells with v as a candidate
     static std::vector<int> findAll(List const & candidates, int v);
 };

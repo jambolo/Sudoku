@@ -5,62 +5,65 @@
 
 #include "Board/Board.h"
 
+#include <algorithm>
 #include <cassert>
 #include <string>
 #include <vector>
 
 bool XYWing::exists(std::vector<int> & indexes, std::vector<int> & values, std::string & reason)
 {
-    // If a cell has a strong link of value A in a cell with only two candidates (A,C), and a strong link
-    // of a value B in another cell with two candidates (B,C), and the other candidate in those two
-    // cells are the value C, then any cells that can see both of those cells cannot have the value C
-    // because one of those two cells, (A,C) or (B,C), must have the value C.
+    // If a cell has exactly two candidates (v1,v2), and can see one cell with exactly two candidates (v1,v3) and another cell with
+    // exactly two candidates (v2,v3), then all cells that can see both of those two cells cannot have the candidate v3.
 
     std::vector<int> pivots;
     std::vector<int> pivotValues;
 
-    bool found = !Board::ForEach::cell([&](int i) {
-        // Get all the strong links for this cell
-        Link::Strong::List links = Link::Strong::find(candidates_, i);
+    bool found = !Board::ForEach::cell([&] (int i0) {
+        Candidates::Type candidates0 = candidates_[i0];
 
-        if (!links.empty())
+        if (!Candidates::biValue(candidates_[i0]))
+            return true;
+
+        Link::Weak::List links = Link::Weak::find(candidates_, i0);
+
+        // Remove all links to cells that do not have exactly two candidates
+        links.erase(std::remove_if(links.begin(), links.end(), [&] (Link::Weak const & link) {
+            return !Candidates::biValue(candidates_[link.i1]);
+        }), links.end());
+
+        for (Link::Weak::List::const_iterator link1 = links.begin(); link1 != std::prev(links.end()); ++link1)
         {
-            int i0 = i;
-            for (Link::Strong::List::const_iterator link1 = links.begin(); link1 != std::prev(links.end()); ++link1)
+            int i1 = link1->i1;
+            int v1 = link1->value;
+            Candidates::Type candidates1 = candidates_[i1];
+
+            for (Link::Weak::List::const_iterator link2 = std::next(link1); link2 != links.end(); ++link2)
             {
-                int i1 = link1->i1;
-                int v1 = link1->value;
-                if (Candidates::count(candidates_[i1]) == 2)
+                int i2 = link2->i1;
+                int v2 = link2->value;
+                if (i1 == i2 || v1 == v2)
+                    continue;
+
+                Candidates::Type candidates2 = candidates_[i2];
+                Candidates::Type candidates3 = (candidates1 & ~Candidates::fromValue(v1)) & (candidates2 & ~Candidates::fromValue(v2));
+                if (candidates3)
                 {
-                    for (Link::Strong::List::const_iterator link2 = std::next(link1); link2 != links.end(); ++link2)
+                    assert(Candidates::count(candidates3) == 1);
+                    // A Y-wing has been found. The candidate v3 can be removed from all cells that can
+                    // see both i1 and i2.
+                    int v3 = Candidates::value(candidates3);
+                    std::vector<int> seen = Board::Cell::dependents(i1, i2);
+                    for (int s : seen)
                     {
-                        int i2 = link2->i1;
-                        int v2 = link2->value;
-                        if (i1 != i2 && v1 != v2 && Candidates::count(candidates_[i2]) == 2)
-                        {
-                            Candidates::Type mask3 = (candidates_[i1] & ~Candidates::fromValue(v1)) &
-                                                     (candidates_[i2] & ~Candidates::fromValue(v2));
-                            if (mask3)
-                            {
-                                assert(Candidates::count(mask3) == 1);
-                                // A Y-wing has been found. The candidate v3 can be removed from all cells that can
-                                // see both i1 and i2.
-                                int v3 = Candidates::value(mask3);
-                                std::vector<int> seen = Board::Cell::dependents(i1, i2);
-                                for (int s : seen)
-                                {
-                                    if (candidates_[s] & mask3)
-                                        indexes.push_back(s);
-                                }
-                                if (!indexes.empty())
-                                {
-                                    values.push_back(v3);
-                                    pivots = { i0, i1, i2 };
-                                    pivotValues = { v1, v2, v3 };
-                                    return false;
-                                }
-                            }
-                        }
+                        if (candidates_[s] & candidates3)
+                            indexes.push_back(s);
+                    }
+                    if (!indexes.empty())
+                    {
+                        values.push_back(v3);
+                        pivots = { i0, i1, i2 };
+                        pivotValues = { v1, v2, v3 };
+                        return false;
                     }
                 }
             }
@@ -69,30 +72,39 @@ bool XYWing::exists(std::vector<int> & indexes, std::vector<int> & values, std::
     });
 
     if (found)
-        reason = generateReason(pivots, pivotValues);
+        reason = generateReason(pivots, pivotValues, indexes);
     return found;
 }
 
-std::string XYWing::generateReason(std::vector<int> const & pivots, std::vector<int> const & values)
+std::string XYWing::generateReason(std::vector<int> const & pivots,
+                                   std::vector<int> const & values,
+                                   std::vector<int> const & eliminated)
 {
-    std::string reason = "If square " +
-                         Board::Cell::name(pivots[0]) +
-                         " is " +
-                         std::to_string(values[0]) +
-                         ", then square " +
-                         Board::Cell::name(pivots[1]) +
-                         " must be " +
-                         std::to_string(values[2]) +
-                         ", or if square " +
-                         Board::Cell::name(pivots[0]) +
-                         " is " +
-                         std::to_string(values[1]) +
-                         " then square " +
-                         Board::Cell::name(pivots[2]) +
-                         " must be " +
-                         std::to_string(values[2]) +
-                         ". Either way, none of these squares can be " +
-                         std::to_string(values[2]) +
-                         ".";
+    std::string reason;
+    reason = "If square " +
+             Board::Cell::name(pivots[0]) +
+             " is " +
+             std::to_string(values[0]) +
+             ", then square " +
+             Board::Cell::name(pivots[1]) +
+             " must be " +
+             std::to_string(values[2]) +
+             ", or if square " +
+             Board::Cell::name(pivots[0]) +
+             " is " +
+             std::to_string(values[1]) +
+             " then square " +
+             Board::Cell::name(pivots[2]) +
+             " must be " +
+             std::to_string(values[2]) +
+             ". Either way, ";
+    for (int e : eliminated)
+    {
+        reason += Board::Cell::name(e);
+        reason += ' ';
+    }
+    reason += "cannot be " +
+              std::to_string(values[2]) +
+              ".";
     return reason;
 }

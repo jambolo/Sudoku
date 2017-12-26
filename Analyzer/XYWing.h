@@ -14,7 +14,9 @@ public:
     bool exists(std::vector<int> & indexes, std::vector<int> & values, std::string & reason);
 
 private:
-    static std::string generateReason(std::vector<int> const & pivots, std::vector<int> const & values);
+    static std::string generateReason(std::vector<int> const & pivots,
+                                      std::vector<int> const & values,
+                                      std::vector<int> const & eliminated);
 
     Candidates::List const & candidates_;
 };
