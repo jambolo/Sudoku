@@ -18,7 +18,7 @@ bool SimpleColoring::exists(std::vector<int> & indexes, std::vector<int> & value
     // graph with the same inference as those two cells can have that candidate.
 
     return !Board::ForEach::cell([&] (int i) {
-        if (Candidates::solved(candidates_[i]))
+        if (Candidates::isSolved(candidates_[i]))
             return true;
 
         std::vector<int> cellCandidateValues = Candidates::values(candidates_[i]);
@@ -102,7 +102,12 @@ void SimpleColoring::infer(int v, int i0, std::set<int> & a, std::set<int> & b)
     Link::Strong::List links = Link::Strong::find(candidates_, i0);
     for (auto const & link : links)
     {
-        if (link.value == v && b.find(link.i1) == b.end())
+        // Only one value at a time for simple coloring
+        if (link.v0 != v || link.v1 != v)
+            continue;
+
+        // If the other cell hasn't already been include it then include it
+        if (b.find(link.i1) == b.end())
             infer(v, link.i1, b, a);
     }
 }

@@ -10,7 +10,8 @@ struct Strong
 {
     using List = std::vector<Strong>;
 
-    int value;
+    int v0;
+    int v1;
     int i0;
     int i1;
 
@@ -44,7 +45,7 @@ struct Weak
 {
     using List = std::vector<Weak>;
 
-    int value;
+    int v0;
     int i0;
     int i1;
 
@@ -59,10 +60,5 @@ private:
     static bool exists(Candidates::List const & candidates, int i0, int i1, Candidates::Type mask);
     static bool less(Weak const & lhs, Weak const & rhs);
     static bool equal(Weak const & lhs, Weak const & rhs);
-    static bool existsIncremental(Candidates::List const & candidates,
-                                  int                      u0,
-                                  int                      u1,
-                                  Candidates::Type         mask,
-                                  std::vector<int> const & group);
 };
 } // namespace Link

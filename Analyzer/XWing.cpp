@@ -48,9 +48,13 @@ bool XWing::findRow(int                      r0,
     Link::Strong::List links = Link::Strong::find(candidates_, row);
     for (auto link : links)
     {
+        // Ignore intracell links
+        if (link.i0 == link.i1)
+            continue;
+
         int c0 = Board::Group::whichColumn(link.i0);
         int c1 = Board::Group::whichColumn(link.i1);
-        int v  = link.value;
+        int v  = link.v0;
         Candidates::Type mask = Candidates::fromValue(v);
 
         for (int r1 = r0 + 1; r1 < Board::SIZE; ++r1)
@@ -99,9 +103,13 @@ bool XWing::findColumn(int                      c0,
     Link::Strong::List links = Link::Strong::find(candidates_, column);
     for (auto link : links)
     {
+        // Ignore intracell links
+        if (link.i0 == link.i1)
+            continue;
+
         int r0 = Board::Group::whichRow(link.i0);
         int r1 = Board::Group::whichRow(link.i1);
-        int v  = link.value;
+        int v  = link.v0;
         Candidates::Type mask = Candidates::fromValue(v);
 
         for (int c1 = c0 + 1; c1 < Board::SIZE; ++c1)

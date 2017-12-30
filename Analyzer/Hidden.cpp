@@ -85,7 +85,7 @@ bool Hidden::single(std::vector<int> const & indexes, std::vector<int> & elimina
             Candidates::Type exclusive = candidates_[s] & ~others;
             if (exclusive)
             {
-                assert(Candidates::solved(exclusive));
+                assert(Candidates::isSolved(exclusive));
                 eliminatedIndexes.push_back(s);
                 eliminatedValues.push_back(Candidates::value(exclusive));
                 return true;

@@ -183,7 +183,7 @@ Candidates::Type LockedCandidates::allCandidates(std::vector<int> const & indexe
     for (int i : indexes)
     {
         Candidates::Type c = candidates_[i];
-        if (!Candidates::solved(c))
+        if (!Candidates::isSolved(c))
             all |= c;
     }
     return all;

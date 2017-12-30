@@ -18,11 +18,13 @@
 #include <cassert>
 #include <numeric>
 
+#if !defined(XCODE_COMPATIBLE_ASSERT)
 #if defined(_DEBUG)
 #define XCODE_COMPATIBLE_ASSERT assert
 #else
 #define XCODE_COMPATIBLE_ASSERT(...)
 #endif
+#endif // !defined(XCODE_COMPATIBLE_ASSERT)
 
 Analyzer::Analyzer(Board const & board)
     : board_(board)
@@ -224,7 +226,7 @@ void Analyzer::drawCandidates() const
         for (int c = 0; c < Board::SIZE; ++c)
         {
             Candidates::Type candidates = candidates_[Board::Cell::indexOf(r, c)];
-            if (Candidates::solved(candidates) && !board_.isEmpty(r, c))
+            if (Candidates::isSolved(candidates) && !board_.isEmpty(r, c))
             {
                 printf("       ");
             }
@@ -246,7 +248,7 @@ void Analyzer::drawCandidates() const
         for (int c = 0; c < Board::SIZE; ++c)
         {
             Candidates::Type candidates = candidates_[Board::Cell::indexOf(r, c)];
-            if (Candidates::solved(candidates) && !board_.isEmpty(r, c))
+            if (Candidates::isSolved(candidates) && !board_.isEmpty(r, c))
             {
                 int v = board_.get(r, c);
                 printf("   %d   ", v);
@@ -269,7 +271,7 @@ void Analyzer::drawCandidates() const
         for (int c = 0; c < Board::SIZE; ++c)
         {
             Candidates::Type candidates = candidates_[Board::Cell::indexOf(r, c)];
-            if (Candidates::solved(candidates) && !board_.isEmpty(r, c))
+            if (Candidates::isSolved(candidates) && !board_.isEmpty(r, c))
             {
                 printf("       ");
             }

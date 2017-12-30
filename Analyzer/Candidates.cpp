@@ -52,7 +52,7 @@ std::vector<int> Candidates::findAll(List const & candidates, int v)
     for (int i = 0; i < Board::NUM_CELLS; ++i)
     {
         Type c = candidates[i];
-        if (!solved(c) && (c & fromValue(v)))
+        if (!isSolved(c) && (c & fromValue(v)))
             found.push_back(i);
     }
     return found;

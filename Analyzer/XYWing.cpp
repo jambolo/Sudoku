@@ -21,14 +21,14 @@ bool XYWing::exists(std::vector<int> & indexes, std::vector<int> & values, std::
     bool found = !Board::ForEach::cell([&] (int i0) {
         Candidates::Type candidates0 = candidates_[i0];
 
-        if (!Candidates::biValue(candidates_[i0]))
+        if (!Candidates::isBivalue(candidates_[i0]))
             return true;
 
         Link::Weak::List links = Link::Weak::find(candidates_, i0);
 
         // Remove all links to cells that do not have exactly two candidates
         links.erase(std::remove_if(links.begin(), links.end(), [&] (Link::Weak const & link) {
-            return !Candidates::biValue(candidates_[link.i1]);
+            return !Candidates::isBivalue(candidates_[link.i1]);
         }), links.end());
 
         if (links.empty())
@@ -37,13 +37,13 @@ bool XYWing::exists(std::vector<int> & indexes, std::vector<int> & values, std::
         for (Link::Weak::List::const_iterator link1 = links.begin(); link1 != std::prev(links.end()); ++link1)
         {
             int i1 = link1->i1;
-            int v1 = link1->value;
+            int v1 = link1->v0;
             Candidates::Type candidates1 = candidates_[i1];
 
             for (Link::Weak::List::const_iterator link2 = std::next(link1); link2 != links.end(); ++link2)
             {
                 int i2 = link2->i1;
-                int v2 = link2->value;
+                int v2 = link2->v0;
                 if (i1 == i2 || v1 == v2)
                     continue;
 

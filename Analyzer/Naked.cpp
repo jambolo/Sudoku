@@ -186,7 +186,7 @@ bool Naked::single(std::vector<int> & indexes, std::vector<int> & values)
         if (board_.isEmpty(i))
         {
             Candidates::Type c = candidates_[i];
-            if (Candidates::solved(c))
+            if (Candidates::isSolved(c))
             {
                 indexes.push_back(i);
                 values.push_back(Candidates::value(c));

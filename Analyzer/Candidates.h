@@ -1,6 +1,15 @@
 #pragma once
 
+#include <cassert>
 #include <vector>
+
+#if !defined(XCODE_COMPATIBLE_ASSERT)
+#if defined(_DEBUG)
+#define XCODE_COMPATIBLE_ASSERT assert
+#else
+#define XCODE_COMPATIBLE_ASSERT(...)
+#endif
+#endif // !defined(XCODE_COMPATIBLE_ASSERT)
 
 class Candidates
 {
@@ -11,15 +20,18 @@ public:
     static Type constexpr ALL = 0x3fe;
 
     // Returns true if there is only one candidate
-    static bool solved(Type candidates)
+    static bool isSolved(Type candidates)
     {
+        XCODE_COMPATIBLE_ASSERT(candidates != 0);
         return (candidates & (candidates - 1)) == 0;
     }
 
     // Returns true if there are exactly two candidates
-    static bool biValue(Type candidates)
+    static bool isBivalue(Type candidates)
     {
-        return count(candidates) == 2;
+        XCODE_COMPATIBLE_ASSERT(candidates != 0);
+        unsigned x = candidates & (candidates - 1); // Remove one bit
+        return (x != 0) && isSolved(x);
     }
 
     // Returns the value of the only candidate
