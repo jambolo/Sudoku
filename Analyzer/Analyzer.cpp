@@ -14,6 +14,9 @@
 #include "Solver/Solver.h"
 #endif // defined(_DEBUG)
 
+#include <json.hpp>
+using json = nlohmann::json;
+
 #include <algorithm>
 #include <cassert>
 #include <numeric>
@@ -295,6 +298,27 @@ void Analyzer::drawCandidates() const
     }
 }
 
+nlohmann::json Analyzer::toJson() const
+{
+    std::vector<std::vector<std::vector<int> > > candidateValues;
+    candidateValues.resize(Board::SIZE);
+    for (int r = 0; r < Board::SIZE; ++r)
+    {
+        candidateValues[r].reserve(Board::SIZE);
+        for (int c = 0; c < Board::SIZE; ++c)
+        {
+            int i = Board::Cell::indexOf(r, c);
+            Candidates::Type candidates = candidates_[i];
+            std::vector<int> values     = Candidates::values(candidates);
+            candidateValues[r].emplace_back(std::move(values));
+        }
+    }
+    return json {
+               { "board", board_.toJson() },
+               { "candidates", candidateValues }
+    };
+}
+
 void Analyzer::solve(int i, int x)
 {
     // Update the board
@@ -357,4 +381,32 @@ const char * Analyzer::Step::techniqueName(Analyzer::Step::TechniqueId technique
     };
     XCODE_COMPATIBLE_ASSERT((size_t)technique >= 0 && (size_t)technique < sizeof(NAMES) / sizeof(*NAMES));
     return NAMES[technique];
+}
+
+char const * Analyzer::Step::actionName(Analyzer::Step::ActionId action)
+{
+    static char const * const NAMES[] =
+    {
+        "solve",
+        "eliminate",
+        "stuck",
+        "done"
+    };
+    XCODE_COMPATIBLE_ASSERT((size_t)action >= 0 && (size_t)action < sizeof(NAMES) / sizeof(*NAMES));
+    return NAMES[action];
+}
+
+nlohmann::json Analyzer::Step::toJson() const
+{
+    json out;
+    out["action"] = actionName(action);
+    if (!indexes.empty())
+        out["indexes"] = indexes;
+    if (!values.empty())
+        out["values"] = values;
+    if (technique != NONE)
+        out["technique"] = techniqueName(technique);
+    if (!reason.empty())
+        out["reason"] = reason;
+    return out;
 }

@@ -26,3 +26,7 @@ add_subdirectory(generate)
 add_subdirectory(solve)
 add_subdirectory(tests)
 add_subdirectory(suggest)
+
+# 3rd Party
+add_library(nlohmann_json INTERFACE)
+target_include_directories(nlohmann_json INTERFACE json/src)

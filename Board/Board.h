@@ -1,6 +1,7 @@
 #pragma once
 
 #include <functional>
+#include <json.hpp>
 #include <vector>
 
 class Board
@@ -58,6 +59,9 @@ public:
 
     // Draws the board to stdout
     void draw() const;
+
+    // Returns the value as a JSON object
+    nlohmann::json toJson() const;
 
 private:
     bool        consistent(std::vector<int> const & group) const;

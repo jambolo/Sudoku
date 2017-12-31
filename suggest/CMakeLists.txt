@@ -5,4 +5,4 @@ set(SOURCES
 )
 
 add_executable(suggest ${SOURCES})
-target_link_libraries(suggest PRIVATE Analyzer Board Solver)
+target_link_libraries(suggest PRIVATE Analyzer Board Solver nlohmann_json)

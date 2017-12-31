@@ -2,6 +2,7 @@
 
 #include "Board/Board.h"
 #include "Candidates.h"
+#include <json.hpp>
 #include <string>
 #include <vector>
 
@@ -37,6 +38,12 @@ public:
 
         // Returns the name of the TechniqueId
         static char const * techniqueName(TechniqueId technique);
+
+        // Returns the name of the ActionId
+        static char const * Analyzer::Step::actionName(ActionId action);
+
+        // Returns the value as a JSON object
+        nlohmann::json toJson() const;
     };
 
     Analyzer(Board const & board);
@@ -56,6 +63,9 @@ public:
 
     // Draws a board with candidates
     void drawCandidates() const;
+
+    // Returns the value as a JSON object
+    nlohmann::json toJson() const;
 
 private:
 

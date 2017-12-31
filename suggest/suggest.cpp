@@ -1,24 +1,31 @@
 #include "Analyzer/Analyzer.h"
 #include "Board/Board.h"
 
+#include <json.hpp>
+using json = nlohmann::json;
+
 #include <cstdio>
 
 enum Verbosity
 {
     QUIET,
+    JSON,
     VERBOSE,
     DETAILED,
     CHATTY
 };
 
+static json s_json;
+
 static void syntax()
 {
-    fprintf(stderr, "syntax: suggest [-a] [-vvv] <81 digits, 0-9>\n");
+    fprintf(stderr, "syntax: suggest [-a] [-vvv | -j] <81 digits, 0-9>\n");
     fprintf(stderr, "Options:\n");
     fprintf(stderr, "  -v:   outputs additional information\n");
     fprintf(stderr, "  -vv:  outputs additional additional information\n");
     fprintf(stderr, "  -vvv: outputs additional additional additional information\n");
     fprintf(stderr, "  -a:   outputs the complete solution.\n");
+    fprintf(stderr, "  -j:   outputs information in json format.\n");
 }
 
 static void printStep(Analyzer::Step const & step, Verbosity verbosity, int i = 0)
@@ -95,6 +102,10 @@ int main(int argc, char ** argv)
         {
             verbosity = CHATTY;
         }
+        else if (strcmp(*argv, "-j") == 0)
+        {
+            verbosity = JSON;
+        }
         else
         {
             fprintf(stderr, "Invalid parameter '%s'\n", *argv);
@@ -151,14 +162,22 @@ int main(int argc, char ** argv)
 
     Analyzer analyzer(board);
 
-    if (verbosity >= VERBOSE)
+    if (verbosity >= JSON)
     {
-        printf("Board to solve:\n");
-        if (verbosity >= DETAILED)
-            analyzer.drawCandidates();
-        else
-            analyzer.board().draw();
-        printf("\n");
+        s_json["start"] = analyzer.board().toJson();
+        s_json["steps"] = json();
+    }
+    else
+    {
+        if (verbosity >= VERBOSE)
+        {
+            printf("Board to solve:\n");
+            if (verbosity >= DETAILED)
+                analyzer.drawCandidates();
+            else
+                analyzer.board().draw();
+            printf("\n");
+        }
     }
 
     if (all)
@@ -167,17 +186,32 @@ int main(int argc, char ** argv)
         do
         {
             Analyzer::Step step = analyzer.next();
-            printStep(step, verbosity, i++);
-            if (verbosity >= CHATTY && (step.action == Analyzer::Step::SOLVE || step.action == Analyzer::Step::ELIMINATE))
-                analyzer.drawCandidates();
+            if (verbosity == JSON)
+            {
+                s_json["steps"].emplace_back(step.toJson());
+            }
+            else
+            {
+                printStep(step, verbosity, i++);
+                if (verbosity >= CHATTY && (step.action == Analyzer::Step::SOLVE || step.action == Analyzer::Step::ELIMINATE))
+                    analyzer.drawCandidates();
+            }
         } while (!analyzer.done());
 
-        printf("\n");
-        if (analyzer.stuck() && verbosity >= DETAILED)
-            analyzer.drawCandidates();
+        if (verbosity == JSON)
+        {
+            s_json["end"] = analyzer.board().toJson();
+            printf("%s\n", s_json.dump().c_str());
+        }
         else
-            analyzer.board().draw();
-        printf("\n");
+        {
+            printf("\n");
+            if (analyzer.stuck() && verbosity >= DETAILED)
+                analyzer.drawCandidates();
+            else
+                analyzer.board().draw();
+            printf("\n");
+        }
     }
     else
     {
@@ -186,16 +220,31 @@ int main(int argc, char ** argv)
         do
         {
             step = analyzer.next();
-            printStep(step, verbosity, i++);
-            if (verbosity >= CHATTY && step.action == Analyzer::Step::ELIMINATE)
-                analyzer.drawCandidates();
+            if (verbosity == JSON)
+            {
+                s_json["steps"].emplace_back(step.toJson());
+            }
+            else
+            {
+                printStep(step, verbosity, i++);
+                if (verbosity >= CHATTY && step.action == Analyzer::Step::ELIMINATE)
+                    analyzer.drawCandidates();
+            }
         } while (step.action == Analyzer::Step::ELIMINATE);
 
-        printf("\n");
-        if (verbosity >= DETAILED)
-            analyzer.drawCandidates();
-        else if (verbosity >= VERBOSE)
-            analyzer.board().draw();
+        if (verbosity == JSON)
+        {
+            s_json["end"] = analyzer.board().toJson();
+            printf("%s\n", s_json.dump().c_str());
+        }
+        else
+        {
+            printf("\n");
+            if (verbosity >= DETAILED)
+                analyzer.drawCandidates();
+            else if (verbosity >= VERBOSE)
+                analyzer.board().draw();
+        }
     }
 
     return 0;
