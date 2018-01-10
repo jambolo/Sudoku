@@ -13,6 +13,8 @@ public:
     struct Step
     {
         enum ActionId { SOLVE, ELIMINATE, STUCK, DONE };
+        static int constexpr NUMBER_OF_ACTIONS = ActionId::DONE - ActionId::SOLVE + 1;
+
         enum TechniqueId
         {
             NONE = 0,
@@ -27,8 +29,10 @@ public:
             LOCKED_CANDIDATES,
             X_WING,
             XY_WING,
-            SIMPLE_COLORING
+            SIMPLE_COLORING,
+            LAST = SIMPLE_COLORING
         };
+        static int constexpr NUMBER_OF_TECHNIQUES = TechniqueId::LAST - TechniqueId::NONE + 1;
 
         ActionId         action;
         std::vector<int> indexes;
@@ -41,6 +45,9 @@ public:
 
         // Returns the name of the ActionId
         static char const * Analyzer::Step::actionName(ActionId action);
+
+        // Returns the difficulty factor of the technique
+        static int techniqueDifficulty(TechniqueId technique);
 
         // Returns the value as a JSON object
         nlohmann::json toJson() const;

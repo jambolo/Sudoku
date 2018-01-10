@@ -23,9 +23,10 @@ add_subdirectory(Solver)
 # Applications and tests
 
 add_subdirectory(generate)
+add_subdirectory(rate)
 add_subdirectory(solve)
-add_subdirectory(tests)
 add_subdirectory(suggest)
+add_subdirectory(tests)
 
 # 3rd Party
 add_library(nlohmann_json INTERFACE)

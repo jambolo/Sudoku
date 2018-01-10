@@ -396,6 +396,28 @@ char const * Analyzer::Step::actionName(Analyzer::Step::ActionId action)
     return NAMES[action];
 }
 
+int Analyzer::Step::techniqueDifficulty(TechniqueId technique)
+{
+    static int const DIFFICULTY_RATINGS[] =
+    {
+        0, // none
+        2, // hidden single
+        5, // hidden pair
+        5, // hidden triple
+        6, // hidden quad
+        1, // naked single
+        3, // naked pair
+        3, // naked triple
+        3, // naked quad
+        4, // locked candidates
+        7, // x-wing
+        8, // xy-wing
+        9, // simple coloring
+    };
+    XCODE_COMPATIBLE_ASSERT((size_t)technique >= 0 && (size_t)technique < sizeof(DIFFICULTY_RATINGS) / sizeof(*DIFFICULTY_RATINGS));
+    return DIFFICULTY_RATINGS[technique];
+}
+
 nlohmann::json Analyzer::Step::toJson() const
 {
     json out;
