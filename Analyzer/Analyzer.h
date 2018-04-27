@@ -44,7 +44,7 @@ public:
         static char const * techniqueName(TechniqueId technique);
 
         // Returns the name of the ActionId
-        static char const * Analyzer::Step::actionName(ActionId action);
+        static char const * actionName(ActionId action);
 
         // Returns the difficulty factor of the technique
         static int techniqueDifficulty(TechniqueId technique);
