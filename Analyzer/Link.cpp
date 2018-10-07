@@ -19,18 +19,22 @@ using namespace Link;
 
 Strong::List Strong::find(Candidates::List const & candidates, int i)
 {
+    XCODE_COMPATIBLE_ASSERT(candidates.size() == Board::NUM_CELLS);
     XCODE_COMPATIBLE_ASSERT(i >= 0 && i < Board::NUM_CELLS);
 
     List links;
 
+    // Find the all strong links in the row containing square i
     std::vector<int> row = Board::Group::row(Board::Group::whichRow(i));
     List rowLinks        = find(candidates, i, row);
     links.insert(links.end(), rowLinks.begin(), rowLinks.end());
 
+    // Find the all strong links in the column containing square i
     std::vector<int> column = Board::Group::column(Board::Group::whichColumn(i));
     List columnLinks        = find(candidates, i, column);
     links.insert(links.end(), columnLinks.begin(), columnLinks.end());
 
+    // Find the all strong links in the box containing square i
     std::vector<int> box = Board::Group::box(Board::Group::whichBox(i));
     List boxLinks        = find(candidates, i, box);
     links.insert(links.end(), boxLinks.begin(), boxLinks.end());
@@ -43,6 +47,8 @@ Strong::List Strong::find(Candidates::List const & candidates, int i)
 
 Strong::List Strong::find(Candidates::List const & candidates, std::vector<int> const & group)
 {
+    XCODE_COMPATIBLE_ASSERT(candidates.size() == Board::NUM_CELLS);
+    XCODE_COMPATIBLE_ASSERT(group.size() == Board::SIZE);
     List links;
 
     Candidates::Type alreadyTested = 0;

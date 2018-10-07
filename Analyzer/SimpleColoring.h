@@ -11,7 +11,7 @@ class SimpleColoring
 public:
     SimpleColoring(Candidates::List const & candidates) : candidates_(candidates) {}
 
-    // Returns true if a simple coloring exists
+    // Returns true if a simple coloring elimination exists
     bool exists(std::vector<int> & indexes, std::vector<int> & values, std::string & reason);
 
 private:

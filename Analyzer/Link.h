@@ -5,13 +5,14 @@
 
 namespace Link
 {
-// (*i0 == v) ^ (*i1 == v)
+// In the solution, (*i0 == v0) ^ (*i1 == v1)
+// Note that if i0 == i1, then v0 != v1 and if 
 struct Strong
 {
     using List = std::vector<Strong>;
 
-    int v0;
-    int v1;
+    int v0; // Candidate value at i0
+    int v1; // Candidate value at i1
     int i0;
     int i1;
 
@@ -40,7 +41,7 @@ private:
     static bool equal(Strong const & lhs, Strong const & rhs);
 };
 
-// (*i0 != v) | (*i1 != v)
+// In the solution, (*i0 != v0) | (*i1 != v0)
 struct Weak
 {
     using List = std::vector<Weak>;

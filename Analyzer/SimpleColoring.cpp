@@ -13,9 +13,12 @@
 
 bool SimpleColoring::exists(std::vector<int> & indexes, std::vector<int> & values, std::string & reason)
 {
-    // Form a graph of strong links of a candidate value rooted at a cell. If two cells in the graph can see each other and the
-    // inference of their values are the same, then there is a contradiction. The only possibility is that none of the cells in the
-    // graph with the same inference as those two cells can have that candidate.
+    // For each candidate in each cell:
+    //  Form a graph of strong links of the candidate value rooted at the cell.
+    //  If two cells in the graph can see each other and the inference of their values are the same, then there is a
+    //  contradiction. The only possibility is that none of the cells in the graph with the same inference as those two cells
+    //  can have that candidate.
+    //  If any cell with the candidate can see cells in the graph with opposite inferences, then it cannot be a candidate.
 
     return !Board::ForEach::cell([&] (int i) {
         if (Candidates::isSolved(candidates_[i]))
@@ -67,13 +70,14 @@ bool SimpleColoring::exists(std::vector<int> & indexes, std::vector<int> & value
 
 std::string SimpleColoring::generateReason(int v, std::vector<int> const & collisions, std::set<int> const & eliminated)
 {
-    std::string reason =
-        "These squares cannot have that value because if any of them it did, it would lead to a contradiction in which";
+    std::string reason = "These squares cannot be ";
+    reason += std::to_string(v);
+    reason += " because if any of them did, it would lead to a contradiction in which";
     for (int i : collisions)
     {
         reason += " " + Board::Cell::name(i);
     }
-    reason += " would all have that value and they can't.";
+    reason += " would have the same value.";
     return reason;
 }
 
@@ -106,7 +110,7 @@ void SimpleColoring::infer(int v, int i0, std::set<int> & a, std::set<int> & b)
         if (link.v0 != v || link.v1 != v)
             continue;
 
-        // If the other cell hasn't already been include it then include it
+        // If the other cell hasn't already been included then include it
         if (b.find(link.i1) == b.end())
             infer(v, link.i1, b, a);
     }

@@ -29,6 +29,33 @@ using json = nlohmann::json;
 #endif
 #endif // !defined(XCODE_COMPATIBLE_ASSERT)
 
+struct TechniqueInfoEntry
+{
+    char const * name;
+    int difficulty;
+};
+
+// Info about techniques by technique ID
+static TechniqueInfoEntry const TECHNIQUE_INFO[Analyzer::Step::NUMBER_OF_TECHNIQUES] =
+{
+    { "none",              0 },
+    { "hidden single",     2 },
+    { "hidden pair",       5 },
+    { "hidden triple",     5 },
+    { "hidden quad",       5 },
+    { "naked single",      1 },
+    { "naked pair",        3 },
+    { "naked triple",      3 },
+    { "naked quad",        3 },
+    { "locked candidates", 4 },
+    { "x-wing",            6 },
+    { "xy-wing",           7 },
+    { "simple coloring",   8 }
+};
+static_assert((size_t)Analyzer::Step::NUMBER_OF_TECHNIQUES == sizeof(TECHNIQUE_INFO) / sizeof(*TECHNIQUE_INFO), "techniqueInfo has the wrong number of elements");
+
+static int const HIGHEST_DIFFICULTY = 8; // from the table above
+
 Analyzer::Analyzer(Board const & board)
     : board_(board)
     , candidates_(Board::NUM_CELLS, (Candidates::Type)Candidates::ALL)
@@ -195,8 +222,8 @@ Analyzer::Step Analyzer::next()
     }
 
     {
-        XYWing yWing(candidates_);
-        if (yWing.exists(indexes, values, reason))
+        XYWing xyWing(candidates_);
+        if (xyWing.exists(indexes, values, reason))
         {
             eliminate(indexes, values);
             XCODE_COMPATIBLE_ASSERT(candidatesAreValid());
@@ -363,24 +390,8 @@ bool Analyzer::candidatesAreValid()
 
 const char * Analyzer::Step::techniqueName(Analyzer::Step::TechniqueId technique)
 {
-    static char const * const NAMES[] =
-    {
-        "none",
-        "hidden single",
-        "hidden pair",
-        "hidden triple",
-        "hidden quad",
-        "naked single",
-        "naked pair",
-        "naked triple",
-        "naked quad",
-        "locked candidates",
-        "x-wing",
-        "xy-wing",
-        "simple coloring"
-    };
-    XCODE_COMPATIBLE_ASSERT((size_t)technique >= 0 && (size_t)technique < sizeof(NAMES) / sizeof(*NAMES));
-    return NAMES[technique];
+    XCODE_COMPATIBLE_ASSERT((size_t)technique >= 0 && (size_t)technique < sizeof(TECHNIQUE_INFO) / sizeof(*TECHNIQUE_INFO));
+    return TECHNIQUE_INFO[technique].name;
 }
 
 char const * Analyzer::Step::actionName(Analyzer::Step::ActionId action)
@@ -398,24 +409,8 @@ char const * Analyzer::Step::actionName(Analyzer::Step::ActionId action)
 
 int Analyzer::Step::techniqueDifficulty(TechniqueId technique)
 {
-    static int const DIFFICULTY_RATINGS[] =
-    {
-        0, // none
-        2, // hidden single
-        5, // hidden pair
-        5, // hidden triple
-        6, // hidden quad
-        1, // naked single
-        3, // naked pair
-        3, // naked triple
-        3, // naked quad
-        4, // locked candidates
-        7, // x-wing
-        8, // xy-wing
-        9, // simple coloring
-    };
-    XCODE_COMPATIBLE_ASSERT((size_t)technique >= 0 && (size_t)technique < sizeof(DIFFICULTY_RATINGS) / sizeof(*DIFFICULTY_RATINGS));
-    return DIFFICULTY_RATINGS[technique];
+    XCODE_COMPATIBLE_ASSERT((size_t)technique >= 0 && (size_t)technique < sizeof(TECHNIQUE_INFO) / sizeof(*TECHNIQUE_INFO));
+    return TECHNIQUE_INFO[technique].difficulty;
 }
 
 nlohmann::json Analyzer::Step::toJson() const

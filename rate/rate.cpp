@@ -152,11 +152,13 @@ int main(int argc, char ** argv)
             }
         }
 
-        // Difficulty is computed as follows:
+        // Overall difficulty is computed as follows:
         //
         // for each difficulty
         //     add the difficulty factor, 2 ** (d + (1 - 1/n)/2)
         // return log2 of the result - 1
+        // The result is the difficulty of the highest step plus up to +0.5 for additional steps of that difficulty, plus up to 0.5 for
+        // for lower difficulty steps.
 
         overallDifficulty = 0.0f;
         for (auto const & entry : difficultyCounts)
