@@ -2,7 +2,7 @@
 
 #include "Board/Board.h"
 #include "Candidates.h"
-#include <json.hpp>
+#include <nlohmann/json.hpp>
 #include <string>
 #include <vector>
 

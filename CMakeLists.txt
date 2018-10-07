@@ -29,5 +29,6 @@ add_subdirectory(suggest)
 add_subdirectory(tests)
 
 # 3rd Party
-add_library(nlohmann_json INTERFACE)
-target_include_directories(nlohmann_json INTERFACE json/src)
+
+set(JSON_BuildTests OFF CACHE INTERNAL "")
+add_subdirectory(json)

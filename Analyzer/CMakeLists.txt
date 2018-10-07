@@ -27,4 +27,4 @@ set(INTERFACE_INCLUDE_PATHS
 
 add_library(Analyzer ${SOURCES})
 target_include_directories(Analyzer INTERFACE ${INTERFACE_INCLUDE_PATHS})
-target_link_libraries(Analyzer PRIVATE Board Solver PUBLIC nlohmann_json)
+target_link_libraries(Analyzer PRIVATE Board Solver PUBLIC nlohmann_json::nlohmann_json)

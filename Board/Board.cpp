@@ -1,6 +1,6 @@
 #include "Board.h"
 
-#include <json.hpp>
+#include <nlohmann/json.hpp>
 using json = nlohmann::json;
 
 #include <algorithm>
@@ -79,11 +79,11 @@ std::vector<int> Board::candidates(int r, int c) const
     for (int i : others)
     {
         int v = get(i);
-        values[v] = EMPTY;
+        values[v] = (int)EMPTY;
     }
 
     // Remove EMPTYs
-    values.erase(std::remove(values.begin(), values.end(), EMPTY), values.end());
+    values.erase(std::remove(values.begin(), values.end(), (int)EMPTY), values.end());
 
     return values;
 }

@@ -210,7 +210,7 @@ bool Strong::equal(Strong const & lhs, Strong const & rhs)
 {
     return (lhs.v0 == rhs.v0) &&
            (lhs.v1 == rhs.v1) &&
-           ((lhs.i0 == rhs.i0) && (lhs.i1 == rhs.i1) || (lhs.i0 == rhs.i1) && (lhs.i1 == rhs.i0));
+           (((lhs.i0 == rhs.i0) && (lhs.i1 == rhs.i1)) || ((lhs.i0 == rhs.i1) && (lhs.i1 == rhs.i0)));
 }
 
 /****************************************************************************************************************************************/

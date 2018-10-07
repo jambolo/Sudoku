@@ -18,18 +18,19 @@ public:
     using List = std::vector<Type>;
 
     static Type constexpr ALL = 0x3fe;
+    static Type constexpr NONE = 0;
 
     // Returns true if there is only one candidate
     static bool isSolved(Type candidates)
     {
-        XCODE_COMPATIBLE_ASSERT(candidates != 0);
+        XCODE_COMPATIBLE_ASSERT(candidates != NONE);
         return (candidates & (candidates - 1)) == 0;
     }
 
     // Returns true if there are exactly two candidates
     static bool isBivalue(Type candidates)
     {
-        XCODE_COMPATIBLE_ASSERT(candidates != 0);
+        XCODE_COMPATIBLE_ASSERT(candidates != NONE);
         unsigned x = candidates & (candidates - 1); // Remove one bit
         return (x != 0) && isSolved(x);
     }

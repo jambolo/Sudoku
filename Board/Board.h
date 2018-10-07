@@ -1,7 +1,7 @@
 #pragma once
 
 #include <functional>
-#include <json.hpp>
+#include <nlohmann/json.hpp>
 #include <vector>
 
 class Board

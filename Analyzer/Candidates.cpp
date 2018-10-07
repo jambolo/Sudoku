@@ -4,6 +4,14 @@
 #include <cassert>
 #include <vector>
 
+#if !defined(XCODE_COMPATIBLE_ASSERT)
+#if defined(_DEBUG)
+#define XCODE_COMPATIBLE_ASSERT assert
+#else
+#define XCODE_COMPATIBLE_ASSERT(...)
+#endif
+#endif // !defined(XCODE_COMPATIBLE_ASSERT)
+
 int Candidates::value(Candidates::Type candidates)
 {
     int v = 0;
@@ -13,7 +21,7 @@ int Candidates::value(Candidates::Type candidates)
         ++v;
         if (candidates & 1)
         {
-            assert(candidates == 1);
+            XCODE_COMPATIBLE_ASSERT(candidates == 1);
             return v;
         }
     }

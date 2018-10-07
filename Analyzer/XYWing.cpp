@@ -19,7 +19,7 @@ bool XYWing::exists(std::vector<int> & indexes, std::vector<int> & values, std::
     std::vector<int> pivotValues;
 
     bool found = !Board::ForEach::cell([&] (int i0) {
-        Candidates::Type candidates0 = candidates_[i0];
+//        Candidates::Type candidates0 = candidates_[i0];
 
         if (!Candidates::isBivalue(candidates_[i0]))
             return true;

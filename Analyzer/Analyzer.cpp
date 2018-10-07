@@ -14,7 +14,7 @@
 #include "Solver/Solver.h"
 #endif // defined(_DEBUG)
 
-#include <json.hpp>
+#include <nlohmann/json.hpp>
 using json = nlohmann::json;
 
 #include <algorithm>
@@ -31,7 +31,7 @@ using json = nlohmann::json;
 
 Analyzer::Analyzer(Board const & board)
     : board_(board)
-    , candidates_(Board::NUM_CELLS, Candidates::ALL)
+    , candidates_(Board::NUM_CELLS, (Candidates::Type)Candidates::ALL)
 #if defined(_DEBUG)
     , solvedBoard_(board)
 #endif // defined(_DEBUG)
