@@ -27,6 +27,7 @@ add_subdirectory(rate)
 add_subdirectory(solve)
 add_subdirectory(suggest)
 add_subdirectory(tests)
+add_subdirectory(profile)
 
 # 3rd Party
 
