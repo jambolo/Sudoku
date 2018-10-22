@@ -4,8 +4,17 @@
 #include "Solver/Solver.h"
 
 #include <algorithm>
+#include <cassert>
 #include <numeric>
 #include <vector>
+
+#if !defined(XCODE_COMPATIBLE_ASSERT)
+#if defined(_DEBUG)
+#define XCODE_COMPATIBLE_ASSERT assert
+#else
+#define XCODE_COMPATIBLE_ASSERT(...)
+#endif
+#endif // !defined(XCODE_COMPATIBLE_ASSERT)
 
 Board Generator::generate(int difficulty /* = 0*/)
 {
@@ -13,46 +22,64 @@ Board Generator::generate(int difficulty /* = 0*/)
         difficulty = Board::NUM_CELLS;
 
     // Generate a random solved board
-    Board board;
-    attempt(board);
+    Board board = generateSolvedBoard();
 
     // Randomly remove as many cells as possible until no unique solution can be found
     std::vector<int> indexes = randomizedIndexes();
     for (int i : indexes)
     {
-        int r = i / Board::SIZE;
-        int c = i % Board::SIZE;
-        int x = board.get(r, c);
-        board.set(r, c, Board::EMPTY);
-        if (Solver::hasUniqueSolution(board))
+        // Try to remove a cell
+        int x = board.get(i);
+        board.set(i, Board::EMPTY);
+
+        // If the new puzzle doesn't have a unique solution, then undo and try again
+        if (!Solver::hasUniqueSolution(board))
         {
-            if (--difficulty <= 0)
-                return board;
+            board.set(i, x); // Skip this one
+            continue;
         }
-        else
-        {
-            board.set(r, c, x); // Skip this one
-        }
+
+        // If enough values have been removed, then we are done
+        if (--difficulty <= 0)
+            break;
     }
     return board;
 }
 
-bool Generator::attempt(Board & board, int r /* = 0*/, int c /* = -1*/)
+Board Generator::generateSolvedBoard()
 {
-    // Go to next cell
-    Board::Cell::next(&r, &c);
-    if (r >= Board::SIZE)
+    Board board;
+    bool successful = attempt(board, 0);
+    XCODE_COMPATIBLE_ASSERT(successful);
+    return board;
+}
+
+bool Generator::attempt(Board & board, int i)
+{
+    // This function attempts to find a solution recursively by attempting all possible values for the specified cell in random order
+    // until values can be found for all of the following cells.
+
+    // If there are no remaining cells to try, then the board has been generated
+    if (i >= Board::NUM_CELLS)
         return true;
 
-    std::vector<int> possibleValues = board.candidates(r, c);
+    // Generate all the candidates for this cell. If there are none, then the board is not viable.
+    std::vector<int> possibleValues = board.candidates(i);
+    if (possibleValues.empty())
+        return false;
+
     std::random_shuffle(possibleValues.begin(), possibleValues.end());
     for (int x : possibleValues)
     {
-        board.set(r, c, x);
-        if (attempt(board, r, c))
+        board.set(i, x);
+
+        // Try to fill in the remaining cells. If that succeeds, then the board has been generated
+        if (attempt(board, i + 1))
             return true;
     }
-    board.set(r, c, 0);
+
+    // None of the candidates for this cell worked, so it isn't viable
+    board.set(i, Board::EMPTY); // Undo any attempt in this cell
     return false;
 }
 

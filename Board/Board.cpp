@@ -60,10 +60,6 @@ int Board::get(int i) const
     return get(r, c);
 }
 
-bool Board::isEmpty(int r, int c) const
-{
-    return board_[r][c] == EMPTY;
-}
 
 bool Board::isEmpty(int i) const
 {
@@ -74,15 +70,20 @@ bool Board::isEmpty(int i) const
 
 std::vector<int> Board::candidates(int r, int c) const
 {
+    return candidates(Cell::indexOf(r, c));
+}
+
+std::vector<int> Board::candidates(int i) const
+{
     std::vector<int> values { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
-    std::vector<int> others = Cell::dependents(Cell::indexOf(r, c));
-    for (int i : others)
+    std::vector<int> dependents = Cell::dependents(i);
+    for (int d : dependents)
     {
-        int v = get(i);
-        values[v] = (int)EMPTY;
+        int v = get(d);
+        values[v] = (int)EMPTY; // Remove the dependent cell's value from the list of candidates
     }
 
-    // Remove EMPTYs
+    // Remove EMPTYs, leaving just the candidates
     values.erase(std::remove(values.begin(), values.end(), (int)EMPTY), values.end());
 
     return values;

@@ -37,13 +37,16 @@ public:
     int get(int i) const;
 
     // Returns true if the cell is empty
-    bool isEmpty(int r, int c) const;
+    bool isEmpty(int r, int c) const { return board_[r][c] == EMPTY; }
 
     // Returns true if the cell by index is empty
     bool isEmpty(int i) const;
 
     // Returns all possible values for the cell
     std::vector<int> candidates(int r, int c) const;
+
+    // Returns all possible values for the cell by index
+    std::vector<int> candidates(int ) const;
 
     // Returns the coordinates of an empty cell at or following the given cell (in row major order), or false if there are none
     bool nextEmpty(int * nextR, int * nextC) const;
