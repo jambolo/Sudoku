@@ -46,7 +46,7 @@ public:
     std::vector<int> candidates(int r, int c) const;
 
     // Returns all possible values for the cell by index
-    std::vector<int> candidates(int ) const;
+    std::vector<int> candidates(int i) const;
 
     // Returns the coordinates of an empty cell at or following the given cell (in row major order), or false if there are none
     bool nextEmpty(int * nextR, int * nextC) const;
