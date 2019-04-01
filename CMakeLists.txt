@@ -1,6 +1,9 @@
-cmake_minimum_required (VERSION 3.8)
+cmake_minimum_required (VERSION 3.10)
 project(Sudoku CXX)
 
+option(BUILD_SHARED_LIBS "Build libraries as DLLs" FALSE)
+
+# Common compiler definitions
 
 add_definitions(
     -DNOMINMAX
@@ -11,7 +14,9 @@ add_definitions(
     -D_SCL_SECURE_NO_WARNINGS
 )
 
-option(BUILD_SHARED_LIBS "Build libraries as DLLs" FALSE)
+# Common external libraries
+
+find_package(nlohmann_json REQUIRED)
 
 # Libraries
 
@@ -28,8 +33,3 @@ add_subdirectory(solve)
 add_subdirectory(suggest)
 add_subdirectory(tests)
 add_subdirectory(profile)
-
-# 3rd Party
-
-set(JSON_BuildTests OFF CACHE INTERNAL "")
-add_subdirectory(json)
