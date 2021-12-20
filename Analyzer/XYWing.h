@@ -1,3 +1,5 @@
+#if !defined(ANALYZER_XYWING_H_INCLUDED)
+#define ANALYZER_XYWING_H_INCLUDED 1
 #pragma once
 
 #include "Board/Board.h"
@@ -20,3 +22,5 @@ private:
 
     Candidates::List const & candidates_;
 };
+
+#endif // defined(ANALYZER_XYWING_H_INCLUDED)

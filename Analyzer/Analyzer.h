@@ -1,3 +1,5 @@
+#if !defined(ANALYZER_ANALYZER_H_INCLUDED)
+#define ANALYZER_ANALYZER_H_INCLUDED 1
 #pragma once
 
 #include "Board/Board.h"
@@ -93,3 +95,6 @@ private:
     Board solvedBoard_;            // All results are checked against this board
 #endif // defined(_DEBUG)
 };
+
+#endif // defined(ANALYZER_ANALYZER_H_INCLUDED)
+

@@ -1,3 +1,5 @@
+#if !defined(ANALYZER_CANDIDATES_H_INCLUDED)
+#define ANALYZER_CANDIDATES_H_INCLUDED 1
 #pragma once
 
 #include <cassert>
@@ -53,3 +55,5 @@ public:
     // Finds all unsolved cells with v as a candidate
     static std::vector<int> findAll(List const & candidates, int v);
 };
+
+#endif // defined(ANALYZER_CANDIDATES_H_INCLUDED)

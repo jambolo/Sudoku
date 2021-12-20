@@ -1,3 +1,5 @@
+#if !defined(GENERATOR_GENERATOR_H_INCLUDED)
+#define GENERATOR_GENERATOR_H_INCLUDED 1
 #pragma once
 
 #include <vector>
@@ -14,3 +16,5 @@ private:
     static bool             attempt(Board & b, int i);
     static std::vector<int> randomizedIndexes();
 };
+
+#endif // defined(GENERATOR_GENERATOR_H_INCLUDED)

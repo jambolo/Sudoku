@@ -1,3 +1,5 @@
+#if !defined(ANALYZER_NAKED_H_INCLUDED)
+#define ANALYZER_NAKED_H_INCLUDED 1
 #pragma once
 
 #include "Board/Board.h"
@@ -44,3 +46,5 @@ private:
     Board const & board_;
     Candidates::List const & candidates_;
 };
+
+#endif // defined(ANALYZER_NAKED_H_INCLUDED)

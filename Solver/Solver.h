@@ -1,3 +1,5 @@
+#if !defined(SOLVER_SOLVER_H_INCLUDED)
+#define SOLVER_SOLVER_H_INCLUDED 1
 #pragma once
 
 #include <vector>
@@ -16,3 +18,5 @@ private:
     static void searchAll(Board & b, int r, int c, std::vector<Board> & solutions);
     static void searchUnique(Board & board, int r, int c, int & count);
 };
+
+#endif // defined(SOLVER_SOLVER_H_INCLUDED)

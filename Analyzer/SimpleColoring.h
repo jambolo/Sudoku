@@ -1,3 +1,5 @@
+#if !defined(ANALYZER_SIMPLECOLORING_H_INCLUDED)
+#define ANALYZER_SIMPLECOLORING_H_INCLUDED 1
 #pragma once
 
 #include "Board/Board.h"
@@ -28,3 +30,5 @@ private:
 
     Candidates::List const & candidates_;
 };
+
+#endif // defined(ANALYZER_SIMPLECOLORING_H_INCLUDED)

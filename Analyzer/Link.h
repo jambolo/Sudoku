@@ -1,3 +1,5 @@
+#if !defined(ANALYZER_LINK_H_INCLUDED)
+#define ANALYZER_LINK_H_INCLUDED 1
 #pragma once
 
 #include "Candidates.h"
@@ -63,3 +65,5 @@ private:
     static bool equal(Weak const & lhs, Weak const & rhs);
 };
 } // namespace Link
+
+#endif // defined(ANALYZER_LINK_H_INCLUDED)

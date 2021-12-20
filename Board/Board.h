@@ -1,3 +1,5 @@
+#if !defined(BOARD_BOARD_H_INCLUDED)
+#define BOARD_BOARD_H_INCLUDED 1
 #pragma once
 
 #include <functional>
@@ -229,3 +231,5 @@ public:
         return "123456789"[b];
     }
 };
+
+#endif // defined(BOARD_BOARD_H_INCLUDED)
