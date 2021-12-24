@@ -233,6 +233,19 @@ bool Board::ForEach::rowExcept(int x0, int x1, int x2, std::function<bool(int, s
     return true;
 }
 
+bool Board::ForEach::rowExcept(int x0, int x1, int x2, int x3, std::function<bool(int, std::vector<int> const &)> f)
+{
+    for (int r = 0; r < SIZE; ++r)
+    {
+        if (r != x0 && r != x1 && r != x2 && r != x3)
+        {
+            if (!f(r, Group::row(r)))
+                return false;
+        }
+    }
+    return true;
+}
+
 bool Board::ForEach::column(std::function<bool(int, std::vector<int> const &)> f)
 {
     for (int c = 0; c < SIZE; ++c)
@@ -274,6 +287,19 @@ bool Board::ForEach::columnExcept(int x0, int x1, int x2, std::function<bool(int
     for (int c = 0; c < SIZE; ++c)
     {
         if (c != x0 && c != x1 && c != x2)
+        {
+            if (!f(c, Group::column(c)))
+                return false;
+        }
+    }
+    return true;
+}
+
+bool Board::ForEach::columnExcept(int x0, int x1, int x2, int x3, std::function<bool(int, std::vector<int> const &)> f)
+{
+    for (int c = 0; c < SIZE; ++c)
+    {
+        if (c != x0 && c != x1 && c != x2 && c != x3)
         {
             if (!f(c, Group::column(c)))
                 return false;

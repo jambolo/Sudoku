@@ -6,9 +6,12 @@
 
 class Board;
 
+// Generates a random board
 class Generator
 {
 public:
+    
+    // Generates a random board with the given difficulty
     static Board generate(int difficulty = 0);
 
 private:

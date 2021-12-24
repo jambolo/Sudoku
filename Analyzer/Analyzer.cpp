@@ -50,6 +50,8 @@ static TechniqueInfoEntry const TECHNIQUE_INFO[Analyzer::Step::NUMBER_OF_TECHNIQ
     { "locked candidates", 4 },
     { "x-wing",            6 },
     { "xy-wing",           7 },
+    { "swordfish",         7 },
+    { "jellyfish",         8 },
     { "simple coloring",   8 }
 };
 static_assert((size_t)Analyzer::Step::NUMBER_OF_TECHNIQUES == sizeof(TECHNIQUE_INFO) / sizeof(*TECHNIQUE_INFO), "techniqueInfo has the wrong number of elements");
@@ -218,6 +220,26 @@ Analyzer::Step Analyzer::next()
             eliminate(indexes, values);
             XCODE_COMPATIBLE_ASSERT(candidatesAreValid());
             return { Step::ELIMINATE, indexes, values, Step::X_WING, reason };
+        }
+    }
+
+    {
+        Swordfish swordfish(candidates_);
+        if (swordfish.exists(indexes, values, reason))
+        {
+            eliminate(indexes, values);
+            XCODE_COMPATIBLE_ASSERT(candidatesAreValid());
+            return { Step::ELIMINATE, indexes, values, Step::SWORDFISH, reason };
+        }
+    }
+
+    {
+        Jellyfish jellyfish(candidates_);
+        if (jellyfish.exists(indexes, values, reason))
+        {
+            eliminate(indexes, values);
+            XCODE_COMPATIBLE_ASSERT(candidatesAreValid());
+            return { Step::ELIMINATE, indexes, values, Step::JELLYFISH, reason };
         }
     }
 

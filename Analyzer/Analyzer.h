@@ -8,18 +8,28 @@
 #include <string>
 #include <vector>
 
+// Given a board and optionally with pre-determined candidates, an Analyzer will solve the puzzle a step at a time.
 class Analyzer
 {
 public:
 
+    // Information about a solution step.
     struct Step
     {
-        enum ActionId { SOLVE, ELIMINATE, STUCK, DONE };
-        static int constexpr NUMBER_OF_ACTIONS = ActionId::DONE - ActionId::SOLVE + 1;
+        // The potential actions for a step.
+        enum ActionId
+        {
+            SOLVE,      // The value of a square is determined.
+            ELIMINATE,  // One or more candiates for one or more squares have been eliminated.
+            STUCK,      // The analyzer cannot determine the next step in a solution.
+            DONE        // The puzzle is solved there are no more steps.
+        };
+        static int constexpr NUMBER_OF_ACTIONS = ActionId::DONE - ActionId::SOLVE + 1;  // Number of possible actions
 
+        //! A technique's ID.
         enum TechniqueId
         {
-            NONE = 0,
+            NONE = 0,           // No technique was used in this step.
             HIDDEN_SINGLE,
             HIDDEN_PAIR,
             HIDDEN_TRIPLE,
@@ -31,16 +41,18 @@ public:
             LOCKED_CANDIDATES,
             X_WING,
             XY_WING,
+            SWORDFISH,
+            JELLYFISH,
             SIMPLE_COLORING,
             LAST = SIMPLE_COLORING
         };
         static int constexpr NUMBER_OF_TECHNIQUES = TechniqueId::LAST - TechniqueId::NONE + 1;
 
-        ActionId         action;
-        std::vector<int> indexes;
-        std::vector<int> values;
-        TechniqueId      technique;
-        std::string      reason;
+        ActionId         action;    // Action perforned in the step
+        std::vector<int> indexes;   // Affected indexes
+        std::vector<int> values;    // Affected values
+        TechniqueId      technique; // Technique used
+        std::string      reason;    // Explanation of the step
 
         // Returns the name of the TechniqueId
         static char const * techniqueName(TechniqueId technique);

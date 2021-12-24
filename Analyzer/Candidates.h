@@ -13,15 +13,23 @@
 #endif
 #endif // !defined(XCODE_COMPATIBLE_ASSERT)
 
+// Information and operations associated with the candidate values of a cell
 class Candidates
 {
 public:
-    using Type = unsigned;
-    using List = std::vector<Type>;
+    using Type = unsigned;              // Storage type for storing candidates as a single value
+    using List = std::vector<Type>;     // A list of candidates for multiple cells
 
-    static Type constexpr ALL = 0x3fe;
-    static Type constexpr NONE = 0;
+    static Type constexpr ALL = 0x3fe;  // Value representing all candidates
+    static Type constexpr NONE = 0;     // Value representing no candidates
 
+    // Returns true if the given value is one of the candidates
+    static bool includes(Type candidates, int value)
+    {
+        XCODE_COMPATIBLE_ASSERT(value >= 1 && value <= 9);
+        return ((candidates & (1 << value)) != 0);
+    }
+    
     // Returns true if there is only one candidate
     static bool isSolved(Type candidates)
     {
@@ -33,8 +41,8 @@ public:
     static bool isBivalue(Type candidates)
     {
         XCODE_COMPATIBLE_ASSERT(candidates != NONE);
-        unsigned x = candidates & (candidates - 1); // Remove one bit
-        return (x != 0) && isSolved(x);
+        unsigned x = candidates & (candidates - 1); // Remove one candidate
+        return (x != 0) && isSolved(x); // Return true if there is another
     }
 
     // Returns the value of the only candidate
