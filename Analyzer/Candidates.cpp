@@ -14,6 +14,7 @@
 
 int Candidates::value(Candidates::Type candidates)
 {
+    XCODE_COMPATIBLE_ASSERT(candidates < (1 << 10));
     int v = 0;
     while (candidates)
     {
@@ -30,6 +31,7 @@ int Candidates::value(Candidates::Type candidates)
 
 std::vector<int> Candidates::values(Candidates::Type candidates)
 {
+    XCODE_COMPATIBLE_ASSERT(candidates < (1 << 10));
     std::vector<int> values;
     int v = 0;
     while (candidates)
@@ -44,6 +46,7 @@ std::vector<int> Candidates::values(Candidates::Type candidates)
 
 int Candidates::count(Candidates::Type candidates)
 {
+    XCODE_COMPATIBLE_ASSERT(candidates < (1 << 10));
     int count = 0;
     while (candidates != 0)
     {

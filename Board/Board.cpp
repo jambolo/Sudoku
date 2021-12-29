@@ -15,11 +15,34 @@ Board::Board()
     memset(&board_, EMPTY, sizeof(board_));
 }
 
-bool Board::initialize(char const * s)
+bool Board::initialize(std::vector<int> const & v )
 {
+    if (v.size() != NUM_CELLS)
+        return false;
+
+    std::vector<int>::const_iterator p = v.begin();
+
     for (auto & row : board_)
     {
-        for (int & cell : row)
+        for (auto & cell : row)
+        {
+            int value = *p++;
+            if (value < 0 || value > 9)
+                return false;
+            cell = value;
+        }
+    }
+    return true;
+}
+
+bool Board::initialize(char const * s)
+{
+    if (!s)
+        return false;
+
+    for (auto & row : board_)
+    {
+        for (auto & cell : row)
         {
             char digit = *s++;
             if (!digit || !isdigit(digit))
@@ -37,6 +60,8 @@ bool Board::initialize(char const * s)
 
 void Board::serialize(std::string & out) const
 {
+    out.clear();
+    out.reserve(Board::NUM_CELLS);
     for (auto const & row : board_)
     {
         for (int cell : row)

@@ -16,6 +16,9 @@ public:
 
     Board();
 
+    // Initializes the board
+    bool initialize(std::vector<int> const & v );
+
     // Initializes the board from a terminated string of 81 digits
     bool initialize(char const * s);
 
@@ -26,7 +29,7 @@ public:
     static int constexpr BOX_SIZE  = 3;             // Size of a "box"
     static int constexpr EMPTY     = 0;             // Value of an empty cell
     static int constexpr NUM_CELLS = SIZE * SIZE;   // Number of cells on a board
-    
+
     // Sets the value of a cell (1 - 9, or EMPTY)
     void set(int r, int c, int x) { board_[r][c] = x; }
 

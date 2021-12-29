@@ -25,11 +25,20 @@ add_subdirectory(Board)
 add_subdirectory(Generator)
 add_subdirectory(Solver)
 
-# Applications and tests
+# Applications
 
 add_subdirectory(generate)
 add_subdirectory(rate)
 add_subdirectory(solve)
 add_subdirectory(suggest)
-add_subdirectory(tests)
 add_subdirectory(profile)
+
+#########################################################################
+# Testing                                                               #
+#########################################################################
+
+include(CTest)
+message(STATUS "Testing is enabled. Turn on BUILD_TESTING to build tests.")
+if(BUILD_TESTING)
+    add_subdirectory(test)
+endif()

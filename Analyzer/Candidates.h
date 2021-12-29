@@ -29,7 +29,7 @@ public:
         XCODE_COMPATIBLE_ASSERT(value >= 1 && value <= 9);
         return ((candidates & (1 << value)) != 0);
     }
-    
+
     // Returns true if there is only one candidate
     static bool isSolved(Type candidates)
     {
