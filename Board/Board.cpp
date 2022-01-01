@@ -382,40 +382,69 @@ bool Board::ForEach::boxExcept(int x0, int x1, int x2, std::function<bool(int, s
     return true;
 }
 
-void Board::ForEach::indexExcept(std::vector<int> const & indexes, int x0, std::function<void(int)> f)
+bool Board::ForEach::boxExcept(int x0, int x1, int x2, int x3, std::function<bool(int, std::vector<int> const &)> f)
+{
+    for (int b = 0; b < SIZE; ++b)
+    {
+        if (b != x0 && b != x1 && b != x2 && b != x3)
+        {
+            if (!f(b, Group::box(b)))
+                return false;
+        }
+    }
+    return true;
+}
+
+bool Board::ForEach::indexExcept(std::vector<int> const & indexes, int x0, std::function<bool(int)> f)
 {
     for (int i : indexes)
     {
         if (i != x0)
-            f(i);
+        {
+            if (!f(i))
+                return false;
+        }
     }
+    return true;
 }
 
-void Board::ForEach::indexExcept(std::vector<int> const & indexes, int x0, int x1, std::function<void(int)> f)
+bool Board::ForEach::indexExcept(std::vector<int> const & indexes, int x0, int x1, std::function<bool(int)> f)
 {
     for (int i : indexes)
     {
         if (i != x0 && i != x1)
-            f(i);
+        {
+            if (!f(i))
+                return false;
+        }
     }
+    return true;
 }
 
-void Board::ForEach::indexExcept(std::vector<int> const & indexes, int x0, int x1, int x2, std::function<void(int)> f)
+bool Board::ForEach::indexExcept(std::vector<int> const & indexes, int x0, int x1, int x2, std::function<bool(int)> f)
 {
     for (int i : indexes)
     {
         if (i != x0 && i != x1 && i != x2)
-            f(i);
+        {
+            if (!f(i))
+                return false;
+        }
     }
+    return true;
 }
 
-void Board::ForEach::indexExcept(std::vector<int> const & indexes, int x0, int x1, int x2, int x3, std::function<void(int)> f)
+bool Board::ForEach::indexExcept(std::vector<int> const & indexes, int x0, int x1, int x2, int x3, std::function<bool(int)> f)
 {
     for (int i : indexes)
     {
         if (i != x0 && i != x1 && i != x2 && i != x3)
-            f(i);
+        {
+            if (!f(i))
+                return false;
+        }
     }
+    return true;
 }
 
 void Board::Cell::next(int * r, int * c)
@@ -587,113 +616,6 @@ std::vector<int> const & Board::Group::box(int b)
     };
 
     return INDEXES_BY_BOX[b];
-}
-
-int Board::Group::whichRow(int i)
-{
-    static int const ROW_BY_INDEX[NUM_CELLS]
-    {
-        0, 0, 0, 0, 0, 0, 0, 0, 0,
-        1, 1, 1, 1, 1, 1, 1, 1, 1,
-        2, 2, 2, 2, 2, 2, 2, 2, 2,
-        3, 3, 3, 3, 3, 3, 3, 3, 3,
-        4, 4, 4, 4, 4, 4, 4, 4, 4,
-        5, 5, 5, 5, 5, 5, 5, 5, 5,
-        6, 6, 6, 6, 6, 6, 6, 6, 6,
-        7, 7, 7, 7, 7, 7, 7, 7, 7,
-        8, 8, 8, 8, 8, 8, 8, 8, 8
-    };
-    return ROW_BY_INDEX[i];
-}
-
-int Board::Group::whichColumn(int i)
-{
-    static int const COLUMN_BY_INDEX[NUM_CELLS]
-    {
-        0, 1, 2, 3, 4, 5, 6, 7, 8,
-        0, 1, 2, 3, 4, 5, 6, 7, 8,
-        0, 1, 2, 3, 4, 5, 6, 7, 8,
-        0, 1, 2, 3, 4, 5, 6, 7, 8,
-        0, 1, 2, 3, 4, 5, 6, 7, 8,
-        0, 1, 2, 3, 4, 5, 6, 7, 8,
-        0, 1, 2, 3, 4, 5, 6, 7, 8,
-        0, 1, 2, 3, 4, 5, 6, 7, 8,
-        0, 1, 2, 3, 4, 5, 6, 7, 8
-    };
-    return COLUMN_BY_INDEX[i];
-}
-
-int Board::Group::whichBox(int r, int c)
-{
-    return whichBox(Cell::indexOf(r, c));
-}
-
-int Board::Group::whichBox(int i)
-{
-    static int const BOX_BY_INDEX[NUM_CELLS]
-    {
-        0, 0, 0, 1, 1, 1, 2, 2, 2,
-        0, 0, 0, 1, 1, 1, 2, 2, 2,
-        0, 0, 0, 1, 1, 1, 2, 2, 2,
-        3, 3, 3, 4, 4, 4, 5, 5, 5,
-        3, 3, 3, 4, 4, 4, 5, 5, 5,
-        3, 3, 3, 4, 4, 4, 5, 5, 5,
-        6, 6, 6, 7, 7, 7, 8, 8, 8,
-        6, 6, 6, 7, 7, 7, 8, 8, 8,
-        6, 6, 6, 7, 7, 7, 8, 8, 8,
-    };
-    return BOX_BY_INDEX[i];
-}
-
-int Board::Group::offsetInRow(int i)
-{
-    static int const ROW_OFFSET_BY_INDEX[NUM_CELLS]
-    {
-        0, 1, 2, 3, 4, 5, 6, 7, 8,
-        0, 1, 2, 3, 4, 5, 6, 7, 8,
-        0, 1, 2, 3, 4, 5, 6, 7, 8,
-        0, 1, 2, 3, 4, 5, 6, 7, 8,
-        0, 1, 2, 3, 4, 5, 6, 7, 8,
-        0, 1, 2, 3, 4, 5, 6, 7, 8,
-        0, 1, 2, 3, 4, 5, 6, 7, 8,
-        0, 1, 2, 3, 4, 5, 6, 7, 8,
-        0, 1, 2, 3, 4, 5, 6, 7, 8
-    };
-    return ROW_OFFSET_BY_INDEX[i];
-}
-
-int Board::Group::offsetInColumn(int i)
-{
-    static int const COLUMN_OFFSET_BY_INDEX[NUM_CELLS]
-    {
-        0, 0, 0, 0, 0, 0, 0, 0, 0,
-        1, 1, 1, 1, 1, 1, 1, 1, 1,
-        2, 2, 2, 2, 2, 2, 2, 2, 2,
-        3, 3, 3, 3, 3, 3, 3, 3, 3,
-        4, 4, 4, 4, 4, 4, 4, 4, 4,
-        5, 5, 5, 5, 5, 5, 5, 5, 5,
-        6, 6, 6, 6, 6, 6, 6, 6, 6,
-        7, 7, 7, 7, 7, 7, 7, 7, 7,
-        8, 8, 8, 8, 8, 8, 8, 8, 8
-    };
-    return COLUMN_OFFSET_BY_INDEX[i];
-}
-
-int Board::Group::offsetInBox(int i)
-{
-    static int const BOX_OFFSET_BY_INDEX[NUM_CELLS]
-    {
-        0, 1, 2, 0, 1, 2, 0, 1, 2,
-        3, 4, 5, 3, 4, 5, 3, 4, 5,
-        6, 7, 8, 6, 7, 8, 6, 7, 8,
-        0, 1, 2, 0, 1, 2, 0, 1, 2,
-        3, 4, 5, 3, 4, 5, 3, 4, 5,
-        6, 7, 8, 6, 7, 8, 6, 7, 8,
-        0, 1, 2, 0, 1, 2, 0, 1, 2,
-        3, 4, 5, 3, 4, 5, 3, 4, 5,
-        6, 7, 8, 6, 7, 8, 6, 7, 8,
-    };
-    return BOX_OFFSET_BY_INDEX[i];
 }
 
 bool Board::consistent(std::vector<int> const & group) const

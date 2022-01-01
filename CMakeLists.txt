@@ -38,7 +38,10 @@ add_subdirectory(profile)
 #########################################################################
 
 include(CTest)
-message(STATUS "Testing is enabled. Turn on BUILD_TESTING to build tests.")
+message(STATUS "Testing is enabled.")
 if(BUILD_TESTING)
+    message(STATUS "BUILD_TESTING is on and tests are being built.")
     add_subdirectory(test)
+else()
+    message(STATUS "Turn on BUILD_TESTING to build tests.")
 endif()

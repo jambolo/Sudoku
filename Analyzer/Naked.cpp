@@ -220,6 +220,7 @@ bool Naked::pair(std::vector<int> const & indexes,
                     Board::ForEach::indexExcept(indexes, i0, i1, [&](int i) {
                         if (candidates_[i] & cumulativeCandidates)
                             eliminatedIndexes.push_back(i);
+                        return true;
                     });
                     if (!eliminatedIndexes.empty())
                     {
@@ -264,6 +265,7 @@ bool Naked::triple(std::vector<int> const & indexes,
                             Board::ForEach::indexExcept(indexes, i0, i1, i2, [&](int i) {
                                 if (candidates_[i] & cumulativeCandidates)
                                     eliminatedIndexes.push_back(i);
+                                return true;
                             });
                             if (!eliminatedIndexes.empty())
                             {
@@ -317,6 +319,7 @@ bool Naked::quad(std::vector<int> const & indexes,
                                     Board::ForEach::indexExcept(indexes, i0, i1, i2, i3, [&](int i) {
                                         if (candidates_[i] & cumulativeCandidates)
                                             eliminatedIndexes.push_back(i);
+                                        return true;
                                     });
                                     if (!eliminatedIndexes.empty())
                                     {

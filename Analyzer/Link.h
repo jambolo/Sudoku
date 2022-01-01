@@ -8,15 +8,16 @@
 namespace Link
 {
 // In the solution, (*i0 == v0) ^ (*i1 == v1)
-// Note that if i0 == i1, then v0 != v1 and if 
-struct Strong
+// Note that if i0 == i1, then v0 != v1 (the cell is a bi-value)
+class Strong
 {
+public:
     using List = std::vector<Strong>;
 
     int v0; // Candidate value at i0
     int v1; // Candidate value at i1
-    int i0;
-    int i1;
+    int i0; // Index of one node in the link
+    int i1; // Index of the other node in the link
 
     // Returns all strong links to cell i
     static List find(Candidates::List const & candidates, int i);
@@ -44,13 +45,15 @@ private:
 };
 
 // In the solution, (*i0 != v0) | (*i1 != v0)
-struct Weak
+// Note that i0 != i1
+class Weak
 {
+public:
     using List = std::vector<Weak>;
 
-    int v0;
-    int i0;
-    int i1;
+    int v0; // Value in common
+    int i0; // Index of one node in the link
+    int i1; // Index of the other node in the link
 
     // Returns all weak links to cell i
     static List find(Candidates::List const & candidates, int i);

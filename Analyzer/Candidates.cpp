@@ -59,11 +59,12 @@ int Candidates::count(Candidates::Type candidates)
 
 std::vector<int> Candidates::findAll(List const & candidates, int v)
 {
+    Type mask = fromValue(v);
     std::vector<int> found;
-    for (int i = 0; i < Board::NUM_CELLS; ++i)
+    for (int i = 0; i < candidates.size(); ++i)
     {
         Type c = candidates[i];
-        if (!isSolved(c) && (c & fromValue(v)))
+        if ((c & mask) && !isSolved(c))
             found.push_back(i);
     }
     return found;

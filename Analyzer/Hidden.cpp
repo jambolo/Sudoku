@@ -80,6 +80,7 @@ bool Hidden::single(std::vector<int> const & indexes, std::vector<int> & elimina
             Candidates::Type others = 0;
             Board::ForEach::indexExcept(indexes, s, [&] (int i) {
                 others |= candidates_[i];
+                return true;
             });
 
             Candidates::Type exclusive = candidates_[s] & ~others;

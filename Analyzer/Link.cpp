@@ -118,7 +118,7 @@ Strong::List Strong::find(Candidates::List const & candidates, int i0, std::vect
             if (exists(candidates, i0, i1, mask, group))
             {
                 links.emplace_back(Strong { v, v, i0, i1 });
-                return; // Only one strong link can exist in a group for any candidate
+                return false; // Only one strong link can exist in a group for any candidate
             }
         });
     }
@@ -286,6 +286,7 @@ Weak::List Weak::find(Candidates::List const & candidates, int i0, std::vector<i
         Board::ForEach::indexExcept(group, i0, [&] (int i1) {
             if (!Candidates::isSolved(candidates[i1]) && exists(candidates, i0, i1, mask))
                 links.emplace_back(Weak { v, i0, i1 });
+            return true;
         });
     }
     return links;

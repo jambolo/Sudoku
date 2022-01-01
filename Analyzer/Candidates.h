@@ -57,6 +57,7 @@ public:
     // Returns the candidate corresponding to the value
     static Type fromValue(int v)
     {
+        XCODE_COMPATIBLE_ASSERT(v => 1 && v <= 9);
         return 1 << v;
     }
 

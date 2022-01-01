@@ -60,9 +60,20 @@ TEST(Candidates, values)
     }
 }
 
-TEST(Candidates, DISABLED_count)
+TEST(Candidates, count)
 {
-
+    for (Candidates::Type candidates = 0; candidates <= Candidates::ALL; candidates+=2)
+    {
+        Candidates::Type c = candidates;
+        int count = 0;
+        while (c != 0)
+        {
+            c >>= 1;
+            if (c & 1)
+                ++count;
+        }
+        EXPECT_EQ(Candidates::count(candidates), count);
+    }
 }
 
 TEST(Candidates, DISABLED_findAll)
