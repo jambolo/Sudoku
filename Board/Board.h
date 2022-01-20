@@ -3,7 +3,7 @@
 #pragma once
 
 #include <functional>
-#include <nlohmann/json.hpp>
+#include <nlohmann/json_fwd.hpp>
 #include <vector>
 
 // A representation of of a board and its values
@@ -14,7 +14,19 @@ public:
     class Group;
     class Cell;
 
+    static int constexpr SIZE      = 9;             // Width and height of the board
+    static int constexpr BOX_SIZE  = 3;             // Size of a "box"
+    static int constexpr EMPTY     = 0;             // Value of an empty cell
+    static int constexpr NUM_CELLS = SIZE * SIZE;   // Number of cells on a board
+
+    // Constructs an empty board
     Board();
+
+    // Constructs a board with initial values
+    explicit Board(std::vector<int> const & v );
+
+    // Constructs a board from a terminated string of 81 digits
+    explicit Board(char const * s);
 
     // Initializes the board
     bool initialize(std::vector<int> const & v );
@@ -22,13 +34,8 @@ public:
     // Initializes the board from a terminated string of 81 digits
     bool initialize(char const * s);
 
-    // Serializes the board as a string 0f '0'-'9' in row-major order
-    void serialize(std::string & out) const;
-
-    static int constexpr SIZE      = 9;             // Width and height of the board
-    static int constexpr BOX_SIZE  = 3;             // Size of a "box"
-    static int constexpr EMPTY     = 0;             // Value of an empty cell
-    static int constexpr NUM_CELLS = SIZE * SIZE;   // Number of cells on a board
+    // Returns the values of all cells in row-major order
+    std::vector<int> cells() const;
 
     // Sets the value of a cell (1 - 9, or EMPTY)
     void set(int r, int c, int x) { board_[r][c] = x; }
@@ -48,10 +55,10 @@ public:
     // Returns true if the cell by index is empty
     bool isEmpty(int i) const;
 
-    // Returns all possible values for the cell
+    // Returns all possible values for the cell based only on solved cells
     std::vector<int> candidates(int r, int c) const;
 
-    // Returns all possible values for the cell by index
+    // Returns all possible values for the cell by index based only on solved cells
     std::vector<int> candidates(int i) const;
 
     // Returns the coordinates of an empty cell at or following the given cell (in row major order), or false if there are none
@@ -68,6 +75,9 @@ public:
 
     // Draws the board to stdout
     void draw() const;
+
+    // Serializes the board as a string 0f '0'-'9' in row-major order
+    void serialize(std::string & out) const;
 
     // Returns the value as a JSON object
     nlohmann::json toJson() const;

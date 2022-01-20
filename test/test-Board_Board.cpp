@@ -53,6 +53,64 @@ TEST(Board, Board)
     }
 }
 
+TEST(Board, Board_v)
+{
+    EXPECT_NO_THROW
+    ({
+        Board board(BOARD_TEST_1_VECTOR);
+    });
+    EXPECT_ANY_THROW
+    ({
+        Board board = Board(std::vector<int>());
+    });
+    EXPECT_ANY_THROW
+    ({
+        std::vector<int> invalid(BOARD_TEST_1_VECTOR);
+        invalid[0] = -1;
+        Board board(invalid);
+    });
+    EXPECT_ANY_THROW
+    ({
+        Board board(std::vector<int>(Board::NUM_CELLS-1, Board::EMPTY)); // missing cell
+    });
+    EXPECT_ANY_THROW
+    ({
+        Board board(std::vector<int>(Board::NUM_CELLS+1, Board::EMPTY)); // extra cell
+    });
+    EXPECT_ANY_THROW
+    ({
+        Board board(std::vector<int>(Board::NUM_CELLS+1, -1));           // invalid value
+    });
+}
+
+TEST(Board, Board_s)
+{
+    EXPECT_NO_THROW
+    ({
+        Board board(BOARD_TEST_1_STRING);
+    });
+    EXPECT_ANY_THROW
+    ({
+        Board board(nullptr);
+    });
+    EXPECT_ANY_THROW
+    ({
+        Board board("");
+    });
+    EXPECT_ANY_THROW
+    ({
+        Board board(std::string(BOARD_TEST_1_STRING).substr(0, Board::NUM_CELLS-1).c_str()); // missing cell
+    });
+    EXPECT_ANY_THROW
+    ({
+        Board board((std::string(BOARD_TEST_1_STRING) + '0').c_str());                       // extra cell
+    });
+    EXPECT_ANY_THROW
+    ({
+        Board board(std::string(BOARD_TEST_1_STRING).replace(0, 1, 1, 'x').c_str());        // non-digit
+    });
+}
+
 TEST(Board, initialize_s)
 {
     Board board;
@@ -68,7 +126,7 @@ TEST(Board, initialize_s)
     EXPECT_FALSE(board.initialize(std::string(BOARD_TEST_1_STRING).replace(0, 1, 1, 'x').c_str()));        // non-digit
 }
 
-TEST(Board, initialize_i)
+TEST(Board, initialize_v)
 {
     Board board;
     EXPECT_TRUE(board.initialize(BOARD_TEST_1_VECTOR));
@@ -79,6 +137,19 @@ TEST(Board, initialize_i)
     EXPECT_FALSE(board.initialize(std::vector<int>(Board::NUM_CELLS-1, Board::EMPTY))); // missing cell
     EXPECT_FALSE(board.initialize(std::vector<int>(Board::NUM_CELLS+1, Board::EMPTY))); // extra cell
     EXPECT_FALSE(board.initialize(std::vector<int>(Board::NUM_CELLS+1, -1)));           // invalid value
+}
+
+TEST(Board, cells)
+{
+    Board board;
+    EXPECT_EQ(board.cells().size(), Board::NUM_CELLS);
+    EXPECT_EQ(board.cells(), EMPTY_BOARD_VECTOR);
+
+    board.initialize(BOARD_TEST_1_VECTOR);
+    EXPECT_EQ(board.cells(), BOARD_TEST_1_VECTOR);
+
+    board.initialize(SOLVED_BOARD_VECTOR);
+    EXPECT_EQ(board.cells(), SOLVED_BOARD_VECTOR);
 }
 
 TEST(Board, serialize)

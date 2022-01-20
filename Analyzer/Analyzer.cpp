@@ -79,7 +79,13 @@ Analyzer::Analyzer(Board const & board)
         if (!board.isEmpty(i))
         {
             int x = board.get(i);
-            solve(i, x);
+            
+            // The cell has only one candidate
+            candidates_[i] = Candidates::fromValue(x);
+
+            // Eliminate this cell's value from its dependents' candidates
+            std::vector<int> dependents = Board::Cell::dependents(i);
+            eliminate(dependents, x);
         }
         return true;
     });
@@ -127,7 +133,7 @@ Analyzer::Step Analyzer::next()
         Naked naked(board_, candidates_);
         if (naked.singleExists(indexes, values, reason))
         {
-            solve(indexes.front(), values.front());
+            setValue(indexes.front(), values.front());
             XCODE_COMPATIBLE_ASSERT(candidatesAreValid());
             return { Step::SOLVE, indexes, values, Step::NAKED_SINGLE, reason };
         }
@@ -137,7 +143,7 @@ Analyzer::Step Analyzer::next()
         Hidden hidden(board_, candidates_);
         if (hidden.singleExists(indexes, values, reason))
         {
-            solve(indexes.front(), values.front());
+            setValue(indexes.front(), values.front());
             XCODE_COMPATIBLE_ASSERT(candidatesAreValid());
             return { Step::SOLVE, indexes, values, Step::HIDDEN_SINGLE, reason };
         }
@@ -368,7 +374,8 @@ nlohmann::json Analyzer::toJson() const
     };
 }
 
-void Analyzer::solve(int i, int x)
+// Sets cell i to x, and eliminates the value from candidates in all dependent cells
+void Analyzer::setValue(int i, int x)
 {
     // Update the board
     board_.set(i, x);

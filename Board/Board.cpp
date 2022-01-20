@@ -5,6 +5,8 @@ using json = nlohmann::json;
 
 #include <algorithm>
 #include <cassert>
+#include <cstring>
+#include <exception>
 #include <iterator>
 #include <memory>
 #include <string>
@@ -13,6 +15,18 @@ using json = nlohmann::json;
 Board::Board()
 {
     memset(&board_, EMPTY, sizeof(board_));
+}
+
+Board::Board(std::vector<int> const & v )
+{
+    if (!initialize(v))
+        throw std::invalid_argument("Board::Board: invalid argument");
+}
+
+Board::Board(char const * s)
+{
+    if (!initialize(s))
+        throw std::invalid_argument("Board::Board: invalid argument");
 }
 
 bool Board::initialize(std::vector<int> const & v )
@@ -56,6 +70,20 @@ bool Board::initialize(char const * s)
         return false;
 
     return true;
+}
+
+std::vector<int> Board::cells() const
+{
+    std::vector<int> out;
+    out.reserve(Board::NUM_CELLS);
+    for (auto const & row : board_)
+    {
+        for (int cell : row)
+        {
+            out.push_back(cell);
+        }
+    }
+    return out;
 }
 
 void Board::serialize(std::string & out) const

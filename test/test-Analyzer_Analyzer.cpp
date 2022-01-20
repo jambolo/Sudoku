@@ -41,15 +41,19 @@ TEST(Analyzer_Step, DISABLED_toJson)
 
 }
 
-TEST(Analyzer, DISABLED_Analyzer_board)
-{
+// Nothing to test yet
+//
+//TEST(Analyzer, DISABLED_Analyzer_board)
+//{
+//
+//}
 
-}
-
-TEST(Analyzer, DISABLED_Analyzer_board_candidates)
-{
-
-}
+// Nothing to test yet
+//
+//TEST(Analyzer, DISABLED_Analyzer_board_candidates)
+//{
+//
+//}
 
 TEST(Analyzer, DISABLED_next)
 {

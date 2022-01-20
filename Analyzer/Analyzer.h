@@ -88,7 +88,7 @@ public:
     nlohmann::json toJson() const;
 
 private:
-    void solve(int i, int x);
+    void setValue(int i, int x);
     void eliminate(std::vector<int> const & indexes, int x);
     void eliminate(std::vector<int> const & indexes, std::vector<int> const & values);
 
