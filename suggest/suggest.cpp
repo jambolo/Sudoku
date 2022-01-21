@@ -69,6 +69,8 @@ static void printStep(Analyzer::Step const & step, Verbosity verbosity, int i = 
         }
         case Analyzer::Step::STUCK:
             printf("Stuck\n");
+            if (!step.reason.empty())
+                printf("    %s\n", step.reason.c_str());
             break;
         case Analyzer::Step::DONE:
             printf("Done\n");

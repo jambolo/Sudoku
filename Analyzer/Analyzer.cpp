@@ -128,7 +128,23 @@ Analyzer::Step Analyzer::next()
     std::vector<int> indexes;
     std::vector<int> values;
     std::string reason;
-
+    
+    // Ensure that every cell has at least candidate. If not, then the board is not solvable.
+    {
+        for (int i = 0; i < Board::NUM_CELLS; ++i)
+        {
+            if (candidates_[i] == 0)
+            {
+                done_  = true;
+                stuck_ = true;
+                indexes.push_back(i);
+                values.push_back(0);
+                reason = "The puzzle cannot be solved. There are no candidates for " + Board::Cell::name(i) + ".";
+                return { Step::STUCK, indexes, values, Step::NONE, reason  };
+            }
+        }
+    }
+    
     {
         Naked naked(board_, candidates_);
         if (naked.singleExists(indexes, values, reason))
