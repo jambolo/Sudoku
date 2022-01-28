@@ -40,8 +40,6 @@ public:
                                   std::vector<int> const & group);
 private:
     static List find(Candidates::List const & candidates, int i0, std::vector<int> const & group);
-    static bool less(Strong const & lhs, Strong const & rhs);
-    static bool equal(Strong const & lhs, Strong const & rhs);
 };
 
 // In the solution, (*i0 != v0) | (*i1 != v0)
@@ -64,9 +62,13 @@ public:
 private:
     static List find(Candidates::List const & candidates, int u0, std::vector<int> const & group);
     static bool exists(Candidates::List const & candidates, int i0, int i1, Candidates::Type mask);
-    static bool less(Weak const & lhs, Weak const & rhs);
-    static bool equal(Weak const & lhs, Weak const & rhs);
 };
+
+bool operator < (Strong const & lhs, Strong const & rhs);
+bool operator == (Strong const & lhs, Strong const & rhs);
+bool operator < (Weak const & lhs, Weak const & rhs);
+bool operator == (Weak const & lhs, Weak const & rhs);
+
 } // namespace Link
 
 #endif // defined(ANALYZER_LINK_H_INCLUDED)

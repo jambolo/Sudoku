@@ -39,8 +39,8 @@ Strong::List Strong::find(Candidates::List const & candidates, int i)
     List boxLinks        = find(candidates, i, box);
     links.insert(links.end(), boxLinks.begin(), boxLinks.end());
 
-    std::sort(links.begin(), links.end(), less);
-    links.erase(std::unique(links.begin(), links.end(), equal), links.end());
+    std::sort(links.begin(), links.end());
+    links.erase(std::unique(links.begin(), links.end()), links.end());
 
     return links;
 }
@@ -191,34 +191,6 @@ bool Strong::existsIncremental(Candidates::List const & candidates,
     return true;
 }
 
-// BUG: For some unknown reason, overloading operator < produces an error
-bool Strong::less(Strong const & lhs, Strong const & rhs)
-{
-    if (equal(lhs, rhs))
-        return false;
-    if (lhs.v0 < rhs.v0)
-        return true;
-    if (rhs.v0 < lhs.v0)
-        return false;
-    if (lhs.v1 < rhs.v1)
-        return true;
-    if (rhs.v1 < lhs.v1)
-        return false;
-    if (lhs.i0 < rhs.i0)
-        return true;
-    if (rhs.i0 < lhs.i0)
-        return false;
-    return lhs.i1 < rhs.i1;
-}
-
-// BUG: For some unknown reason, overloading operator == produces an error
-bool Strong::equal(Strong const & lhs, Strong const & rhs)
-{
-    return (lhs.v0 == rhs.v0) &&
-           (lhs.v1 == rhs.v1) &&
-           (((lhs.i0 == rhs.i0) && (lhs.i1 == rhs.i1)) || ((lhs.i0 == rhs.i1) && (lhs.i1 == rhs.i0)));
-}
-
 /****************************************************************************************************************************************/
 
 Weak::List Weak::find(Candidates::List const & candidates, int i)
@@ -239,8 +211,8 @@ Weak::List Weak::find(Candidates::List const & candidates, int i)
     List boxLinks        = find(candidates, i, box);
     links.insert(links.end(), boxLinks.begin(), boxLinks.end());
 
-    std::sort(links.begin(), links.end(), less);
-    links.erase(std::unique(links.begin(), links.end(), equal), links.end());
+    std::sort(links.begin(), links.end());
+    links.erase(std::unique(links.begin(), links.end()), links.end());
 
     return links;
 }
@@ -302,8 +274,33 @@ bool Weak::exists(Candidates::List const & candidates, int i0, int i1, Candidate
     return (candidates[i0] & candidates[i1] & mask) != 0;
 }
 
-// BUG: For some unknown reason, overloading operator < produces an error
-bool Weak::less(Weak const & lhs, Weak const & rhs)
+bool Link::operator <(Strong const & lhs, Strong const & rhs)
+{
+    if (lhs == rhs)
+        return false;
+    if (lhs.v0 < rhs.v0)
+        return true;
+    if (rhs.v0 < lhs.v0)
+        return false;
+    if (lhs.v1 < rhs.v1)
+        return true;
+    if (rhs.v1 < lhs.v1)
+        return false;
+    if (lhs.i0 < rhs.i0)
+        return true;
+    if (rhs.i0 < lhs.i0)
+        return false;
+    return lhs.i1 < rhs.i1;
+}
+
+bool Link::operator ==(Strong const & lhs, Strong const & rhs)
+{
+    return (lhs.v0 == rhs.v0) &&
+           (lhs.v1 == rhs.v1) &&
+           (((lhs.i0 == rhs.i0) && (lhs.i1 == rhs.i1)) || ((lhs.i0 == rhs.i1) && (lhs.i1 == rhs.i0)));
+}
+
+bool Link::operator <(Weak const & lhs, Weak const & rhs)
 {
     XCODE_COMPATIBLE_ASSERT(lhs.i0 != lhs.i1);
     XCODE_COMPATIBLE_ASSERT(rhs.i0 != rhs.i1);
@@ -319,8 +316,7 @@ bool Weak::less(Weak const & lhs, Weak const & rhs)
     return std::max(lhs.i0, lhs.i1) < std::max(rhs.i0, rhs.i1);
 }
 
-// BUG: For some unknown reason, overloading operator == produces an error
-bool Weak::equal(Weak const & lhs, Weak const & rhs)
+bool Link::operator ==(Weak const & lhs, Weak const & rhs)
 {
     XCODE_COMPATIBLE_ASSERT(lhs.i0 != lhs.i1);
     XCODE_COMPATIBLE_ASSERT(rhs.i0 != rhs.i1);
