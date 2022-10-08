@@ -2,6 +2,7 @@
 
 #include <gtest/gtest.h>
 #include <algorithm>
+#include <numeric>
 #include <random>
 
 static char const EMPTY_BOARD_STRING[]  = "000000000000000000000000000000000000000000000000000000000000000000000000000000000";

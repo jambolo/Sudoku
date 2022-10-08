@@ -120,6 +120,7 @@ Strong::List Strong::find(Candidates::List const & candidates, int i0, std::vect
                 links.emplace_back(Strong { v, v, i0, i1 });
                 return false; // Only one strong link can exist in a group for any candidate
             }
+            return true;
         });
     }
     return links;
