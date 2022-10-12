@@ -141,36 +141,39 @@ int main(int argc, char ** argv)
     }
     else
     {
-        // Count the number of times a step of each difficulty is used
+        // Count the number of times a step of each difficulty is used and find the highest difficulty
         std::map<int, int> difficultyCounts;
+        int highestDifficulty = 0;
         for (auto const & step : steps)
         {
             if (step.technique != Analyzer::Step::NONE)
             {
                 int difficulty = Analyzer::Step::techniqueDifficulty(step.technique);
                 ++difficultyCounts[difficulty];
+                if (difficulty > highestDifficulty)
+                    highestDifficulty = difficulty;
             }
         }
 
         // Overall difficulty is computed as follows:
         //
-        // for each difficulty
-        //     add the difficulty factor, 2 ** (d + (1 - 1/n)/2)
-        // return log2 of the result - 1
-        // The result is the difficulty of the highest step plus up to 0.5 for additional steps of that difficulty, plus up to 0.5 for
+        // $$D \left( 1 + {1 \over 2}{{n_D - 1} \over n_D + 1} + {1 \over 2} \sum_{d=1}^{D-1} {{n_d \over {n_d+1}} {1 \over 2^{D-d}}} \right)$$
+        // where _D_ is the highest difficulty, _n_ is the number of steps of difficulty _d_.
+        //
+        // The result is the highest difficulty plus up to 0.5 for additional steps of that difficulty, plus up to 0.5
         // for lower difficulty steps.
 
-        overallDifficulty = 0.0f;
+        overallDifficulty = float(highestDifficulty);
+        overallDifficulty -= 0.5f / float(difficultyCounts[highestDifficulty] + 1);
         for (auto const & entry : difficultyCounts)
         {
             int d = entry.first;
             int n = entry.second;
             XCODE_COMPATIBLE_ASSERT(d > 0);
             XCODE_COMPATIBLE_ASSERT(n > 0);
-            float factor = pow(2.0f, d + (1.0f - 1.0f / n) * 0.5f);
+            float factor = float(n) / float(n + 1) * powf(2.0f, float(d - highestDifficulty - 1));
             overallDifficulty += factor;
         }
-        overallDifficulty = log2(overallDifficulty) - 1;
     }
 
     if (verbosity >= VERBOSE)

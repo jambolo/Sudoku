@@ -46,13 +46,13 @@ Rates the difficulty of a puzzle
 
 #### Difficulty computation
 
-The overall difficulty is computed as follows:
+The overall difficulty is
+$$D \left( 1 + {1 \over 2}{{n_D - 1} \over n_D + 1} + {1 \over 2} \sum_{d=1}^{D-1} {{n_d \over {n_d+1}} {1 \over 2^{D-d}}} \right)$$
+where _K_ is the highest difficulty technique, _d_ is the difficulty of technique _i_ and _n_ is the number of times
+technique _i_ is used.
 
-    for each difficulty
-        add the difficulty factor, 2 ** (d + (1 - 1/n)/2)
-    return log2 of the result - 1
-
-The result is the difficulty factor of the most difficult step plus up to +0.5 for additional steps of that difficulty, plus up to 0.5 for for lower difficulty steps.
+The result is the difficulty factor of the most difficult technique plus up to +0.5 for additional steps of that
+technique, plus up to +0.5 for for lower difficulty techniques.
 
 ## solve
 Solves a puzzle
