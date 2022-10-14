@@ -39,14 +39,14 @@ struct TechniqueInfoEntry
 static TechniqueInfoEntry const TECHNIQUE_INFO[Analyzer::Step::NUMBER_OF_TECHNIQUES] =
 {
     { "none",              0 },
-    { "hidden single",     2 },
-    { "hidden pair",       5 },
-    { "hidden triple",     5 },
+    { "hidden single",     1 },
+    { "hidden pair",       2 },
+    { "hidden triple",     3 },
     { "hidden quad",       5 },
     { "naked single",      1 },
-    { "naked pair",        3 },
+    { "naked pair",        2 },
     { "naked triple",      3 },
-    { "naked quad",        3 },
+    { "naked quad",        5 },
     { "locked candidates", 4 },
     { "x-wing",            6 },
     { "xy-wing",           7 },
@@ -146,6 +146,16 @@ Analyzer::Step Analyzer::next()
     }
     
     {
+        Hidden hidden(board_, candidates_);
+        if (hidden.singleExists(indexes, values, reason))
+        {
+            setValue(indexes.front(), values.front());
+            XCODE_COMPATIBLE_ASSERT(candidatesAreValid());
+            return { Step::SOLVE, indexes, values, Step::HIDDEN_SINGLE, reason };
+        }
+    }
+
+    {
         Naked naked(board_, candidates_);
         if (naked.singleExists(indexes, values, reason))
         {
@@ -157,11 +167,11 @@ Analyzer::Step Analyzer::next()
 
     {
         Hidden hidden(board_, candidates_);
-        if (hidden.singleExists(indexes, values, reason))
+        if (hidden.pairExists(indexes, values, reason))
         {
-            setValue(indexes.front(), values.front());
+            eliminate (indexes, values);
             XCODE_COMPATIBLE_ASSERT(candidatesAreValid());
-            return { Step::SOLVE, indexes, values, Step::HIDDEN_SINGLE, reason };
+            return { Step::SOLVE, indexes, values, Step::HIDDEN_PAIR, reason };
         }
     }
 
@@ -176,22 +186,22 @@ Analyzer::Step Analyzer::next()
     }
 
     {
+        Hidden hidden(board_, candidates_);
+        if (hidden.tripleExists(indexes, values, reason))
+        {
+            eliminate(indexes, values);
+            XCODE_COMPATIBLE_ASSERT(candidatesAreValid());
+            return { Step::ELIMINATE, indexes, values, Step::HIDDEN_TRIPLE, reason };
+        }
+    }
+
+{
         Naked naked(board_, candidates_);
         if (naked.tripleExists(indexes, values, reason))
         {
             eliminate(indexes, values);
             XCODE_COMPATIBLE_ASSERT(candidatesAreValid());
             return { Step::ELIMINATE, indexes, values, Step::NAKED_TRIPLE, reason };
-        }
-    }
-
-    {
-        Naked naked(board_, candidates_);
-        if (naked.quadExists(indexes, values, reason))
-        {
-            eliminate(indexes, values);
-            XCODE_COMPATIBLE_ASSERT(candidatesAreValid());
-            return { Step::ELIMINATE, indexes, values, Step::NAKED_QUAD, reason };
         }
     }
 
@@ -206,22 +216,22 @@ Analyzer::Step Analyzer::next()
     }
 
     {
-        Hidden hidden(board_, candidates_);
-        if (hidden.pairExists(indexes, values, reason))
+        XWing xWing(candidates_);
+        if (xWing.exists(indexes, values, reason))
         {
             eliminate(indexes, values);
             XCODE_COMPATIBLE_ASSERT(candidatesAreValid());
-            return { Step::ELIMINATE, indexes, values, Step::HIDDEN_PAIR, reason };
+            return { Step::ELIMINATE, indexes, values, Step::X_WING, reason };
         }
     }
 
     {
-        Hidden hidden(board_, candidates_);
-        if (hidden.tripleExists(indexes, values, reason))
+        Naked naked(board_, candidates_);
+        if (naked.quadExists(indexes, values, reason))
         {
             eliminate(indexes, values);
             XCODE_COMPATIBLE_ASSERT(candidatesAreValid());
-            return { Step::ELIMINATE, indexes, values, Step::HIDDEN_TRIPLE, reason };
+            return { Step::ELIMINATE, indexes, values, Step::NAKED_QUAD, reason };
         }
     }
 
@@ -236,12 +246,12 @@ Analyzer::Step Analyzer::next()
     }
 
     {
-        XWing xWing(candidates_);
-        if (xWing.exists(indexes, values, reason))
+        XYWing xyWing(candidates_);
+        if (xyWing.exists(indexes, values, reason))
         {
             eliminate(indexes, values);
             XCODE_COMPATIBLE_ASSERT(candidatesAreValid());
-            return { Step::ELIMINATE, indexes, values, Step::X_WING, reason };
+            return { Step::ELIMINATE, indexes, values, Step::XY_WING, reason };
         }
     }
 
@@ -262,16 +272,6 @@ Analyzer::Step Analyzer::next()
             eliminate(indexes, values);
             XCODE_COMPATIBLE_ASSERT(candidatesAreValid());
             return { Step::ELIMINATE, indexes, values, Step::JELLYFISH, reason };
-        }
-    }
-
-    {
-        XYWing xyWing(candidates_);
-        if (xyWing.exists(indexes, values, reason))
-        {
-            eliminate(indexes, values);
-            XCODE_COMPATIBLE_ASSERT(candidatesAreValid());
-            return { Step::ELIMINATE, indexes, values, Step::XY_WING, reason };
         }
     }
 
