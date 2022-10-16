@@ -6,6 +6,7 @@
 #include "LockedCandidates.h"
 #include "Naked.h"
 #include "SimpleColoring.h"
+#include "UniqueRectangle.h"
 #include "XWing.h"
 #include "XYWing.h"
 
@@ -52,9 +53,11 @@ static TechniqueInfoEntry const TECHNIQUE_INFO[Analyzer::Step::NUMBER_OF_TECHNIQ
     { "xy-wing",           7 },
     { "swordfish",         7 },
     { "jellyfish",         8 },
-    { "simple coloring",   8 }
+    { "simple coloring",   8 },
+    { "unique rectangle",  8 }
 };
-static_assert((size_t)Analyzer::Step::NUMBER_OF_TECHNIQUES == sizeof(TECHNIQUE_INFO) / sizeof(*TECHNIQUE_INFO), "techniqueInfo has the wrong number of elements");
+static_assert((size_t)Analyzer::Step::NUMBER_OF_TECHNIQUES == sizeof(TECHNIQUE_INFO) / sizeof(*TECHNIQUE_INFO),
+              "techniqueInfo has the wrong number of elements");
 
 static int const HIGHEST_DIFFICULTY = 8; // from the table above
 
@@ -76,19 +79,19 @@ Analyzer::Analyzer(Board const & board)
 
     // Update candidates according to known cells
     Board::ForEach::cell([&] (int i) {
-        if (!board.isEmpty(i))
-        {
-            int x = board.get(i);
-            
-            // The cell has only one candidate
-            candidates_[i] = Candidates::fromValue(x);
+                             if (!board.isEmpty(i))
+                             {
+                                 int x = board.get(i);
 
-            // Eliminate this cell's value from its dependents' candidates
-            std::vector<int> dependents = Board::Cell::dependents(i);
-            eliminate(dependents, x);
-        }
-        return true;
-    });
+                                 // The cell has only one candidate
+                                 candidates_[i] = Candidates::fromValue(x);
+
+                                 // Eliminate this cell's value from its dependents' candidates
+                                 std::vector<int> dependents = Board::Cell::dependents(i);
+                                 eliminate(dependents, x);
+                             }
+                             return true;
+                         });
 
 #if defined(_DEBUG)
     // Sanity check -- validate the candidates
@@ -127,8 +130,8 @@ Analyzer::Step Analyzer::next()
 
     std::vector<int> indexes;
     std::vector<int> values;
-    std::string reason;
-    
+    std::string      reason;
+
     // Ensure that every cell has at least candidate. If not, then the board is not solvable.
     {
         for (int i = 0; i < Board::NUM_CELLS; ++i)
@@ -144,7 +147,7 @@ Analyzer::Step Analyzer::next()
             }
         }
     }
-    
+
     {
         Hidden hidden(board_, candidates_);
         if (hidden.singleExists(indexes, values, reason))
@@ -169,7 +172,7 @@ Analyzer::Step Analyzer::next()
         Hidden hidden(board_, candidates_);
         if (hidden.pairExists(indexes, values, reason))
         {
-            eliminate (indexes, values);
+            eliminate(indexes, values);
             XCODE_COMPATIBLE_ASSERT(candidatesAreValid());
             return { Step::SOLVE, indexes, values, Step::HIDDEN_PAIR, reason };
         }
@@ -195,7 +198,7 @@ Analyzer::Step Analyzer::next()
         }
     }
 
-{
+    {
         Naked naked(board_, candidates_);
         if (naked.tripleExists(indexes, values, reason))
         {
@@ -252,6 +255,16 @@ Analyzer::Step Analyzer::next()
             eliminate(indexes, values);
             XCODE_COMPATIBLE_ASSERT(candidatesAreValid());
             return { Step::ELIMINATE, indexes, values, Step::XY_WING, reason };
+        }
+    }
+
+    {
+        UniqueRectangle uniqueRectangle(candidates_);
+        if (uniqueRectangle.exists(indexes, values, reason))
+        {
+            eliminate(indexes, values);
+            XCODE_COMPATIBLE_ASSERT(candidatesAreValid());
+            return { Step::ELIMINATE, indexes, values, Step::UNIQUE_RECTANGLE, reason };
         }
     }
 
@@ -371,7 +384,7 @@ void Analyzer::drawCandidates() const
 
 nlohmann::json Analyzer::toJson() const
 {
-    std::vector<std::vector<std::vector<int> > > candidateValues;
+    std::vector<std::vector<std::vector<int>>> candidateValues;
     candidateValues.resize(Board::SIZE);
     for (int r = 0; r < Board::SIZE; ++r)
     {
@@ -384,7 +397,7 @@ nlohmann::json Analyzer::toJson() const
             candidateValues[r].emplace_back(std::move(values));
         }
     }
-    return json {
+    return json{
                { "board", board_.toJson() },
                { "candidates", candidateValues }
     };
@@ -425,10 +438,10 @@ void Analyzer::eliminate(std::vector<int> const & indexes, std::vector<int> cons
 bool Analyzer::candidatesAreValid()
 {
     return Board::ForEach::cell([&] (int i) {
-        int v = solvedBoard_.get(i);
-        XCODE_COMPATIBLE_ASSERT(v != Board::EMPTY); // Sanity check
-        return (Candidates::fromValue(v) & candidates_[i]) != 0;
-    });
+                                    int v = solvedBoard_.get(i);
+                                    XCODE_COMPATIBLE_ASSERT(v != Board::EMPTY); // Sanity check
+                                    return (Candidates::fromValue(v) & candidates_[i]) != 0;
+                                });
 }
 
 #endif // defined(_DEBUG)

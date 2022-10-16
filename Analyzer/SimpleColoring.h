@@ -2,7 +2,6 @@
 #define ANALYZER_SIMPLECOLORING_H_INCLUDED 1
 #pragma once
 
-#include "Board/Board.h"
 #include "Candidates.h"
 #include <set>
 #include <string>
@@ -19,14 +18,14 @@ public:
 private:
     static std::string generateReason(int v, std::vector<int> const & collisions, std::set<int> const & eliminated);
     static std::string generateReason(int v, int i, std::vector<int> const & red, std::vector<int> const & green);
-    void        infer(int v, int i0, std::set<int> & a, std::set<int> & b);
-    bool        collisionsFound(std::set<int> const & indexes, std::vector<int> & collisions);
-    bool        canSeeBoth(int v,
-                           std::set<int> const & red,
-                           std::set<int> const & green,
-                           int & other,
-                           std::vector<int> & redDependents,
-                           std::vector<int> & greenDependents);
+    void               infer(int v, int i0, std::set<int> & a, std::set<int> & b);
+    bool               collisionsFound(std::set<int> const & indexes, std::vector<int> & collisions);
+    bool               canSeeBoth(int                   v,
+                                  std::set<int> const & red,
+                                  std::set<int> const & green,
+                                  int &                 other,
+                                  std::vector<int> &    redDependents,
+                                  std::vector<int> &    greenDependents);
 
     Candidates::List const & candidates_;
 };

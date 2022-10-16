@@ -2,7 +2,6 @@
 #define ANALYZER_LOCKEDCANDIDATES_H_INCLUDED 1
 #pragma once
 
-#include "Board/Board.h"
 #include "Candidates.h"
 #include <string>
 #include <vector>

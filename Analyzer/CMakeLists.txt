@@ -15,6 +15,8 @@ set(SOURCES
     Naked.h
     SimpleColoring.cpp
     SimpleColoring.h
+    UniqueRectangle.cpp
+    UniqueRectangle.h
     XWing.cpp
     XWing.h
     XYWing.cpp

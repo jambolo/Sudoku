@@ -43,15 +43,16 @@ public:
             SWORDFISH,
             JELLYFISH,
             SIMPLE_COLORING,
-            LAST = SIMPLE_COLORING
+            UNIQUE_RECTANGLE,
+            LAST = UNIQUE_RECTANGLE
         };
         static int constexpr NUMBER_OF_TECHNIQUES = TechniqueId::LAST - TechniqueId::NONE + 1;
 
-        ActionId         action;    // Action perforned in the step
+        ActionId action;            // Action perforned in the step
         std::vector<int> indexes;   // Affected indexes
         std::vector<int> values;    // Affected values
-        TechniqueId      technique; // Technique used
-        std::string      reason;    // Explanation of the step
+        TechniqueId technique;      // Technique used
+        std::string reason;         // Explanation of the step
 
         // Returns the name of the TechniqueId
         static char const * techniqueName(TechniqueId technique);
@@ -107,4 +108,3 @@ private:
 };
 
 #endif // defined(ANALYZER_ANALYZER_H_INCLUDED)
-

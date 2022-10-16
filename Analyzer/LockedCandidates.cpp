@@ -1,5 +1,7 @@
 #include "LockedCandidates.h"
 
+#include "Board/Board.h"
+
 #include <algorithm>
 #include <iterator>
 #include <string>
@@ -33,22 +35,22 @@ bool LockedCandidates::exists(std::vector<int> & indexes,
     // intersection but not in the rest of the row/column, then success if those candidates exist in the box.
 
     bool found;
-    int which1, which2;
+    int  which1, which2;
 
     found = !Board::ForEach::row([&](int r, std::vector<int> const & row) {
-        for (int c = 0; c < Board::SIZE; c += Board::BOX_SIZE)
-        {
-            int b = Board::Group::whichBox(r, c);
-            std::vector<int> box = Board::Group::box(b);
-            if (find(row, box, indexes, values))
-            {
-                which1 = r;
-                which2 = b;
-                return false;   // done
-            }
-        }
-        return true;
-    });
+                                     for (int c = 0; c < Board::SIZE; c += Board::BOX_SIZE)
+                                     {
+                                         int b = Board::Group::whichBox(r, c);
+                                         std::vector<int> box = Board::Group::box(b);
+                                         if (find(row, box, indexes, values))
+                                         {
+                                             which1 = r;
+                                             which2 = b;
+                                             return false; // done
+                                         }
+                                     }
+                                     return true;
+                                 });
     if (found)
     {
         reason = generateReason("row", Board::Group::rowName(which1), "box", Board::Group::boxName(which2));
@@ -56,19 +58,19 @@ bool LockedCandidates::exists(std::vector<int> & indexes,
     }
 
     found = !Board::ForEach::column([&](int c, std::vector<int> const & column) {
-        for (int r = 0; r < Board::SIZE; r += Board::BOX_SIZE)
-        {
-            int b = Board::Group::whichBox(r, c);
-            std::vector<int> box = Board::Group::box(b);
-            if (find(column, box, indexes, values))
-            {
-                which1 = c;
-                which2 = b;
-                return false;   // done
-            }
-        }
-        return true;
-    });
+                                        for (int r = 0; r < Board::SIZE; r += Board::BOX_SIZE)
+                                        {
+                                            int b = Board::Group::whichBox(r, c);
+                                            std::vector<int> box = Board::Group::box(b);
+                                            if (find(column, box, indexes, values))
+                                            {
+                                                which1 = c;
+                                                which2 = b;
+                                                return false; // done
+                                            }
+                                        }
+                                        return true;
+                                    });
     if (found)
     {
         reason = generateReason("column", Board::Group::columnName(which1), "box", Board::Group::boxName(which2));
@@ -79,19 +81,19 @@ bool LockedCandidates::exists(std::vector<int> & indexes,
     // intersection but not in the rest of the box, then success if those candidates exist in the row/column.
 
     found = !Board::ForEach::row([&](int r, std::vector<int> const & row) {
-        for (int c = 0; c < Board::SIZE; c += Board::BOX_SIZE)
-        {
-            int b = Board::Group::whichBox(r, c);
-            std::vector<int> box = Board::Group::box(b);
-            if (find(box, row, indexes, values))
-            {
-                which1 = b;
-                which2 = r;
-                return false;   // done
-            }
-        }
-        return true;
-    });
+                                     for (int c = 0; c < Board::SIZE; c += Board::BOX_SIZE)
+                                     {
+                                         int b = Board::Group::whichBox(r, c);
+                                         std::vector<int> box = Board::Group::box(b);
+                                         if (find(box, row, indexes, values))
+                                         {
+                                             which1 = b;
+                                             which2 = r;
+                                             return false; // done
+                                         }
+                                     }
+                                     return true;
+                                 });
     if (found)
     {
         reason = generateReason("box", Board::Group::boxName(which1), "row", Board::Group::rowName(which2));
@@ -99,19 +101,19 @@ bool LockedCandidates::exists(std::vector<int> & indexes,
     }
 
     found = !Board::ForEach::column([&](int c, std::vector<int> const & column) {
-        for (int r = 0; r < Board::SIZE; r += Board::BOX_SIZE)
-        {
-            int b = Board::Group::whichBox(r, c);
-            std::vector<int> box = Board::Group::box(b);
-            if (find(box, column, indexes, values))
-            {
-                which1 = b;
-                which2 = c;
-                return false;   // done
-            }
-        }
-        return true;
-    });
+                                        for (int r = 0; r < Board::SIZE; r += Board::BOX_SIZE)
+                                        {
+                                            int b = Board::Group::whichBox(r, c);
+                                            std::vector<int> box = Board::Group::box(b);
+                                            if (find(box, column, indexes, values))
+                                            {
+                                                which1 = b;
+                                                which2 = c;
+                                                return false; // done
+                                            }
+                                        }
+                                        return true;
+                                    });
     if (found)
     {
         reason = generateReason("box", Board::Group::boxName(which1), "row", Board::Group::columnName(which2));

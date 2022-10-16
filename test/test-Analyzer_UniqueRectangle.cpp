@@ -1,0 +1,25 @@
+#include "Analyzer/UniqueRectangle.h"
+
+#include <gtest/gtest.h>
+
+// Type 1:
+// 006324815850691070001785000004037680380062147067418350000173008000846021008259700
+
+// Type 2
+// 420900386060200794809060251700003025900102603200500008004020567682700439000000812
+// 070903082000020000200407001605002109020004060708000205900205006002070000010309020
+
+TEST(UniqueRectangle, DISABLED_UniqueRectangle)
+{
+}
+
+TEST(UniqueRectangle, DISABLED_exists)
+{
+}
+
+int main(int argc, char ** argv)
+{
+    ::testing::InitGoogleTest(&argc, argv);
+    int rv = RUN_ALL_TESTS();
+    return rv;
+}

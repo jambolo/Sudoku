@@ -23,13 +23,13 @@ public:
     Board();
 
     // Constructs a board with initial values
-    explicit Board(std::vector<int> const & v );
+    explicit Board(std::vector<int> const & v);
 
     // Constructs a board from a terminated string of 81 digits
     explicit Board(char const * s);
 
     // Initializes the board
-    bool initialize(std::vector<int> const & v );
+    bool initialize(std::vector<int> const & v);
 
     // Initializes the board from a terminated string of 81 digits
     bool initialize(char const * s);
@@ -83,10 +83,10 @@ public:
     nlohmann::json toJson() const;
 
 private:
-    bool        consistent(std::vector<int> const & group) const;
-    bool        boxIsConsistent(int b) const;
-    bool        columnIsConsistent(int c) const;
-    bool        rowIsConsistent(int r) const;
+    bool consistent(std::vector<int> const & group) const;
+    bool boxIsConsistent(int b) const;
+    bool columnIsConsistent(int c) const;
+    bool rowIsConsistent(int r) const;
 
     static bool consistent(int x, int & values);
 
@@ -206,7 +206,7 @@ public:
     // Returns indexes of all cells that depend on this one
     static std::vector<int> const & dependents(int i);
 
-    // Returns indexes of all cells that depend on this one
+    // Returns indexes of all cells that depend on both of these
     static std::vector<int> dependents(int i0, int i1);
 
     // Returns the index of a row and column

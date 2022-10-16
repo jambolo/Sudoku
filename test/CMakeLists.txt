@@ -26,6 +26,7 @@ set(SOURCES
     test-Analyzer_SimpleColoring.cpp
     test-Analyzer_XWing.cpp
     test-Analyzer_XYWing.cpp
+    test-Analyzer_UniqueRectangle.cpp
 
     test-Board_Board.cpp
 
