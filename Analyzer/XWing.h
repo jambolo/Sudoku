@@ -1,12 +1,12 @@
 #if !defined(ANALYZER_XWING_H_INCLUDED)
-#define ANALYZER_XWING_H_INCLUDED   1
+#define ANALYZER_XWING_H_INCLUDED 1
 #pragma once
 
 #include "Board/Board.h"
 #include "Candidates.h"
+#include <set>
 #include <string>
 #include <vector>
-#include <set>
 
 class XWing
 {
@@ -18,8 +18,8 @@ public:
     bool exists(std::vector<int> & indexes, std::vector<int> & values, std::string & reason);
 
 private:
-    int findRow(std::vector<int> & eliminatedIndexes, std::vector<int> & pivots);
-    int findColumn(std::vector<int> & eliminatedIndexes, std::vector<int> & pivots);
+    int                findRow(std::vector<int> & eliminatedIndexes, std::vector<int> & pivots);
+    int                findColumn(std::vector<int> & eliminatedIndexes, std::vector<int> & pivots);
     static std::string rowReason(int value, std::vector<int> const & pivots);
     static std::string columnReason(int value, std::vector<int> const & pivots);
 
@@ -36,8 +36,8 @@ public:
     bool exists(std::vector<int> & indexes, std::vector<int> & values, std::string & reason);
 
 private:
-    int findRow(std::vector<int> & eliminatedIndexes, std::vector<int> & pivots);
-    int findColumn(std::vector<int> & eliminatedIndexes, std::vector<int> & pivots);
+    int                findRow(std::vector<int> & eliminatedIndexes, std::vector<int> & pivots);
+    int                findColumn(std::vector<int> & eliminatedIndexes, std::vector<int> & pivots);
     static std::string rowReason(int value, std::vector<int> const & pivots);
     static std::string columnReason(int value, std::vector<int> const & pivots);
 
@@ -62,6 +62,5 @@ private:
 
     Candidates::List const & candidates_;
 };
-
 
 #endif // defined(ANALYZER_XWING_H_INCLUDED)

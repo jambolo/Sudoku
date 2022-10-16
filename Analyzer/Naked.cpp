@@ -24,17 +24,17 @@ bool Naked::pairExists(std::vector<int> & indexes, std::vector<int> & values, st
     // For each exclusive pair in a group, if there are other candidates that overlap, then success.
 
     bool found;
-    int which;
+    int  which;
     std::vector<int> nakedIndexes;
 
     found = !Board::ForEach::row([&] (int r, std::vector<int> const & row) {
-        if (Naked::pair(row, indexes, values, nakedIndexes))
-        {
-            which = r;
-            return false; // done
-        }
-        return true;
-    });
+                                     if (Naked::pair(row, indexes, values, nakedIndexes))
+                                     {
+                                         which = r;
+                                         return false; // done
+                                     }
+                                     return true;
+                                 });
     if (found)
     {
         reason = pairReason("row", Board::Group::rowName(which), nakedIndexes);
@@ -42,13 +42,13 @@ bool Naked::pairExists(std::vector<int> & indexes, std::vector<int> & values, st
     }
 
     found = !Board::ForEach::column([&] (int c, std::vector<int> const & column) {
-        if (Naked::pair(column, indexes, values, nakedIndexes))
-        {
-            which = c;
-            return false; // done
-        }
-        return true;
-    });
+                                        if (Naked::pair(column, indexes, values, nakedIndexes))
+                                        {
+                                            which = c;
+                                            return false; // done
+                                        }
+                                        return true;
+                                    });
     if (found)
     {
         reason = pairReason("column", Board::Group::columnName(which), nakedIndexes);
@@ -56,13 +56,13 @@ bool Naked::pairExists(std::vector<int> & indexes, std::vector<int> & values, st
     }
 
     found = !Board::ForEach::box([&] (int b, std::vector<int> const & box) {
-        if (Naked::pair(box, indexes, values, nakedIndexes))
-        {
-            which = b;
-            return false; // done
-        }
-        return true;
-    });
+                                     if (Naked::pair(box, indexes, values, nakedIndexes))
+                                     {
+                                         which = b;
+                                         return false; // done
+                                     }
+                                     return true;
+                                 });
     if (found)
     {
         reason = pairReason("box", Board::Group::boxName(which), nakedIndexes);
@@ -79,17 +79,17 @@ bool Naked::tripleExists(std::vector<int> & indexes,
     // For each exclusive triple in a group, if there are other candidates that overlap, then success.
 
     bool found;
-    int which;
+    int  which;
     std::vector<int> nakedIndexes;
 
     found = !Board::ForEach::row([&] (int r, std::vector<int> const & row) {
-        if (Naked::triple(row, indexes, values, nakedIndexes))
-        {
-            which = r;
-            return false; // done
-        }
-        return true;
-    });
+                                     if (Naked::triple(row, indexes, values, nakedIndexes))
+                                     {
+                                         which = r;
+                                         return false; // done
+                                     }
+                                     return true;
+                                 });
     if (found)
     {
         reason = tripleReason("row", Board::Group::rowName(which), nakedIndexes);
@@ -97,13 +97,13 @@ bool Naked::tripleExists(std::vector<int> & indexes,
     }
 
     found = !Board::ForEach::column([&] (int c, std::vector<int> const & column) {
-        if (Naked::triple(column, indexes, values, nakedIndexes))
-        {
-            which = c;
-            return false; // done
-        }
-        return true;
-    });
+                                        if (Naked::triple(column, indexes, values, nakedIndexes))
+                                        {
+                                            which = c;
+                                            return false; // done
+                                        }
+                                        return true;
+                                    });
     if (found)
     {
         reason = tripleReason("column", Board::Group::columnName(which), nakedIndexes);
@@ -111,13 +111,13 @@ bool Naked::tripleExists(std::vector<int> & indexes,
     }
 
     found = !Board::ForEach::box([&] (int b, std::vector<int> const & box) {
-        if (Naked::triple(box, indexes, values, nakedIndexes))
-        {
-            which = b;
-            return false; // done
-        }
-        return true;
-    });
+                                     if (Naked::triple(box, indexes, values, nakedIndexes))
+                                     {
+                                         which = b;
+                                         return false; // done
+                                     }
+                                     return true;
+                                 });
     if (found)
     {
         reason = tripleReason("box", Board::Group::boxName(which), nakedIndexes);
@@ -132,17 +132,17 @@ bool Naked::quadExists(std::vector<int> & indexes, std::vector<int> & values, st
     // For each exclusive quad in a group, if there are other candidates that overlap, then success.
 
     bool found;
-    int which;
+    int  which;
     std::vector<int> nakedIndexes;
 
     found = !Board::ForEach::row([&] (int r, std::vector<int> const & row) {
-        if (Naked::quad(row, indexes, values, nakedIndexes))
-        {
-            which = r;
-            return false; // done
-        }
-        return true;
-    });
+                                     if (Naked::quad(row, indexes, values, nakedIndexes))
+                                     {
+                                         which = r;
+                                         return false; // done
+                                     }
+                                     return true;
+                                 });
     if (found)
     {
         reason = quadReason("row", Board::Group::rowName(which), nakedIndexes);
@@ -150,13 +150,13 @@ bool Naked::quadExists(std::vector<int> & indexes, std::vector<int> & values, st
     }
 
     found = !Board::ForEach::column([&] (int c, std::vector<int> const & column) {
-        if (Naked::quad(column, indexes, values, nakedIndexes))
-        {
-            which = c;
-            return false; // done
-        }
-        return true;
-    });
+                                        if (Naked::quad(column, indexes, values, nakedIndexes))
+                                        {
+                                            which = c;
+                                            return false; // done
+                                        }
+                                        return true;
+                                    });
     if (found)
     {
         reason = quadReason("column", Board::Group::columnName(which), nakedIndexes);
@@ -164,13 +164,13 @@ bool Naked::quadExists(std::vector<int> & indexes, std::vector<int> & values, st
     }
 
     found = !Board::ForEach::box([&] (int b, std::vector<int> const & box) {
-        if (Naked::quad(box, indexes, values, nakedIndexes))
-        {
-            which = b;
-            return false; // done
-        }
-        return true;
-    });
+                                     if (Naked::quad(box, indexes, values, nakedIndexes))
+                                     {
+                                         which = b;
+                                         return false; // done
+                                     }
+                                     return true;
+                                 });
     if (found)
     {
         reason = quadReason("box", Board::Group::boxName(which), nakedIndexes);
@@ -183,18 +183,18 @@ bool Naked::quadExists(std::vector<int> & indexes, std::vector<int> & values, st
 bool Naked::single(std::vector<int> & indexes, std::vector<int> & values)
 {
     return !Board::ForEach::cell([&](int i) {
-        if (board_.isEmpty(i))
-        {
-            Candidates::Type c = candidates_[i];
-            if (Candidates::isSolved(c))
-            {
-                indexes.push_back(i);
-                values.push_back(Candidates::value(c));
-                return false;
-            }
-        }
-        return true;
-    });
+                                     if (board_.isEmpty(i))
+                                     {
+                                         Candidates::Type c = candidates_[i];
+                                         if (Candidates::isSolved(c))
+                                         {
+                                             indexes.push_back(i);
+                                             values.push_back(Candidates::value(c));
+                                             return false;
+                                         }
+                                     }
+                                     return true;
+                                 });
 }
 
 bool Naked::pair(std::vector<int> const & indexes,
@@ -205,7 +205,7 @@ bool Naked::pair(std::vector<int> const & indexes,
     for (int b0 = 0; b0 < Board::SIZE - 1; ++b0)
     {
         int i0 = indexes[b0];
-        Candidates::Type candidates0 = candidates_[i0];
+        Candidates::Type candidates0           = candidates_[i0];
         Candidates::Type cumulativeCandidates0 = candidates0;
         int count0 = Candidates::count(candidates0);
         if (count0 > 1 && count0 <= 2)
@@ -218,10 +218,10 @@ bool Naked::pair(std::vector<int> const & indexes,
                 if (Candidates::count(c) > 1 && Candidates::count(cumulativeCandidates) == 2)
                 {
                     Board::ForEach::indexExcept(indexes, i0, i1, [&](int i) {
-                        if (candidates_[i] & cumulativeCandidates)
-                            eliminatedIndexes.push_back(i);
-                        return true;
-                    });
+                                                    if (candidates_[i] & cumulativeCandidates)
+                                                        eliminatedIndexes.push_back(i);
+                                                    return true;
+                                                });
                     if (!eliminatedIndexes.empty())
                     {
                         eliminatedValues = Candidates::values(cumulativeCandidates);
@@ -243,7 +243,7 @@ bool Naked::triple(std::vector<int> const & indexes,
     for (int b0 = 0; b0 < Board::SIZE - 2; ++b0)
     {
         int i0 = indexes[b0];
-        Candidates::Type candidates0 = candidates_[i0];
+        Candidates::Type candidates0           = candidates_[i0];
         Candidates::Type cumulativeCandidates0 = candidates0;
         int count0 = Candidates::count(candidates0);
         if (count0 > 1 && count0 <= 3)
@@ -251,7 +251,7 @@ bool Naked::triple(std::vector<int> const & indexes,
             for (int b1 = b0 + 1; b1 < Board::SIZE - 1; ++b1)
             {
                 int i1 = indexes[b1];
-                Candidates::Type candidates1 = candidates_[i1];
+                Candidates::Type candidates1           = candidates_[i1];
                 Candidates::Type cumulativeCandidates1 = cumulativeCandidates0 | candidates1;
                 if (Candidates::count(candidates1) > 1 && Candidates::count(cumulativeCandidates1) <= 3)
                 {
@@ -263,10 +263,10 @@ bool Naked::triple(std::vector<int> const & indexes,
                         if (Candidates::count(c) > 1 && Candidates::count(cumulativeCandidates) == 3)
                         {
                             Board::ForEach::indexExcept(indexes, i0, i1, i2, [&](int i) {
-                                if (candidates_[i] & cumulativeCandidates)
-                                    eliminatedIndexes.push_back(i);
-                                return true;
-                            });
+                                                            if (candidates_[i] & cumulativeCandidates)
+                                                                eliminatedIndexes.push_back(i);
+                                                            return true;
+                                                        });
                             if (!eliminatedIndexes.empty())
                             {
                                 eliminatedValues = Candidates::values(cumulativeCandidates);
@@ -290,7 +290,7 @@ bool Naked::quad(std::vector<int> const & indexes,
     for (int b0 = 0; b0 < Board::SIZE - 3; ++b0)
     {
         int i0 = indexes[b0];
-        Candidates::Type candidates0 = candidates_[i0];
+        Candidates::Type candidates0           = candidates_[i0];
         Candidates::Type cumulativeCandidates0 = candidates0;
         int count0 = Candidates::count(candidates0);
         if (count0 > 1 && count0 <= 4)
@@ -298,14 +298,14 @@ bool Naked::quad(std::vector<int> const & indexes,
             for (int b1 = b0 + 1; b1 < Board::SIZE - 2; ++b1)
             {
                 int i1 = indexes[b1];
-                Candidates::Type candidates1 = candidates_[i1];
+                Candidates::Type candidates1           = candidates_[i1];
                 Candidates::Type cumulativeCandidates1 = cumulativeCandidates0 | candidates1;
                 if (Candidates::count(candidates1) > 1 && Candidates::count(cumulativeCandidates1) <= 4)
                 {
                     for (int b2 = b1 + 1; b2 < Board::SIZE - 1; ++b2)
                     {
                         int i2 = indexes[b2];
-                        Candidates::Type candidates2 = candidates_[i2];
+                        Candidates::Type candidates2           = candidates_[i2];
                         Candidates::Type cumulativeCandidates2 = cumulativeCandidates1 | candidates2;
                         if (Candidates::count(candidates2) > 1 && Candidates::count(cumulativeCandidates2) <= 4)
                         {
@@ -317,10 +317,10 @@ bool Naked::quad(std::vector<int> const & indexes,
                                 if (Candidates::count(c) > 1 && Candidates::count(cumulativeCandidates) == 4)
                                 {
                                     Board::ForEach::indexExcept(indexes, i0, i1, i2, i3, [&](int i) {
-                                        if (candidates_[i] & cumulativeCandidates)
-                                            eliminatedIndexes.push_back(i);
-                                        return true;
-                                    });
+                                                                    if (candidates_[i] & cumulativeCandidates)
+                                                                        eliminatedIndexes.push_back(i);
+                                                                    return true;
+                                                                });
                                     if (!eliminatedIndexes.empty())
                                     {
                                         eliminatedValues = Candidates::values(cumulativeCandidates);

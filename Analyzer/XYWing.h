@@ -16,6 +16,13 @@ public:
     bool exists(std::vector<int> & indexes, std::vector<int> & values, std::string & reason);
 
 private:
+    bool XYWing::existsAt(int                i0,
+                          std::vector<int> & pivots,
+                          std::vector<int> & pivotValues,
+                          std::vector<int> & indexes,
+                          std::vector<int> & values,
+                          std::string &      reason);
+
     static std::string generateReason(std::vector<int> const & pivots,
                                       std::vector<int> const & values,
                                       std::vector<int> const & eliminated);

@@ -6,12 +6,12 @@
 #include "Board/Board.h"
 
 #include <cassert>
+#include <set>
 #include <string>
 #include <vector>
-#include <set>
 
-namespace {
-
+namespace
+{
 int findColumnsWithCandidates(int row, int value, std::vector<Candidates::Type> const & board, std::set<int> & columns)
 {
     int count = 0;
@@ -27,7 +27,6 @@ int findColumnsWithCandidates(int row, int value, std::vector<Candidates::Type> 
     return count;
 }
 
-
 int findRowsWithCandidates(int column, int value, std::vector<Candidates::Type> const & board, std::set<int> & rows)
 {
     int count = 0;
@@ -42,18 +41,17 @@ int findRowsWithCandidates(int column, int value, std::vector<Candidates::Type> 
     }
     return count;
 }
-
 } // anonymous namespace
 
 bool XWing::exists(std::vector<int> & indexes, std::vector<int> & values, std::string & reason)
 {
-    // If there are exactly three rows (or columns) with a candidate value in either two or three columns (or
-    // rows), and those colums (or rows) are the same in each of the rows (or columns), then the candidate cannot
-    // be in those three columns (or rows) in any other rows (or columns)
+    // If there are exactly three rows (or columns) with a candidate value in either two or three columns (or rows), and those
+    // colums (or rows) are the same in each of the rows (or columns), then the candidate cannot be in those three columns (or rows)
+    // in any other rows (or columns)
 
     int eliminatedValue;
     std::vector<int> pivots;
-    
+
     // Check for row-oriented
     eliminatedValue = findRow(indexes, pivots);
     if (eliminatedValue != Board::EMPTY)
@@ -71,7 +69,7 @@ bool XWing::exists(std::vector<int> & indexes, std::vector<int> & values, std::s
         reason = columnReason(eliminatedValue, pivots);
         return true;
     }
-    
+
     return false;
 }
 
@@ -79,16 +77,16 @@ int XWing::findRow(std::vector<int> & eliminatedIndexes, std::vector<int> & pivo
 {
     for (int v = 1; v <= 9; ++v)
     {
-        for (int r0 = 0; r0 < Board::SIZE-1; ++r0)
+        for (int r0 = 0; r0 < Board::SIZE - 1; ++r0)
         {
             std::set<int> columns0;
-            int count0 = findColumnsWithCandidates(r0, v, candidates_, columns0);
+            int           count0 = findColumnsWithCandidates(r0, v, candidates_, columns0);
             if (count0 != 2 || columns0.size() != 2)
                 continue;
             for (int r1 = r0 + 1; r1 < Board::SIZE; ++r1)
             {
                 std::set<int> columns1 = columns0;
-                int count1 = findColumnsWithCandidates(r1, v, candidates_, columns1);
+                int           count1   = findColumnsWithCandidates(r1, v, candidates_, columns1);
                 if (count1 != 2 || columns1.size() != 2)
                     continue;
 
@@ -133,16 +131,16 @@ int XWing::findColumn(std::vector<int> & eliminatedIndexes, std::vector<int> & p
 {
     for (int v = 1; v <= 9; ++v)
     {
-        for (int c0 = 0; c0 < Board::SIZE-1; ++c0)
+        for (int c0 = 0; c0 < Board::SIZE - 1; ++c0)
         {
             std::set<int> rows0;
-            int count0 = findRowsWithCandidates(c0, v, candidates_, rows0);
+            int           count0 = findRowsWithCandidates(c0, v, candidates_, rows0);
             if (count0 != 2 || rows0.size() != 2)
                 continue;
             for (int c1 = c0 + 1; c1 < Board::SIZE; ++c1)
             {
-                std::set<int> rows1 = rows0;
-                int count1 = findRowsWithCandidates(c1, v, candidates_, rows1);
+                std::set<int> rows1  = rows0;
+                int           count1 = findRowsWithCandidates(c1, v, candidates_, rows1);
                 if (count1 != 2 || rows1.size() != 2)
                     continue;
 
@@ -225,13 +223,13 @@ std::string XWing::columnReason(int value, std::vector<int> const & pivots)
 
 bool Swordfish::exists(std::vector<int> & indexes, std::vector<int> & values, std::string & reason)
 {
-    // If there are exactly three rows (or columns) with a candidate value in either two or three columns (or
-    // rows), and those colums (or rows) are the same in each of the rows (or columns), then the candidate cannot
-    // be in those three columns (or rows) in any other rows (or columns)
+    // If there are exactly three rows (or columns) with a candidate value in either two or three columns (or rows), and those
+    // colums (or rows) are the same in each of the rows (or columns), then the candidate cannot be in those three columns (or rows)
+    // in any other rows (or columns)
 
     int eliminatedValue;
     std::vector<int> pivots;
-    
+
     // Check for row-oriented
     eliminatedValue = findRow(indexes, pivots);
     if (eliminatedValue != Board::EMPTY)
@@ -249,7 +247,7 @@ bool Swordfish::exists(std::vector<int> & indexes, std::vector<int> & values, st
         reason = columnReason(eliminatedValue, pivots);
         return true;
     }
-    
+
     return false;
 }
 
@@ -257,22 +255,22 @@ int Swordfish::findRow(std::vector<int> & eliminatedIndexes, std::vector<int> & 
 {
     for (int v = 1; v <= 9; ++v)
     {
-        for (int r0 = 0; r0 < Board::SIZE-2; ++r0)
+        for (int r0 = 0; r0 < Board::SIZE - 2; ++r0)
         {
             std::set<int> columns0;
-            int count0 = findColumnsWithCandidates(r0, v, candidates_, columns0);
+            int           count0 = findColumnsWithCandidates(r0, v, candidates_, columns0);
             if (count0 < 2 || columns0.size() > 3)
                 continue;
-            for (int r1 = r0 + 1; r1 < Board::SIZE-1; ++r1)
+            for (int r1 = r0 + 1; r1 < Board::SIZE - 1; ++r1)
             {
                 std::set<int> columns1 = columns0;
-                int count1 = findColumnsWithCandidates(r1, v, candidates_, columns1);
+                int           count1   = findColumnsWithCandidates(r1, v, candidates_, columns1);
                 if (count1 < 2 || columns1.size() > 3)
                     continue;
                 for (int r2 = r1 + 1; r2 < Board::SIZE; ++r2)
                 {
                     std::set<int> columns2 = columns1;
-                    int count2 = findColumnsWithCandidates(r2, v, candidates_, columns2);
+                    int           count2   = findColumnsWithCandidates(r2, v, candidates_, columns2);
                     if (count2 < 2 || columns2.size() > 3)
                         continue;
 
@@ -318,22 +316,22 @@ int Swordfish::findColumn(std::vector<int> & eliminatedIndexes, std::vector<int>
 {
     for (int v = 1; v <= 9; ++v)
     {
-        for (int c0 = 0; c0 < Board::SIZE-2; ++c0)
+        for (int c0 = 0; c0 < Board::SIZE - 2; ++c0)
         {
             std::set<int> rows0;
-            int count0 = findRowsWithCandidates(c0, v, candidates_, rows0);
+            int           count0 = findRowsWithCandidates(c0, v, candidates_, rows0);
             if (count0 < 2 || rows0.size() > 3)
                 continue;
-            for (int c1 = c0 + 1; c1 < Board::SIZE-1; ++c1)
+            for (int c1 = c0 + 1; c1 < Board::SIZE - 1; ++c1)
             {
-                std::set<int> rows1 = rows0;
-                int count1 = findRowsWithCandidates(c1, v, candidates_, rows1);
+                std::set<int> rows1  = rows0;
+                int           count1 = findRowsWithCandidates(c1, v, candidates_, rows1);
                 if (count1 < 2 || rows1.size() > 3)
                     continue;
                 for (int c2 = c1 + 1; c2 < Board::SIZE; ++c2)
                 {
-                    std::set<int> rows2 = rows1;
-                    int count2 = findRowsWithCandidates(c2, v, candidates_, rows2);
+                    std::set<int> rows2  = rows1;
+                    int           count2 = findRowsWithCandidates(c2, v, candidates_, rows2);
                     if (count2 < 2 || rows2.size() > 3)
                         continue;
 
@@ -445,10 +443,10 @@ bool Jellyfish::exists(std::vector<int> & indexes, std::vector<int> & values, st
     // If there are exactly four rows (or columns) with a candidate value in either two, three or four columns (or
     // rows), and those colums (or rows) are the same in each of the rows (or columns), then the candidate cannot
     // be in those four columns (or rows) in any other rows (or columns)
-    
+
     int eliminatedValue;
     std::vector<int> pivots;
-    
+
     // Check for row-oriented
     eliminatedValue = findRow(indexes, pivots);
     if (eliminatedValue != Board::EMPTY)
@@ -466,7 +464,7 @@ bool Jellyfish::exists(std::vector<int> & indexes, std::vector<int> & values, st
         reason = columnReason(eliminatedValue, pivots);
         return true;
     }
-    
+
     return false;
 }
 
@@ -474,28 +472,28 @@ int Jellyfish::findRow(std::vector<int> & eliminatedIndexes, std::vector<int> & 
 {
     for (int v = 1; v <= 9; ++v)
     {
-        for (int r0 = 0; r0 < Board::SIZE-3; ++r0)
+        for (int r0 = 0; r0 < Board::SIZE - 3; ++r0)
         {
             std::set<int> columns0;
-            int count0 = findColumnsWithCandidates(r0, v, candidates_, columns0);
+            int           count0 = findColumnsWithCandidates(r0, v, candidates_, columns0);
             if (count0 < 2 || columns0.size() > 4)
                 continue;
-            for (int r1 = r0 + 1; r1 < Board::SIZE-2; ++r1)
+            for (int r1 = r0 + 1; r1 < Board::SIZE - 2; ++r1)
             {
                 std::set<int> columns1 = columns0;
-                int count1 = findColumnsWithCandidates(r1, v, candidates_, columns1);
+                int           count1   = findColumnsWithCandidates(r1, v, candidates_, columns1);
                 if (count1 < 2 || columns1.size() > 4)
                     continue;
-                for (int r2 = r1 + 1; r2 < Board::SIZE-1; ++r2)
+                for (int r2 = r1 + 1; r2 < Board::SIZE - 1; ++r2)
                 {
                     std::set<int> columns2 = columns1;
-                    int count2 = findColumnsWithCandidates(r2, v, candidates_, columns2);
+                    int           count2   = findColumnsWithCandidates(r2, v, candidates_, columns2);
                     if (count2 < 2 || columns2.size() > 4)
                         continue;
                     for (int r3 = r2 + 1; r3 < Board::SIZE; ++r3)
                     {
                         std::set<int> columns3 = columns2;
-                        int count3 = findColumnsWithCandidates(r3, v, candidates_, columns3);
+                        int           count3   = findColumnsWithCandidates(r3, v, candidates_, columns3);
                         if (count3 < 2 || columns3.size() != 4)
                             continue;
 
@@ -514,7 +512,7 @@ int Jellyfish::findRow(std::vector<int> & eliminatedIndexes, std::vector<int> & 
                                 }
                             }
                         }
-                        
+
                         // If there are any candidates to eliminate then return them. Otherwise, keep looking.
                         if (!eliminatedIndexes.empty())
                         {
@@ -542,28 +540,28 @@ int Jellyfish::findColumn(std::vector<int> & eliminatedIndexes, std::vector<int>
 {
     for (int v = 1; v <= 9; ++v)
     {
-        for (int c0 = 0; c0 < Board::SIZE-3; ++c0)
+        for (int c0 = 0; c0 < Board::SIZE - 3; ++c0)
         {
             std::set<int> rows0;
-            int count0 = findRowsWithCandidates(c0, v, candidates_, rows0);
+            int           count0 = findRowsWithCandidates(c0, v, candidates_, rows0);
             if (count0 < 2 || rows0.size() > 4)
                 continue;
-            for (int c1 = c0 + 1; c1 < Board::SIZE-2; ++c1)
+            for (int c1 = c0 + 1; c1 < Board::SIZE - 2; ++c1)
             {
-                std::set<int> rows1 = rows0;
-                int count1 = findRowsWithCandidates(c1, v, candidates_, rows1);
+                std::set<int> rows1  = rows0;
+                int           count1 = findRowsWithCandidates(c1, v, candidates_, rows1);
                 if (count1 < 2 || rows1.size() > 4)
                     continue;
-                for (int c2 = c1 + 1; c2 < Board::SIZE-1; ++c2)
+                for (int c2 = c1 + 1; c2 < Board::SIZE - 1; ++c2)
                 {
-                    std::set<int> rows2 = rows1;
-                    int count2 = findRowsWithCandidates(c2, v, candidates_, rows2);
+                    std::set<int> rows2  = rows1;
+                    int           count2 = findRowsWithCandidates(c2, v, candidates_, rows2);
                     if (count2 < 2 || rows2.size() > 4)
                         continue;
                     for (int c3 = c2 + 1; c3 < Board::SIZE; ++c3)
                     {
-                        std::set<int> rows3 = rows2;
-                        int count3 = findRowsWithCandidates(c3, v, candidates_, rows3);
+                        std::set<int> rows3  = rows2;
+                        int           count3 = findRowsWithCandidates(c3, v, candidates_, rows3);
                         if (count3 < 2 || rows3.size() != 4)
                             continue;
 
@@ -582,7 +580,7 @@ int Jellyfish::findColumn(std::vector<int> & eliminatedIndexes, std::vector<int>
                                 }
                             }
                         }
-                        
+
                         // If there are any candidates to eliminate then return them. Otherwise, keep looking.
                         if (!eliminatedIndexes.empty())
                         {
@@ -691,4 +689,3 @@ std::string Jellyfish::columnReason(int value, std::vector<int> const & pivots)
                          " these rows cannot.";
     return reason;
 }
-

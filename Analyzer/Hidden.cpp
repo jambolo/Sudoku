@@ -9,19 +9,19 @@
 bool Hidden::singleExists(std::vector<int> & indexes, std::vector<int> & values, std::string & reason)
 {
     bool found;
-    int which;
+    int  which;
 
     found = !Board::ForEach::row([&] (int r, std::vector<int> const & row) {
-        if (single(row, indexes, values))
-        {
-            which = r;
-            return false; // done
-        }
-        else
-        {
-            return true;
-        }
-    });
+                                     if (single(row, indexes, values))
+                                     {
+                                         which = r;
+                                         return false; // done
+                                     }
+                                     else
+                                     {
+                                         return true;
+                                     }
+                                 });
     if (found)
     {
         reason = std::string("This is the only square in row ") +
@@ -31,16 +31,16 @@ bool Hidden::singleExists(std::vector<int> & indexes, std::vector<int> & values,
     }
 
     found = !Board::ForEach::column([&] (int c, std::vector<int> const & column) {
-        if (single(column, indexes, values))
-        {
-            which = c;
-            return false; // done
-        }
-        else
-        {
-            return true;
-        }
-    });
+                                        if (single(column, indexes, values))
+                                        {
+                                            which = c;
+                                            return false; // done
+                                        }
+                                        else
+                                        {
+                                            return true;
+                                        }
+                                    });
     if (found)
     {
         reason = std::string("This is the only square in column ") +
@@ -50,16 +50,16 @@ bool Hidden::singleExists(std::vector<int> & indexes, std::vector<int> & values,
     }
 
     found = !Board::ForEach::box([&] (int b, std::vector<int> const & box) {
-        if (single(box, indexes, values))
-        {
-            which = b;
-            return false; // done
-        }
-        else
-        {
-            return true;
-        }
-    });
+                                     if (single(box, indexes, values))
+                                     {
+                                         which = b;
+                                         return false; // done
+                                     }
+                                     else
+                                     {
+                                         return true;
+                                     }
+                                 });
     if (found)
     {
         reason = std::string("This is the only square in box ") +
@@ -73,15 +73,15 @@ bool Hidden::singleExists(std::vector<int> & indexes, std::vector<int> & values,
 
 bool Hidden::single(std::vector<int> const & indexes, std::vector<int> & eliminatedIndexes, std::vector<int> & eliminatedValues)
 {
-    for (int s : indexes)
+    for (auto s : indexes)
     {
         if (board_.isEmpty(s))
         {
             Candidates::Type others = 0;
             Board::ForEach::indexExcept(indexes, s, [&] (int i) {
-                others |= candidates_[i];
-                return true;
-            });
+                                            others |= candidates_[i];
+                                            return true;
+                                        });
 
             Candidates::Type exclusive = candidates_[s] & ~others;
             if (exclusive)
@@ -110,20 +110,20 @@ bool Hidden::pairExists(std::vector<int> & indexes, std::vector<int> & values, s
     // For each exclusive pair in a group, if they have additional candidates_, then success.
 
     bool found;
-    int which;
+    int  which;
     std::vector<int> hidden;
 
     found = !Board::ForEach::row([&](int r, std::vector<int> const & row) {
-        if (pair(row, indexes, values, hidden))
-        {
-            which = r;
-            return false; // done
-        }
-        else
-        {
-            return true;
-        }
-    });
+                                     if (pair(row, indexes, values, hidden))
+                                     {
+                                         which = r;
+                                         return false; // done
+                                     }
+                                     else
+                                     {
+                                         return true;
+                                     }
+                                 });
     if (found)
     {
         reason = generateHiddenPairReason("row", Board::Group::rowName(which), hidden);
@@ -131,16 +131,16 @@ bool Hidden::pairExists(std::vector<int> & indexes, std::vector<int> & values, s
     }
 
     found = !Board::ForEach::column([&](int c, std::vector<int> const & column) {
-        if (pair(column, indexes, values, hidden))
-        {
-            which = c;
-            return false; // done
-        }
-        else
-        {
-            return true;
-        }
-    });
+                                        if (pair(column, indexes, values, hidden))
+                                        {
+                                            which = c;
+                                            return false; // done
+                                        }
+                                        else
+                                        {
+                                            return true;
+                                        }
+                                    });
     if (found)
     {
         reason = generateHiddenPairReason("column", Board::Group::columnName(which), hidden);
@@ -148,16 +148,16 @@ bool Hidden::pairExists(std::vector<int> & indexes, std::vector<int> & values, s
     }
 
     found = !Board::ForEach::box([&](int b, std::vector<int> const & box) {
-        if (pair(box, indexes, values, hidden))
-        {
-            which = b;
-            return false; // done
-        }
-        else
-        {
-            return true;
-        }
-    });
+                                     if (pair(box, indexes, values, hidden))
+                                     {
+                                         which = b;
+                                         return false; // done
+                                     }
+                                     else
+                                     {
+                                         return true;
+                                     }
+                                 });
     if (found)
     {
         reason = generateHiddenPairReason("box", Board::Group::boxName(which), hidden);
@@ -182,10 +182,10 @@ bool Hidden::pair(std::vector<int> const & indexes,
             Candidates::Type m  = m0 | m1;
 
             // Count the number of cells with either of these two candidates_
-            int nFound    = 0;
+            int nFound = 0;
             int found[2];
             int counts[2] = { 0 };
-            for (int i : indexes)
+            for (auto i : indexes)
             {
                 Candidates::Type c = candidates_[i];
                 if (c & m)
@@ -237,20 +237,20 @@ bool Hidden::tripleExists(std::vector<int> & indexes, std::vector<int> & values,
     // For each exclusive triple in a group, if they have additional candidates_, then success.
 
     bool found;
-    int which;
+    int  which;
     std::vector<int> hidden;
 
     found = !Board::ForEach::row([&](int r, std::vector<int> const & row) {
-        if (triple(row, indexes, values, hidden))
-        {
-            which = r;
-            return false; // done
-        }
-        else
-        {
-            return true;
-        }
-    });
+                                     if (triple(row, indexes, values, hidden))
+                                     {
+                                         which = r;
+                                         return false; // done
+                                     }
+                                     else
+                                     {
+                                         return true;
+                                     }
+                                 });
     if (found)
     {
         reason = generateHiddenTripleReason("row", Board::Group::rowName(which), hidden);
@@ -258,16 +258,16 @@ bool Hidden::tripleExists(std::vector<int> & indexes, std::vector<int> & values,
     }
 
     found = !Board::ForEach::column([&](int c, std::vector<int> const & column) {
-        if (triple(column, indexes, values, hidden))
-        {
-            which = c;
-            return false; // done
-        }
-        else
-        {
-            return true;
-        }
-    });
+                                        if (triple(column, indexes, values, hidden))
+                                        {
+                                            which = c;
+                                            return false; // done
+                                        }
+                                        else
+                                        {
+                                            return true;
+                                        }
+                                    });
     if (found)
     {
         reason = generateHiddenTripleReason("column", Board::Group::columnName(which), hidden);
@@ -275,16 +275,16 @@ bool Hidden::tripleExists(std::vector<int> & indexes, std::vector<int> & values,
     }
 
     found = !Board::ForEach::box([&](int b, std::vector<int> const & box) {
-        if (triple(box, indexes, values, hidden))
-        {
-            which = b;
-            return false; // done
-        }
-        else
-        {
-            return true;
-        }
-    });
+                                     if (triple(box, indexes, values, hidden))
+                                     {
+                                         which = b;
+                                         return false; // done
+                                     }
+                                     else
+                                     {
+                                         return true;
+                                     }
+                                 });
     if (found)
     {
         reason = generateHiddenTripleReason("box", Board::Group::boxName(which), hidden);
@@ -312,7 +312,7 @@ bool Hidden::triple(std::vector<int> const & indexes,
                 Candidates::Type m  = m0 | m1 | m2;
 
                 // Count the number of cells with any of these three candidates_
-                int nFound    = 0;
+                int nFound = 0;
                 int found[3];
                 int counts[3] = { 0 };
                 for (int i : indexes)
@@ -374,20 +374,20 @@ bool Hidden::quadExists(std::vector<int> & indexes, std::vector<int> & values, s
     // For each exclusive quad in a group, if they have additional candidates_, then success.
 
     bool found;
-    int which;
+    int  which;
     std::vector<int> hidden;
 
     found = !Board::ForEach::row([&](int r, std::vector<int> const & row) {
-        if (quad(row, indexes, values, hidden))
-        {
-            which = r;
-            return false; // done
-        }
-        else
-        {
-            return true;
-        }
-    });
+                                     if (quad(row, indexes, values, hidden))
+                                     {
+                                         which = r;
+                                         return false; // done
+                                     }
+                                     else
+                                     {
+                                         return true;
+                                     }
+                                 });
     if (found)
     {
         reason = generateHiddenQuadReason("row", Board::Group::rowName(which), hidden);
@@ -395,16 +395,16 @@ bool Hidden::quadExists(std::vector<int> & indexes, std::vector<int> & values, s
     }
 
     found = !Board::ForEach::column([&](int c, std::vector<int> const & column) {
-        if (quad(column, indexes, values, hidden))
-        {
-            which = c;
-            return false; // done
-        }
-        else
-        {
-            return true;
-        }
-    });
+                                        if (quad(column, indexes, values, hidden))
+                                        {
+                                            which = c;
+                                            return false; // done
+                                        }
+                                        else
+                                        {
+                                            return true;
+                                        }
+                                    });
     if (found)
     {
         reason = generateHiddenQuadReason("column", Board::Group::columnName(which), hidden);
@@ -412,16 +412,16 @@ bool Hidden::quadExists(std::vector<int> & indexes, std::vector<int> & values, s
     }
 
     found = !Board::ForEach::box([&](int b, std::vector<int> const & box) {
-        if (quad(box, indexes, values, hidden))
-        {
-            which = b;
-            return false; // done
-        }
-        else
-        {
-            return true;
-        }
-    });
+                                     if (quad(box, indexes, values, hidden))
+                                     {
+                                         which = b;
+                                         return false; // done
+                                     }
+                                     else
+                                     {
+                                         return true;
+                                     }
+                                 });
     if (found)
     {
         reason = generateHiddenQuadReason("box", Board::Group::boxName(which), hidden);
@@ -452,10 +452,10 @@ bool Hidden::quad(std::vector<int> const & indexes,
                     Candidates::Type m  = m0 | m1 | m2 | m3;
 
                     // Count the number of cells with any of these four candidates_
-                    int nFound    = 0;
+                    int nFound = 0;
                     int found[4];
                     int counts[4] = { 0 };
-                    for (int i : indexes)
+                    for (auto i : indexes)
                     {
                         Candidates::Type c = candidates_[i];
                         if (c & m)
@@ -478,8 +478,7 @@ bool Hidden::quad(std::vector<int> const & indexes,
                         }
                     }
                     // If there are exactly 4 indexes, each candidate is seen at least twice, and there are other candidates_ to
-                    // eliminate,
-                    // then success
+                    // eliminate, then success
                     if (nFound == 4 && counts[0] >= 2 && counts[1] >= 2 && counts[2] >= 2 && counts[3] >= 2)
                     {
                         Candidates::Type eliminatedCandidates =

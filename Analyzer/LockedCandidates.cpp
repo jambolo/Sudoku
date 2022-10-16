@@ -31,8 +31,8 @@ bool LockedCandidates::exists(std::vector<int> & indexes,
                               std::vector<int> & values,
                               std::string &      reason)
 {
-    // For the intersection of each row or column with a box, if there are candidates that exist within the
-    // intersection but not in the rest of the row/column, then success if those candidates exist in the box.
+    // For the intersection of each row or column with a box, if there are candidates that exist within the intersection but not in
+    // the rest of the row/column, then success if those candidates exist in the box.
 
     bool found;
     int  which1, which2;
@@ -77,8 +77,8 @@ bool LockedCandidates::exists(std::vector<int> & indexes,
         return true;
     }
 
-    // For the intersection of each row or column with a box, if there are candidates that exist within the
-    // intersection but not in the rest of the box, then success if those candidates exist in the row/column.
+    // For the intersection of each row or column with a box, if there are candidates that exist within the intersection but not in
+    // the rest of the box, then success if those candidates exist in the row/column.
 
     found = !Board::ForEach::row([&](int r, std::vector<int> const & row) {
                                      for (int c = 0; c < Board::SIZE; c += Board::BOX_SIZE)
@@ -150,12 +150,12 @@ bool LockedCandidates::find(std::vector<int> const & indexes1,
     // Candidates in set 1, not in intersection
     Candidates::Type otherCandidates1 = allCandidates(others1);
 
-    // If any of the candidates in the intersection don't exist in the rest of set 1, then they are the ones to be
-    // eliminated from set 2
+    // If any of the candidates in the intersection don't exist in the rest of set 1, then they are the ones to be eliminated from
+    // set 2
     Candidates::Type unique1 = intersectionCandidates & ~otherCandidates1;
     if (unique1)
     {
-        for (int i : others2)
+        for (auto i : others2)
         {
             if (candidates_[i] & unique1)
                 eliminatedIndexes.push_back(i);
@@ -182,7 +182,7 @@ bool LockedCandidates::find(std::vector<int> const & indexes1,
 Candidates::Type LockedCandidates::allCandidates(std::vector<int> const & indexes)
 {
     Candidates::Type all = 0;
-    for (int i : indexes)
+    for (auto i : indexes)
     {
         Candidates::Type c = candidates_[i];
         if (!Candidates::isSolved(c))

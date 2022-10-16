@@ -157,13 +157,14 @@ int main(int argc, char ** argv)
 
         // Overall difficulty is computed as follows:
         //
-        // $$D \left( 1 + {1 \over 2}{{n_D - 1} \over n_D + 1} + {1 \over 2} \sum_{d=1}^{D-1} {{n_d \over {n_d+1}} {1 \over 2^{D-d}}} \right)$$
+        // $$D \left( 1 + {1 \over 2}{{n_D - 1} \over n_D + 1} + {1 \over 2} \sum_{d=1}^{D-1} {{n_d \over {n_d+1}} {1 \over
+        // 2^{D-d}}} \right)$$
         // where _D_ is the highest difficulty, _n_ is the number of steps of difficulty _d_.
         //
-        // The result is the highest difficulty plus up to 0.5 for additional steps of that difficulty, plus up to 0.5
-        // for lower difficulty steps.
+        // The result is the highest difficulty plus up to 0.5 for additional steps of that difficulty, plus up to 0.5 for lower
+        // difficulty steps.
 
-        overallDifficulty = float(highestDifficulty);
+        overallDifficulty  = float(highestDifficulty);
         overallDifficulty -= 0.5f / float(difficultyCounts[highestDifficulty] + 1);
         for (auto const & entry : difficultyCounts)
         {

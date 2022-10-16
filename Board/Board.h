@@ -96,103 +96,102 @@ private:
 class Board::ForEach
 {
 public:
-    // Calls a function for each cell on the board, passing the index of the cell. Aborts if any function call returns
-    // false.
+    // Calls a function for each cell on the board, passing the index of the cell. Aborts if any function call returns false.
     // Returns true if every function call returns true.
     static bool cell(std::function<bool(int)> f);
 
-    // Calls a function for each row on the board, passing in the row number and the indexes of the cells in the row.
-    // Aborts if any function call returns false.
+    // Calls a function for each row on the board, passing in the row number and the indexes of the cells in the row. Aborts if any
+    // function call returns false.
     // Returns true if every function call returns true.
     static bool row(std::function<bool(int, std::vector<int> const &)> f);
 
-    // Calls a function for each row on the board except the specified ones, passing in the row number and the
-    // indexes of the cells in the row. Aborts if any function call returns false.
+    // Calls a function for each row on the board except the specified ones, passing in the row number and the indexes of the cells
+    // in the row. Aborts if any function call returns false.
     // Returns true if every function call returns true.
     static bool rowExcept(int x0, std::function<bool(int, std::vector<int> const &)> f);
 
-    // Calls a function for each row on the board except the specified ones, passing in the row number and the
-    // indexes of the cells in the row. Aborts if any function call returns false.
+    // Calls a function for each row on the board except the specified ones, passing in the row number and the indexes of the cells
+    // in the row. Aborts if any function call returns false.
     // Returns true if every function call returns true.
     static bool rowExcept(int x0, int x1, std::function<bool(int, std::vector<int> const &)> f);
 
-    // Calls a function for each row on the board except the specified ones, passing in the row number and the
-    // indexes of the cells in the row. Aborts if any function call returns false.
+    // Calls a function for each row on the board except the specified ones, passing in the row number and the indexes of the cells
+    // in the row. Aborts if any function call returns false.
     // Returns true if every function call returns true.
     static bool rowExcept(int x0, int x1, int x2, std::function<bool(int, std::vector<int> const &)> f);
 
-    // Calls a function for each row on the board except the specified ones, passing in the row number and the
-    // indexes of the cells in the row. Aborts if any function call returns false.
+    // Calls a function for each row on the board except the specified ones, passing in the row number and the indexes of the cells
+    // in the row. Aborts if any function call returns false.
     // Returns true if every function call returns true.
     static bool rowExcept(int x0, int x1, int x2, int x3, std::function<bool(int, std::vector<int> const &)> f);
 
-    // Calls a function for each column on the board, passing in the column number and the indexes of the cells in the
-    // column. Aborts if any function call returns false.
+    // Calls a function for each column on the board, passing in the column number and the indexes of the cells in the column.
+    // Aborts if any function call returns false.
     // Returns true if every function call returns true.
     static bool column(std::function<bool(int, std::vector<int> const &)> f);
 
-    // Calls a function for each column on the board except the specified ones, passing in the column number and
-    // the indexes of the cells in the column. Aborts if any function call returns false.
+    // Calls a function for each column on the board except the specified ones, passing in the column number and the indexes of the
+    // cells in the column. Aborts if any function call returns false.
     // Returns true if every function call returns true.
     static bool columnExcept(int x0, std::function<bool(int, std::vector<int> const &)> f);
 
-    // Calls a function for each column on the board except the specified ones, passing in the column number and
-    // the indexes of the cells in the column. Aborts if any function call returns false.
+    // Calls a function for each column on the board except the specified ones, passing in the column number and the indexes of the
+    // cells in the column. Aborts if any function call returns false.
     // Returns true if every function call returns true.
     static bool columnExcept(int x0, int x1, std::function<bool(int, std::vector<int> const &)> f);
 
-    // Calls a function for each column on the board except the specified ones, passing in the column number and
-    // the indexes of the cells in the column. Aborts if any function call returns false.
+    // Calls a function for each column on the board except the specified ones, passing in the column number and the indexes of the
+    // cells in the column. Aborts if any function call returns false.
     // Returns true if every function call returns true.
     static bool columnExcept(int x0, int x1, int x2, std::function<bool(int, std::vector<int> const &)> f);
 
-    // Calls a function for each column on the board except the specified ones, passing in the column number and
-    // the indexes of the cells in the column. Aborts if any function call returns false.
+    // Calls a function for each column on the board except the specified ones, passing in the column number and the indexes of the
+    // cells in the column. Aborts if any function call returns false.
     // Returns true if every function call returns true.
     static bool columnExcept(int x0, int x1, int x2, int x3, std::function<bool(int, std::vector<int> const &)> f);
 
-    // Calls a function for each box on the board, passing in the box number and the indexes of the cells in the box.
-    // Aborts if any function call returns false.
+    // Calls a function for each box on the board, passing in the box number and the indexes of the cells in the box. Aborts if any
+    // function call returns false.
     // Returns true if every function call returns true.
     static bool box(std::function<bool(int, std::vector<int> const &)> f);
 
-    // Calls a function for each box on the board except the specified ones, passing in the box number and
-    // the indexes of the cells in the box. Aborts if any function call returns false.
+    // Calls a function for each box on the board except the specified ones, passing in the box number and the indexes of the cells
+    // in the box. Aborts if any function call returns false.
     // Returns true if every function call returns true.
     static bool boxExcept(int x0, std::function<bool(int, std::vector<int> const &)> f);
 
-    // Calls a function for each box on the board except the specified ones, passing in the box number and
-    // the indexes of the cells in the box. Aborts if any function call returns false.
+    // Calls a function for each box on the board except the specified ones, passing in the box number and the indexes of the cells
+    // in the box. Aborts if any function call returns false.
     // Returns true if every function call returns true.
     static bool boxExcept(int x0, int x1, std::function<bool(int, std::vector<int> const &)> f);
 
-    // Calls a function for each box on the board except the specified ones, passing in the box number and
-    // the indexes of the cells in the box. Aborts if any function call returns false.
+    // Calls a function for each box on the board except the specified ones, passing in the box number and the indexes of the cells
+    // in the box. Aborts if any function call returns false.
     // Returns true if every function call returns true.
     static bool boxExcept(int x0, int x1, int x2, std::function<bool(int, std::vector<int> const &)> f);
 
-    // Calls a function for each box on the board except the specified ones, passing in the box number and
-    // the indexes of the cells in the box. Aborts if any function call returns false.
+    // Calls a function for each box on the board except the specified ones, passing in the box number and the indexes of the cells
+    // in the box. Aborts if any function call returns false.
     // Returns true if every function call returns true.
     static bool boxExcept(int x0, int x1, int x2, int x3, std::function<bool(int, std::vector<int> const &)> f);
 
-    // Calls a function for each index in the vector except the specified one, passing in the index. Aborts if any
-    // function call returns false.
+    // Calls a function for each index in the vector except the specified one, passing in the index. Aborts if any function call
+    // returns false.
     // Returns true if every function call returns true.
     static bool indexExcept(std::vector<int> const & indexes, int x0, std::function<bool(int)> f);
 
-    // Calls a function for each index in the vector except the specified ones, passing in the index. Aborts if any
-    // function call returns false.
+    // Calls a function for each index in the vector except the specified ones, passing in the index. Aborts if any function call
+    // returns false.
     // Returns true if every function call returns true.
     static bool indexExcept(std::vector<int> const & indexes, int x0, int x1, std::function<bool(int)> f);
 
-    // Calls a function for each index in a vector except the specified ones, passing in the index. Aborts if any
-    // function call returns false.
+    // Calls a function for each index in a vector except the specified ones, passing in the index. Aborts if any function call
+    // returns false.
     // Returns true if every function call returns true.
     static bool indexExcept(std::vector<int> const & indexes, int x0, int x1, int x3, std::function<bool(int)> f);
 
-    // Calls a function for each index in a vector except the specified ones, passing in the index. Aborts if any
-    // function call returns false.
+    // Calls a function for each index in a vector except the specified ones, passing in the index. Aborts if any function call
+    // returns false.
     // Returns true if every function call returns true.
     static bool indexExcept(std::vector<int> const & indexes, int x0, int x1, int x3, int x4, std::function<bool(int)> f);
 };

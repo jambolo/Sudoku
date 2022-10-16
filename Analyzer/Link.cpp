@@ -66,7 +66,7 @@ Strong::List Strong::find(Candidates::List const & candidates, std::vector<int> 
         {
             std::vector<int> values = Candidates::values(candidates0);
             XCODE_COMPATIBLE_ASSERT(values.size() == 2);
-            links.emplace_back(Strong { values[0], values[1], i0, i0 });
+            links.emplace_back(Strong{ values[0], values[1], i0, i0 });
         }
 
         // Ignore cells with only already-tested candidates
@@ -75,7 +75,7 @@ Strong::List Strong::find(Candidates::List const & candidates, std::vector<int> 
             continue;
 
         std::vector<int> values = Candidates::values(candidates0);
-        for (int v : values)
+        for (auto v : values)
         {
             Candidates::Type mask = Candidates::fromValue(v);
             for (int u1 = u0 + 1; u1 < Board::SIZE; ++u1)
@@ -85,7 +85,7 @@ Strong::List Strong::find(Candidates::List const & candidates, std::vector<int> 
                 if (!Candidates::isSolved(candidates1) && (candidates0 & candidates1 & mask))
                 {
                     if (existsIncremental(candidates, u0, u1, mask, group))
-                        links.emplace_back(Strong { v, v, i0, i1 });
+                        links.emplace_back(Strong{ v, v, i0, i1 });
                     break; // These share a candidate, so more strong links for this value whether this is a strong link or not
                 }
             }
@@ -108,20 +108,20 @@ Strong::List Strong::find(Candidates::List const & candidates, int i0, std::vect
     if (Candidates::isBivalue(candidates0))
     {
         XCODE_COMPATIBLE_ASSERT(values.size() == 2);
-        links.emplace_back(Strong { values[0], values[1], i0, i0 });
+        links.emplace_back(Strong{ values[0], values[1], i0, i0 });
     }
 
-    for (int v : values)
+    for (auto v : values)
     {
         Candidates::Type mask = Candidates::fromValue(v);
         Board::ForEach::indexExcept(group, i0, [&] (int i1) {
-            if (exists(candidates, i0, i1, mask, group))
-            {
-                links.emplace_back(Strong { v, v, i0, i1 });
-                return false; // Only one strong link can exist in a group for any candidate
-            }
-            return true;
-        });
+                                        if (exists(candidates, i0, i1, mask, group))
+                                        {
+                                            links.emplace_back(Strong{ v, v, i0, i1 });
+                                            return false; // Only one strong link can exist in a group for any candidate
+                                        }
+                                        return true;
+                                    });
     }
     return links;
 }
@@ -144,7 +144,7 @@ bool Strong::exists(Candidates::List const & candidates,
         return false;
 
     // Not a strong link if any other cells in the group share the candidate
-    for (int i : group)
+    for (auto i : group)
     {
         if (i != i0 && i != i1 && (candidates[i] & mask))
             return false;
@@ -158,8 +158,8 @@ bool Strong::existsIncremental(Candidates::List const & candidates,
                                Candidates::Type         mask,
                                std::vector<int> const & group)
 {
-    // This is a faster version of exists(). This one requires that u0 < u1, and that no other cells in the given
-    // group in the range [0, u1) have candidates corresponding to mask.
+    // This is a faster version of exists(). This one requires that u0 < u1, and that no other cells in the given group in the range
+    // [0, u1) have candidates corresponding to mask.
 
     XCODE_COMPATIBLE_ASSERT(u0 >= 0 && u0 < Board::SIZE);
     XCODE_COMPATIBLE_ASSERT(u1 >= 0 && u1 < Board::SIZE);
@@ -192,7 +192,7 @@ bool Strong::existsIncremental(Candidates::List const & candidates,
     return true;
 }
 
-/****************************************************************************************************************************************/
+/************************************************************************************************************************************/
 
 Weak::List Weak::find(Candidates::List const & candidates, int i)
 {
@@ -239,7 +239,7 @@ Weak::List Weak::find(Candidates::List const & candidates, std::vector<int> cons
             {
                 int i1 = group[u1];
                 if (!Candidates::isSolved(candidates[i1]) && exists(candidates, i0, i1, mask))
-                    links.emplace_back(Weak { v, i0, i1 });
+                    links.emplace_back(Weak{ v, i0, i1 });
             }
         }
     }
@@ -253,14 +253,14 @@ Weak::List Weak::find(Candidates::List const & candidates, int i0, std::vector<i
 
     List links;
     std::vector<int> values = Candidates::values(candidates[i0]);
-    for (int v : values)
+    for (auto v : values)
     {
         Candidates::Type mask = Candidates::fromValue(v);
         Board::ForEach::indexExcept(group, i0, [&] (int i1) {
-            if (!Candidates::isSolved(candidates[i1]) && exists(candidates, i0, i1, mask))
-                links.emplace_back(Weak { v, i0, i1 });
-            return true;
-        });
+                                        if (!Candidates::isSolved(candidates[i1]) && exists(candidates, i0, i1, mask))
+                                            links.emplace_back(Weak{ v, i0, i1 });
+                                        return true;
+                                    });
     }
     return links;
 }

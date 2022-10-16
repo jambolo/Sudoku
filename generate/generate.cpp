@@ -18,21 +18,31 @@ int main(int argc, char ** argv)
     float minDifficulty = 0.0f;
     float maxDifficulty = 0.0f;
 
-    if (argc == 0)
+    if (argc == 1)
     {
         minDifficulty = 0.0f;
-        maxDifficulty = 0.0f;
-    }
-    else if (argc == 1)
-    {
-        minDifficulty = 0.0f;
-        sscanf(*argv, "%f", &maxDifficulty);
+        (void)sscanf(*argv, "%f", &maxDifficulty);
+        if (maxDifficulty < 0.0f)
+        {
+            fprintf(stderr, "generate: The maximum difficulty must be at least 0.\n");
+            return 1;
+        }
     }
     else if (argc == 2)
     {
-        sscanf(*argv, "%f", &maxDifficulty);
+        (void)sscanf(*argv, "%f", &maxDifficulty);
+        if (maxDifficulty <= 0.0f)
+        {
+            fprintf(stderr, "generate: The maximum difficulty must be at least 0.\n");
+            return 1;
+        }
         ++argv;
-        sscanf(*argv, "%f", &minDifficulty);
+        (void)sscanf(*argv, "%f", &minDifficulty);
+        if (minDifficulty < 0.0f)
+        {
+            fprintf(stderr, "generate: The minimum difficulty must be at least 0.\n");
+            return 1;
+        }
     }
     else
     {

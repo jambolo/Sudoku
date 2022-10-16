@@ -174,7 +174,7 @@ Analyzer::Step Analyzer::next()
         {
             eliminate(indexes, values);
             XCODE_COMPATIBLE_ASSERT(candidatesAreValid());
-            return { Step::SOLVE, indexes, values, Step::HIDDEN_PAIR, reason };
+            return { Step::ELIMINATE, indexes, values, Step::HIDDEN_PAIR, reason };
         }
     }
 
@@ -419,7 +419,7 @@ void Analyzer::setValue(int i, int x)
 
 void Analyzer::eliminate(std::vector<int> const & indexes, int x)
 {
-    for (int i : indexes)
+    for (auto i : indexes)
     {
         candidates_[i] &= ~Candidates::fromValue(x);
         XCODE_COMPATIBLE_ASSERT(candidates_[i] != 0);
@@ -428,7 +428,7 @@ void Analyzer::eliminate(std::vector<int> const & indexes, int x)
 
 void Analyzer::eliminate(std::vector<int> const & indexes, std::vector<int> const & values)
 {
-    for (int v : values)
+    for (auto v : values)
     {
         eliminate(indexes, v);
     }

@@ -15,12 +15,11 @@ using Rect = std::pair<Pair, Pair>;
 
 bool UniqueRectangle::exists(std::vector<int> & indexes, std::vector<int> & values, std::string & reason)
 {
-    // If 4 cells containing the same exclusive pairs are within 2 boxes and form a rectangle, then the
-    // solution cannot be unique. Therefore, any candidates that lead to this condition can be removed.
+    // If 4 cells containing the same exclusive pairs are within 2 boxes and form a rectangle, then the solution cannot be unique.
+    // Therefore, any candidates that lead to this condition can be removed.
 
     // Find all exclusive pairs whose cells are in the same box and row or column (the "floors").
-    // Note that types 2B, 2C, 3, 3B, 3/3B w/triples, and 4B are not supported when requiring the floor to be in a
-    // single box.
+    // Note that types 2B, 2C, 3, 3B, 3/3B w/triples, and 4B are not supported when requiring the floor to be in a single box.
     std::vector<Pair> floors;
     Board::ForEach::box([&](int b, std::vector<int> const & box) {
                             for (int i = 0; i < box.size() - 1; ++i)
@@ -49,7 +48,7 @@ bool UniqueRectangle::exists(std::vector<int> & indexes, std::vector<int> & valu
                         });
 
     // Go through the floors and look for roofs.
-    for (Pair floor : floors)
+    for (auto const & floor : floors)
     {
         Candidates::Type floorCandidates = candidates_[floor.first];
 
@@ -125,7 +124,7 @@ bool UniqueRectangle::exists(int                floor0,
              Candidates::isSolved(corner3Others))
     {
         std::vector<int> dependents = Board::Cell::dependents(roof0, roof1);
-        for (int d : dependents)
+        for (auto d : dependents)
         {
             if (candidates_[d] & corner3Others)
                 indexes.push_back(d);
@@ -182,7 +181,7 @@ std::string UniqueRectangle::generateType2Reason(int                      floor0
              Board::Cell::name(roof0) + " " +
              Board::Cell::name(roof1) +
              " would result in a non-unique solution. So, ";
-    for (int i : indexes)
+    for (auto i : indexes)
     {
         reason += Board::Cell::name(i);
         reason += " ";

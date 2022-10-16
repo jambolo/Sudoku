@@ -64,11 +64,10 @@ private:
     static bool exists(Candidates::List const & candidates, int i0, int i1, Candidates::Type mask);
 };
 
-bool operator < (Strong const & lhs, Strong const & rhs);
-bool operator == (Strong const & lhs, Strong const & rhs);
-bool operator < (Weak const & lhs, Weak const & rhs);
-bool operator == (Weak const & lhs, Weak const & rhs);
-
+bool operator <(Strong const & lhs, Strong const & rhs);
+bool operator ==(Strong const & lhs, Strong const & rhs);
+bool operator <(Weak const & lhs, Weak const & rhs);
+bool operator ==(Weak const & lhs, Weak const & rhs);
 } // namespace Link
 
 #endif // defined(ANALYZER_LINK_H_INCLUDED)

@@ -29,7 +29,7 @@ Board Generator::generate(float maxDifficulty /* = 0.0f*/, float minDifficulty /
 
         // Randomly remove as many cells as possible
         std::vector<int> indexes = randomizedIndexes();
-        for (int i : indexes)
+        for (auto i : indexes)
         {
             // Remove a cell
             int x = board.get(i);
@@ -70,8 +70,7 @@ Board Generator::generateSolvedBoard()
 bool Generator::attempt(Board & board, int i)
 {
     // This function attempts to find a solution recursively by attempting all possible values for the specified cell in random
-    // order
-    // until values can be found for all of the following cells.
+    // order until values can be found for all of the following cells.
 
     // If there are no remaining cells to try, then the board has been generated
     if (i >= Board::NUM_CELLS)
@@ -83,7 +82,7 @@ bool Generator::attempt(Board & board, int i)
         return false;
 
     std::random_shuffle(possibleValues.begin(), possibleValues.end());
-    for (int x : possibleValues)
+    for (auto x : possibleValues)
     {
         board.set(i, x);
 
@@ -143,8 +142,8 @@ float Generator::computeDifficulty(Board const & board)
         // 2^{D-d}}} \right)$$
         // where _D_ is the highest difficulty, _n_ is the number of steps of difficulty _d_.
         //
-        // The result is the highest difficulty plus up to 0.5 for additional steps of that difficulty, plus up to 0.5
-        // for lower difficulty steps.
+        // The result is the highest difficulty plus up to 0.5 for additional steps of that difficulty, plus up to 0.5 for lower
+        // difficulty steps.
 
         overallDifficulty  = float(highestDifficulty);
         overallDifficulty -= 0.5f / float(difficultyCounts[highestDifficulty] + 1);

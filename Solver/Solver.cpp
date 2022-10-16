@@ -78,7 +78,7 @@ void Solver::searchUnique(Board & board, int r, int c, int & count)
 bool Solver::hasUniqueSolution(Board const & board)
 {
     Board copy(board);
-    int count = 0;
+    int   count = 0;
     searchUnique(copy, 0, 0, count);
     return count == 1;
 }
