@@ -7,7 +7,7 @@
 
 static void syntax()
 {
-    fprintf(stderr, "syntax: generate [difficulty]\n");
+    fprintf(stderr, "syntax: generate [max difficulty] [min difficulty]\n");
 }
 
 int main(int argc, char ** argv)
@@ -15,15 +15,24 @@ int main(int argc, char ** argv)
     --argc;
     ++argv;
 
-    int difficulty = 0;
+    float minDifficulty = 0.0f;
+    float maxDifficulty = 0.0f;
 
     if (argc == 0)
     {
-        difficulty = 0;
+        minDifficulty = 0.0f;
+        maxDifficulty = 0.0f;
     }
     else if (argc == 1)
     {
-        sscanf(*argv, "%d", &difficulty);
+        minDifficulty = 0.0f;
+        sscanf(*argv, "%f", &maxDifficulty);
+    }
+    else if (argc == 2)
+    {
+        sscanf(*argv, "%f", &maxDifficulty);
+        ++argv;
+        sscanf(*argv, "%f", &minDifficulty);
     }
     else
     {
@@ -33,7 +42,7 @@ int main(int argc, char ** argv)
 
     srand((unsigned int)time(NULL));
 
-    Board board = Generator::generate(difficulty);
+    Board       board = Generator::generate(maxDifficulty, minDifficulty);
     std::string serialized;
     board.serialize(serialized);
     puts(serialized.c_str());

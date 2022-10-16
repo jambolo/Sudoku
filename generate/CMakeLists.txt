@@ -5,4 +5,4 @@ set(SOURCES
 )
 
 add_executable(generate ${SOURCES})
-target_link_libraries(generate PRIVATE Board Generator Solver)
+target_link_libraries(generate PRIVATE Board Generator Solver Analyzer)
