@@ -28,20 +28,20 @@ public:
         //! A technique's ID.
         enum TechniqueId
         {
-            NONE = 0,           // No technique was used in this step.
-            HIDDEN_SINGLE,
-            HIDDEN_PAIR,
-            HIDDEN_TRIPLE,
-            HIDDEN_QUAD,
+            NONE = 0,           // No technique was used.
             NAKED_SINGLE,
             NAKED_PAIR,
             NAKED_TRIPLE,
             NAKED_QUAD,
+            HIDDEN_SINGLE,
+            HIDDEN_PAIR,
+            HIDDEN_TRIPLE,
+            HIDDEN_QUAD,
             LOCKED_CANDIDATES,
             X_WING,
-            XY_WING,
             SWORDFISH,
             JELLYFISH,
+            XY_WING,
             SIMPLE_COLORING,
             UNIQUE_RECTANGLE,
             LAST = UNIQUE_RECTANGLE
@@ -49,9 +49,9 @@ public:
         static int constexpr NUMBER_OF_TECHNIQUES = TechniqueId::LAST - TechniqueId::NONE + 1;
 
         ActionId action;            // Action perforned in the step
+        TechniqueId technique;      // Technique used
         std::vector<int> indexes;   // Affected indexes
         std::vector<int> values;    // Affected values
-        TechniqueId technique;      // Technique used
         std::string reason;         // Explanation of the step
 
         // Returns the name of the TechniqueId
