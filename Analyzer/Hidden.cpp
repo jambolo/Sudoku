@@ -6,6 +6,14 @@
 
 #include <cassert>
 
+#if !defined(XCODE_COMPATIBLE_ASSERT)
+#if defined(_DEBUG)
+#define XCODE_COMPATIBLE_ASSERT assert
+#else
+#define XCODE_COMPATIBLE_ASSERT(...)
+#endif
+#endif // !defined(XCODE_COMPATIBLE_ASSERT)
+
 bool Hidden::singleExists(std::vector<int> & indexes, std::vector<int> & values, std::string & reason)
 {
     bool found;
@@ -71,24 +79,25 @@ bool Hidden::singleExists(std::vector<int> & indexes, std::vector<int> & values,
     return false;
 }
 
-bool Hidden::single(std::vector<int> const & indexes, std::vector<int> & eliminatedIndexes, std::vector<int> & eliminatedValues)
+bool Hidden::single(std::vector<int> const & indexes, std::vector<int> & hiddenIndexes, std::vector<int> & hiddenValues)
 {
     for (auto s : indexes)
     {
         if (board_.isEmpty(s))
         {
-            Candidates::Type others = 0;
-            Board::ForEach::indexExcept(indexes, s, [&] (int i) {
-                                            others |= candidates_[i];
-                                            return true;
-                                        });
+            Candidates::Type others = Candidates::NONE;
+            for (auto i : indexes)
+            {
+                if (i != s)
+                    others |= candidates_[i];
+            }
 
             Candidates::Type exclusive = candidates_[s] & ~others;
-            if (exclusive)
+            if (exclusive != Candidates::NONE)
             {
                 assert(Candidates::isSolved(exclusive));
-                eliminatedIndexes.push_back(s);
-                eliminatedValues.push_back(Candidates::value(exclusive));
+                hiddenIndexes.push_back(s);
+                hiddenValues.push_back(Candidates::value(exclusive));
                 return true;
             }
         }
@@ -173,10 +182,10 @@ bool Hidden::pair(std::vector<int> const & indexes,
                   std::vector<int> &       hiddenValues)
 {
     // Go through each possible pair of candidates_ and search for exactly two cells containing the one or more of a pair
-    for (int x0 = 1; x0 <= Board::SIZE - 1; ++x0)
+    for (int x0 = 1; x0 <= 8; ++x0)
     {
         Candidates::Type m0 = Candidates::fromValue(x0);
-        for (int x1 = x0 + 1; x1 <= Board::SIZE; ++x1)
+        for (int x1 = x0 + 1; x1 <= 9; ++x1)
         {
             Candidates::Type m1 = Candidates::fromValue(x1);
             Candidates::Type m  = m0 | m1;
@@ -300,13 +309,13 @@ bool Hidden::triple(std::vector<int> const & indexes,
                     std::vector<int> &       hiddenValues)
 {
     // Go through each possible triple of candidates_ and search for exactly three cells containing the one or more of a triple
-    for (int x0 = 1; x0 <= Board::SIZE - 2; ++x0)
+    for (int x0 = 1; x0 <= 7; ++x0)
     {
         Candidates::Type m0 = Candidates::fromValue(x0);
-        for (int x1 = x0 + 1; x1 <= Board::SIZE - 1; ++x1)
+        for (int x1 = x0 + 1; x1 <= 8; ++x1)
         {
             Candidates::Type m1 = Candidates::fromValue(x1);
-            for (int x2 = x1 + 1; x2 <= Board::SIZE; ++x2)
+            for (int x2 = x1 + 1; x2 <= 9; ++x2)
             {
                 Candidates::Type m2 = Candidates::fromValue(x2);
                 Candidates::Type m  = m0 | m1 | m2;
@@ -437,16 +446,16 @@ bool Hidden::quad(std::vector<int> const & indexes,
                   std::vector<int> &       hiddenValues)
 {
     // Go through each possible quad of candidates_ and search for exactly four cells containing the one or more of a quad
-    for (int x0 = 1; x0 <= Board::SIZE - 3; ++x0)
+    for (int x0 = 1; x0 <= 6; ++x0)
     {
         Candidates::Type m0 = Candidates::fromValue(x0);
-        for (int x1 = x0 + 1; x1 <= Board::SIZE - 2; ++x1)
+        for (int x1 = x0 + 1; x1 <= 7; ++x1)
         {
             Candidates::Type m1 = Candidates::fromValue(x1);
-            for (int x2 = x1 + 1; x2 <= Board::SIZE - 1; ++x2)
+            for (int x2 = x1 + 1; x2 <= 8; ++x2)
             {
                 Candidates::Type m2 = Candidates::fromValue(x2);
-                for (int x3 = x2 + 1; x3 <= Board::SIZE; ++x3)
+                for (int x3 = x2 + 1; x3 <= 9; ++x3)
                 {
                     Candidates::Type m3 = Candidates::fromValue(x3);
                     Candidates::Type m  = m0 | m1 | m2 | m3;

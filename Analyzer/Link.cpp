@@ -114,14 +114,14 @@ Strong::List Strong::find(Candidates::List const & candidates, int i0, std::vect
     for (auto v : values)
     {
         Candidates::Type mask = Candidates::fromValue(v);
-        Board::ForEach::indexExcept(group, i0, [&] (int i1) {
-                                        if (exists(candidates, i0, i1, mask, group))
-                                        {
-                                            links.emplace_back(Strong{ v, v, i0, i1 });
-                                            return false; // Only one strong link can exist in a group for any candidate
-                                        }
-                                        return true;
-                                    });
+        for (auto i1 : group)
+        {
+            if (i1 != i0 && exists(candidates, i0, i1, mask, group))
+            {
+                links.emplace_back(Strong{ v, v, i0, i1 });
+                break; // Only one strong link can exist in a group for any candidate
+            }
+        }
     }
     return links;
 }
@@ -160,7 +160,7 @@ bool Strong::existsIncremental(Candidates::List const & candidates,
 {
     // This is a faster version of exists(). This one requires that u0 < u1, and that no other cells in the given group in the range
     // [0, u1) have candidates corresponding to mask.
-
+    XCODE_COMPATIBLE_ASSERT(group.size() == Board::SIZE);
     XCODE_COMPATIBLE_ASSERT(u0 >= 0 && u0 < Board::SIZE);
     XCODE_COMPATIBLE_ASSERT(u1 >= 0 && u1 < Board::SIZE);
     XCODE_COMPATIBLE_ASSERT(u0 < u1);
@@ -220,6 +220,8 @@ Weak::List Weak::find(Candidates::List const & candidates, int i)
 
 Weak::List Weak::find(Candidates::List const & candidates, std::vector<int> const & group)
 {
+    XCODE_COMPATIBLE_ASSERT(group.size() == Board::SIZE);
+
     List links;
 
     for (int u0 = 0; u0 < Board::SIZE - 1; ++u0)
@@ -232,7 +234,7 @@ Weak::List Weak::find(Candidates::List const & candidates, std::vector<int> cons
             continue;
 
         std::vector<int> values = Candidates::values(candidates0);
-        for (int v : values)
+        for (auto v : values)
         {
             Candidates::Type mask = Candidates::fromValue(v);
             for (int u1 = u0 + 1; u1 < Board::SIZE; ++u1)
@@ -256,11 +258,11 @@ Weak::List Weak::find(Candidates::List const & candidates, int i0, std::vector<i
     for (auto v : values)
     {
         Candidates::Type mask = Candidates::fromValue(v);
-        Board::ForEach::indexExcept(group, i0, [&] (int i1) {
-                                        if (!Candidates::isSolved(candidates[i1]) && exists(candidates, i0, i1, mask))
-                                            links.emplace_back(Weak{ v, i0, i1 });
-                                        return true;
-                                    });
+        for (int i1 : group)
+        {
+            if (i1 != i0 && !Candidates::isSolved(candidates[i1]) && exists(candidates, i0, i1, mask))
+                links.emplace_back(Weak{ v, i0, i1 });
+        }
     }
     return links;
 }

@@ -7,6 +7,14 @@
 #include <string>
 #include <vector>
 
+#if !defined(XCODE_COMPATIBLE_ASSERT)
+#if defined(_DEBUG)
+#define XCODE_COMPATIBLE_ASSERT assert
+#else
+#define XCODE_COMPATIBLE_ASSERT(...)
+#endif
+#endif // !defined(XCODE_COMPATIBLE_ASSERT)
+
 bool Naked::singleExists(std::vector<int> & indexes, std::vector<int> & values, std::string & reason)
 {
     // For each unsolved cell, if it only has one candidate, then success
@@ -180,7 +188,7 @@ bool Naked::quadExists(std::vector<int> & indexes, std::vector<int> & values, st
     return false;
 }
 
-bool Naked::single(std::vector<int> & indexes, std::vector<int> & values)
+bool Naked::single(std::vector<int> & nakedIndexes, std::vector<int> & nakedValues)
 {
     return !Board::ForEach::cell([&](int i) {
                                      if (board_.isEmpty(i))
@@ -188,8 +196,8 @@ bool Naked::single(std::vector<int> & indexes, std::vector<int> & values)
                                          Candidates::Type c = candidates_[i];
                                          if (Candidates::isSolved(c))
                                          {
-                                             indexes.push_back(i);
-                                             values.push_back(Candidates::value(c));
+                                             nakedIndexes.push_back(i);
+                                             nakedValues.push_back(Candidates::value(c));
                                              return false;
                                          }
                                      }
@@ -197,35 +205,88 @@ bool Naked::single(std::vector<int> & indexes, std::vector<int> & values)
                                  });
 }
 
-bool Naked::pair(std::vector<int> const & indexes,
+bool Naked::pair(std::vector<int> const & group,
                  std::vector<int> &       eliminatedIndexes,
                  std::vector<int> &       eliminatedValues,
                  std::vector<int> &       nakedIndexes)
 {
+    XCODE_COMPATIBLE_ASSERT(group.size() == Board::SIZE);
+
     for (int b0 = 0; b0 < Board::SIZE - 1; ++b0)
     {
-        int i0 = indexes[b0];
-        Candidates::Type candidates0           = candidates_[i0];
-        Candidates::Type cumulativeCandidates0 = candidates0;
-        int count0 = Candidates::count(candidates0);
-        if (count0 > 1 && count0 <= 2)
+        int i0 = group[b0];
+        Candidates::Type candidates0 = candidates_[i0];
+        if (Candidates::isSolved(candidates0) || Candidates::count(candidates0) > 2)
+            continue;
+        for (int b1 = b0 + 1; b1 < Board::SIZE; ++b1)
         {
-            for (int b1 = b0 + 1; b1 < Board::SIZE; ++b1)
+            int i1 = group[b1];
+            Candidates::Type candidates1 = candidates_[i1];
+            if (Candidates::isSolved(candidates1))
+                continue;
+            // If these two cells form a conjugate pair, then eliminate their candidates from other cells in the group
+            Candidates::Type combined = candidates0 | candidates1;
+            if (Candidates::count(combined) == 2)
             {
-                int i1 = indexes[b1];
-                Candidates::Type c = candidates_[i1];
-                Candidates::Type cumulativeCandidates = cumulativeCandidates0 | c;
-                if (Candidates::count(c) > 1 && Candidates::count(cumulativeCandidates) == 2)
+                for (int i : group)
                 {
-                    Board::ForEach::indexExcept(indexes, i0, i1, [&](int i) {
-                                                    if (candidates_[i] & cumulativeCandidates)
-                                                        eliminatedIndexes.push_back(i);
-                                                    return true;
-                                                });
+                    if (i != i0 && i != i1 && (candidates_[i] & combined) != Candidates::NONE)
+                        eliminatedIndexes.push_back(i);
+                }
+
+                // If any candidates were eliminated, then success
+                if (!eliminatedIndexes.empty())
+                {
+                    eliminatedValues = Candidates::values(combined);
+                    nakedIndexes     = { i0, i1 };
+                    return true;
+                }
+            }
+        }
+    }
+    return false;
+}
+
+bool Naked::triple(std::vector<int> const & group,
+                   std::vector<int> &       eliminatedIndexes,
+                   std::vector<int> &       eliminatedValues,
+                   std::vector<int> &       nakedIndexes)
+{
+    XCODE_COMPATIBLE_ASSERT(group.size() == Board::SIZE);
+
+    for (int b0 = 0; b0 < Board::SIZE - 2; ++b0)
+    {
+        int i0 = group[b0];
+        Candidates::Type candidates0 = candidates_[i0];
+        if (Candidates::isSolved(candidates0) || Candidates::count(candidates0) > 3)
+            continue;
+        for (int b1 = b0 + 1; b1 < Board::SIZE - 1; ++b1)
+        {
+            int i1 = group[b1];
+            Candidates::Type candidates1 = candidates_[i1];
+            if (Candidates::isSolved(candidates1) || Candidates::count(candidates0 | candidates1) > 3)
+                continue;
+            for (int b2 = b1 + 1; b2 < Board::SIZE; ++b2)
+            {
+                int i2 = group[b2];
+                Candidates::Type candidates2 = candidates_[i2];
+                if (Candidates::isSolved(candidates2))
+                    continue;
+                // If these three cells form a conjugate triple, then eliminate their candidates from other cells in the group
+                Candidates::Type combined = candidates0 | candidates1 | candidates2;
+                if (Candidates::count(combined) == 3)
+                {
+                    for (int i : group)
+                    {
+                        if (i != i0 && i != i1 && i != i2 && (candidates_[i] & combined) != Candidates::NONE)
+                            eliminatedIndexes.push_back(i);
+                    }
+
+                    // If any candidates were eliminated, then success
                     if (!eliminatedIndexes.empty())
                     {
-                        eliminatedValues = Candidates::values(cumulativeCandidates);
-                        nakedIndexes     = { i0, i1 };
+                        eliminatedValues = Candidates::values(combined);
+                        nakedIndexes     = { i0, i1, i2 };
                         return true;
                     }
                 }
@@ -235,100 +296,54 @@ bool Naked::pair(std::vector<int> const & indexes,
     return false;
 }
 
-bool Naked::triple(std::vector<int> const & indexes,
-                   std::vector<int> &       eliminatedIndexes,
-                   std::vector<int> &       eliminatedValues,
-                   std::vector<int> &       nakedIndexes)
-{
-    for (int b0 = 0; b0 < Board::SIZE - 2; ++b0)
-    {
-        int i0 = indexes[b0];
-        Candidates::Type candidates0           = candidates_[i0];
-        Candidates::Type cumulativeCandidates0 = candidates0;
-        int count0 = Candidates::count(candidates0);
-        if (count0 > 1 && count0 <= 3)
-        {
-            for (int b1 = b0 + 1; b1 < Board::SIZE - 1; ++b1)
-            {
-                int i1 = indexes[b1];
-                Candidates::Type candidates1           = candidates_[i1];
-                Candidates::Type cumulativeCandidates1 = cumulativeCandidates0 | candidates1;
-                if (Candidates::count(candidates1) > 1 && Candidates::count(cumulativeCandidates1) <= 3)
-                {
-                    for (int b2 = b1 + 1; b2 < Board::SIZE; ++b2)
-                    {
-                        int i2 = indexes[b2];
-                        Candidates::Type c = candidates_[i2];
-                        Candidates::Type cumulativeCandidates = cumulativeCandidates1 | c;
-                        if (Candidates::count(c) > 1 && Candidates::count(cumulativeCandidates) == 3)
-                        {
-                            Board::ForEach::indexExcept(indexes, i0, i1, i2, [&](int i) {
-                                                            if (candidates_[i] & cumulativeCandidates)
-                                                                eliminatedIndexes.push_back(i);
-                                                            return true;
-                                                        });
-                            if (!eliminatedIndexes.empty())
-                            {
-                                eliminatedValues = Candidates::values(cumulativeCandidates);
-                                nakedIndexes     = { i0, i1, i2 };
-                                return true;
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-    return false;
-}
-
-bool Naked::quad(std::vector<int> const & indexes,
+bool Naked::quad(std::vector<int> const & group,
                  std::vector<int> &       eliminatedIndexes,
                  std::vector<int> &       eliminatedValues,
                  std::vector<int> &       nakedIndexes)
 {
+    XCODE_COMPATIBLE_ASSERT(group.size() == Board::SIZE);
+
     for (int b0 = 0; b0 < Board::SIZE - 3; ++b0)
     {
-        int i0 = indexes[b0];
-        Candidates::Type candidates0           = candidates_[i0];
-        Candidates::Type cumulativeCandidates0 = candidates0;
-        int count0 = Candidates::count(candidates0);
-        if (count0 > 1 && count0 <= 4)
+        int i0 = group[b0];
+        Candidates::Type candidates0 = candidates_[i0];
+        if (Candidates::isSolved(candidates0) || Candidates::count(candidates0) > 4)
+            continue;
+        for (int b1 = b0 + 1; b1 < Board::SIZE - 2; ++b1)
         {
-            for (int b1 = b0 + 1; b1 < Board::SIZE - 2; ++b1)
+            int i1 = group[b1];
+            Candidates::Type candidates1 = candidates_[i1];
+            if (Candidates::isSolved(candidates1) || Candidates::count(candidates0 | candidates1) > 4)
+                continue;
+            for (int b2 = b1 + 1; b2 < Board::SIZE - 1; ++b2)
             {
-                int i1 = indexes[b1];
-                Candidates::Type candidates1           = candidates_[i1];
-                Candidates::Type cumulativeCandidates1 = cumulativeCandidates0 | candidates1;
-                if (Candidates::count(candidates1) > 1 && Candidates::count(cumulativeCandidates1) <= 4)
+                int i2 = group[b2];
+                Candidates::Type candidates2 = candidates_[i2];
+                if (Candidates::isSolved(candidates2) || Candidates::count(candidates0 | candidates1 | candidates2) > 4)
+                    continue;
+                for (int b3 = b2 + 1; b3 < Board::SIZE; ++b3)
                 {
-                    for (int b2 = b1 + 1; b2 < Board::SIZE - 1; ++b2)
+                    int i3 = group[b3];
+                    Candidates::Type candidates3 = candidates_[i3];
+                    if (Candidates::isSolved(candidates3))
+                        continue;
+                    // If these four cells form a conjugate quad, then eliminate their candidates from other cells in the group
+                    Candidates::Type combined = candidates0 | candidates1 | candidates2 | candidates3;
+                    if (Candidates::count(combined) == 4)
                     {
-                        int i2 = indexes[b2];
-                        Candidates::Type candidates2           = candidates_[i2];
-                        Candidates::Type cumulativeCandidates2 = cumulativeCandidates1 | candidates2;
-                        if (Candidates::count(candidates2) > 1 && Candidates::count(cumulativeCandidates2) <= 4)
+                        for (int i : group)
                         {
-                            for (int b3 = b2 + 1; b3 < Board::SIZE; ++b3)
+                            if (i != i0 && i != i1 && i != i2 && i != i3 &&
+                                (candidates_[i] & combined) != Candidates::NONE)
                             {
-                                int i3 = indexes[b3];
-                                Candidates::Type c = candidates_[i3];
-                                Candidates::Type cumulativeCandidates = cumulativeCandidates2 | c;
-                                if (Candidates::count(c) > 1 && Candidates::count(cumulativeCandidates) == 4)
-                                {
-                                    Board::ForEach::indexExcept(indexes, i0, i1, i2, i3, [&](int i) {
-                                                                    if (candidates_[i] & cumulativeCandidates)
-                                                                        eliminatedIndexes.push_back(i);
-                                                                    return true;
-                                                                });
-                                    if (!eliminatedIndexes.empty())
-                                    {
-                                        eliminatedValues = Candidates::values(cumulativeCandidates);
-                                        nakedIndexes     = { i0, i1, i2, i3 };
-                                        return true;
-                                    }
-                                }
+                                eliminatedIndexes.push_back(i);
                             }
+                        }
+                        if (!eliminatedIndexes.empty())
+                        {
+                            eliminatedValues = Candidates::values(combined);
+                            nakedIndexes     = { i0, i1, i2, i3 };
+                            return true;
                         }
                     }
                 }

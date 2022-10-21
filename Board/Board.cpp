@@ -422,58 +422,6 @@ bool Board::ForEach::boxExcept(int x0, int x1, int x2, int x3, std::function<boo
     return true;
 }
 
-bool Board::ForEach::indexExcept(std::vector<int> const & indexes, int x0, std::function<bool(int)> f)
-{
-    for (int i : indexes)
-    {
-        if (i != x0)
-        {
-            if (!f(i))
-                return false;
-        }
-    }
-    return true;
-}
-
-bool Board::ForEach::indexExcept(std::vector<int> const & indexes, int x0, int x1, std::function<bool(int)> f)
-{
-    for (int i : indexes)
-    {
-        if (i != x0 && i != x1)
-        {
-            if (!f(i))
-                return false;
-        }
-    }
-    return true;
-}
-
-bool Board::ForEach::indexExcept(std::vector<int> const & indexes, int x0, int x1, int x2, std::function<bool(int)> f)
-{
-    for (int i : indexes)
-    {
-        if (i != x0 && i != x1 && i != x2)
-        {
-            if (!f(i))
-                return false;
-        }
-    }
-    return true;
-}
-
-bool Board::ForEach::indexExcept(std::vector<int> const & indexes, int x0, int x1, int x2, int x3, std::function<bool(int)> f)
-{
-    for (int i : indexes)
-    {
-        if (i != x0 && i != x1 && i != x2 && i != x3)
-        {
-            if (!f(i))
-                return false;
-        }
-    }
-    return true;
-}
-
 void Board::Cell::next(int * r, int * c)
 {
     Cell::locationOf(Cell::indexOf(*r, *c) + 1, r, c);

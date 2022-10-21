@@ -10,7 +10,8 @@
 class Naked
 {
 public:
-    Naked(Board const & board, Candidates::List const & candidates) : board_(board), candidates_(candidates) {}
+    Naked(Board const & board, Candidates::List const & candidates) : board_(board)
+        , candidates_(candidates) {}
 
     // Returns true if a naked single exists
     bool singleExists(std::vector<int> & indexes, std::vector<int> & values, std::string & reason);
@@ -25,16 +26,16 @@ public:
     bool quadExists(std::vector<int> & indexes, std::vector<int> & values, std::string & reason);
 
 private:
-    bool single(std::vector<int> & indexes, std::vector<int> & values);
-    bool pair(std::vector<int> const & indexes,
+    bool single(std::vector<int> & nakedIndexes, std::vector<int> & nakedValues);
+    bool pair(std::vector<int> const & group,
               std::vector<int> &       eliminatedIndexes,
               std::vector<int> &       eliminatedValues,
               std::vector<int> &       nakedIndexes);
-    bool triple(std::vector<int> const & indexes,
+    bool triple(std::vector<int> const & group,
                 std::vector<int> &       eliminatedIndexes,
                 std::vector<int> &       eliminatedValues,
                 std::vector<int> &       nakedIndexes);
-    bool quad(std::vector<int> const & indexes,
+    bool quad(std::vector<int> const & group,
               std::vector<int> &       eliminatedIndexes,
               std::vector<int> &       eliminatedValues,
               std::vector<int> &       nakedIndexes);
