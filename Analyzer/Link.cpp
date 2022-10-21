@@ -45,6 +45,35 @@ Strong::List Strong::find(Candidates::List const & candidates, int i)
     return links;
 }
 
+Strong::List Strong::Strong::find(Candidates::List const& candidates, int i, int v)
+{
+    XCODE_COMPATIBLE_ASSERT(candidates.size() == Board::NUM_CELLS);
+    XCODE_COMPATIBLE_ASSERT(i >= 0 && i < Board::NUM_CELLS);
+
+    List links;
+
+    // Find the all strong links with the value v in the row containing square i
+    std::vector<int> row = Board::Group::row(Board::Group::whichRow(i));
+    List rowLinks = find(candidates, i, v, row);
+    links.insert(links.end(), rowLinks.begin(), rowLinks.end());
+
+    // Find the all strong links in the column containing square i
+    std::vector<int> column = Board::Group::column(Board::Group::whichColumn(i));
+    List columnLinks = find(candidates, i, v, column);
+    links.insert(links.end(), columnLinks.begin(), columnLinks.end());
+
+    // Find the all strong links in the box containing square i
+    std::vector<int> box = Board::Group::box(Board::Group::whichBox(i));
+    List boxLinks = find(candidates, i, v, box);
+    links.insert(links.end(), boxLinks.begin(), boxLinks.end());
+
+    // Sort the list of links and remove duplicates
+    std::sort(links.begin(), links.end());
+    links.erase(std::unique(links.begin(), links.end()), links.end());
+
+    return links;
+}
+
 Strong::List Strong::find(Candidates::List const & candidates, std::vector<int> const & group)
 {
     XCODE_COMPATIBLE_ASSERT(candidates.size() == Board::NUM_CELLS);
@@ -66,7 +95,9 @@ Strong::List Strong::find(Candidates::List const & candidates, std::vector<int> 
         {
             std::vector<int> values = Candidates::values(candidates0);
             XCODE_COMPATIBLE_ASSERT(values.size() == 2);
-            links.emplace_back(Strong{ values[0], values[1], i0, i0 });
+            Strong link{ values[0], values[1], i0, i0 };
+            XCODE_COMPATIBLE_ASSERT(link.isNormalized());
+            links.push_back(link);
         }
 
         // Ignore cells with only already-tested candidates
@@ -85,7 +116,11 @@ Strong::List Strong::find(Candidates::List const & candidates, std::vector<int> 
                 if (!Candidates::isSolved(candidates1) && (candidates0 & candidates1 & mask))
                 {
                     if (existsIncremental(candidates, u0, u1, mask, group))
-                        links.emplace_back(Strong{ v, v, i0, i1 });
+                    {
+                        Strong link{ v, v, i0, i1 };
+                        XCODE_COMPATIBLE_ASSERT(link.isNormalized());
+                        links.push_back(link);
+                    }
                     break; // These share a candidate, so more strong links for this value whether this is a strong link or not
                 }
             }
@@ -95,35 +130,21 @@ Strong::List Strong::find(Candidates::List const & candidates, std::vector<int> 
     return links;
 }
 
-Strong::List Strong::find(Candidates::List const & candidates, int i0, std::vector<int> const & group)
+Strong::List Strong::find(Candidates::List const& candidates, std::vector<int> const& group, int v)
 {
-    XCODE_COMPATIBLE_ASSERT(i0 >= 0 && i0 < Board::NUM_CELLS);
-    XCODE_COMPATIBLE_ASSERT(std::find(group.begin(), group.end(), i0) != group.end());
+    XCODE_COMPATIBLE_ASSERT(candidates.size() == Board::NUM_CELLS);
+    XCODE_COMPATIBLE_ASSERT(group.size() == Board::SIZE);
 
-    List links;
-    Candidates::Type candidates0 = candidates[i0];
-    std::vector<int> values      = Candidates::values(candidates0);
+    std::vector<int> indexes = Candidates::findAll(candidates, group, v);
 
-    // If this is a bivalue, then there is an intracell link from one candidate to the other
-    if (Candidates::isBivalue(candidates0))
+    if (indexes.size() == 2)
     {
-        XCODE_COMPATIBLE_ASSERT(values.size() == 2);
-        links.emplace_back(Strong{ values[0], values[1], i0, i0 });
+        Strong link{ v, v, indexes[0], indexes[1] };
+        XCODE_COMPATIBLE_ASSERT(link.isNormalized());
+        return List{ link };
     }
-
-    for (auto v : values)
-    {
-        Candidates::Type mask = Candidates::fromValue(v);
-        for (auto i1 : group)
-        {
-            if (i1 != i0 && exists(candidates, i0, i1, mask, group))
-            {
-                links.emplace_back(Strong{ v, v, i0, i1 });
-                break; // Only one strong link can exist in a group for any candidate
-            }
-        }
-    }
-    return links;
+    else
+        return List();
 }
 
 bool Strong::exists(Candidates::List const & candidates,
@@ -192,6 +213,59 @@ bool Strong::existsIncremental(Candidates::List const & candidates,
     return true;
 }
 
+Strong::List Strong::find(Candidates::List const& candidates, int i0, std::vector<int> const& group)
+{
+    XCODE_COMPATIBLE_ASSERT(i0 >= 0 && i0 < Board::NUM_CELLS);
+    XCODE_COMPATIBLE_ASSERT(std::find(group.begin(), group.end(), i0) != group.end());
+
+    List links;
+    Candidates::Type candidates0 = candidates[i0];
+    std::vector<int> values = Candidates::values(candidates0);
+
+    // If this is a bivalue, then there is an intracell link from one candidate to the other
+    if (Candidates::isBivalue(candidates0))
+    {
+        XCODE_COMPATIBLE_ASSERT(values.size() == 2);
+        Strong link{ values[0], values[1], i0, i0 };
+        XCODE_COMPATIBLE_ASSERT(link.isNormalized());
+        links.push_back(link);
+    }
+
+    for (auto v : values)
+    {
+        Candidates::Type mask = Candidates::fromValue(v);
+        for (auto i1 : group)
+        {
+            if (i1 != i0 && exists(candidates, i0, i1, mask, group))
+            {
+                Strong link{ v, v, i0, i1 };
+                link.normalize();
+                links.push_back(link);
+                break; // Only one strong link can exist in a group for any candidate
+            }
+        }
+    }
+    return links;
+}
+
+Strong::List Strong::find(Candidates::List const& candidates, int i0, int v, std::vector<int> const& group)
+{
+    XCODE_COMPATIBLE_ASSERT(candidates.size() == Board::NUM_CELLS);
+    XCODE_COMPATIBLE_ASSERT(group.size() == Board::SIZE);
+
+    std::vector<int> indexes = Candidates::findAll(candidates, group, v);
+
+    if (indexes.size() == 2)
+    {
+        XCODE_COMPATIBLE_ASSERT(indexes[0] == i0 || indexes[1] == i0);
+        Strong link{ v, v, indexes[0], indexes[1] };
+        XCODE_COMPATIBLE_ASSERT(link.isNormalized());
+        return List{ link };
+    }
+    else
+        return List();
+}
+
 /************************************************************************************************************************************/
 
 Weak::List Weak::find(Candidates::List const & candidates, int i)
@@ -220,6 +294,7 @@ Weak::List Weak::find(Candidates::List const & candidates, int i)
 
 Weak::List Weak::find(Candidates::List const & candidates, std::vector<int> const & group)
 {
+    XCODE_COMPATIBLE_ASSERT(candidates.size() == Board::NUM_CELLS);
     XCODE_COMPATIBLE_ASSERT(group.size() == Board::SIZE);
 
     List links;
@@ -250,6 +325,7 @@ Weak::List Weak::find(Candidates::List const & candidates, std::vector<int> cons
 
 Weak::List Weak::find(Candidates::List const & candidates, int i0, std::vector<int> const & group)
 {
+    XCODE_COMPATIBLE_ASSERT(candidates.size() == Board::NUM_CELLS);
     XCODE_COMPATIBLE_ASSERT(i0 >= 0 && i0 < Board::NUM_CELLS);
     XCODE_COMPATIBLE_ASSERT(std::find(group.begin(), group.end(), i0) != group.end());
 
@@ -269,6 +345,7 @@ Weak::List Weak::find(Candidates::List const & candidates, int i0, std::vector<i
 
 bool Weak::exists(Candidates::List const & candidates, int i0, int i1, Candidates::Type mask)
 {
+    XCODE_COMPATIBLE_ASSERT(candidates.size() == Board::NUM_CELLS);
     XCODE_COMPATIBLE_ASSERT(i0 >= 0 && i0 < Board::NUM_CELLS);
     XCODE_COMPATIBLE_ASSERT(i1 >= 0 && i1 < Board::NUM_CELLS);
     XCODE_COMPATIBLE_ASSERT(i0 != i1);
@@ -279,28 +356,32 @@ bool Weak::exists(Candidates::List const & candidates, int i0, int i1, Candidate
 
 bool Link::operator <(Strong const & lhs, Strong const & rhs)
 {
-    if (lhs == rhs)
+    XCODE_COMPATIBLE_ASSERT(lhs.isNormalized());
+    XCODE_COMPATIBLE_ASSERT(rhs.isNormalized());
+    // Sort in order i0, i1, v0, v1
+    if (lhs.i0 < rhs.i0)
+        return true;
+    if (rhs.i0 < lhs.i0)
+        return false;
+    if (lhs.i1 < rhs.i1)
+        return true;
+    if (rhs.i1 < lhs.i1)
         return false;
     if (lhs.v0 < rhs.v0)
         return true;
     if (rhs.v0 < lhs.v0)
         return false;
-    if (lhs.v1 < rhs.v1)
-        return true;
-    if (rhs.v1 < lhs.v1)
-        return false;
-    if (lhs.i0 < rhs.i0)
-        return true;
-    if (rhs.i0 < lhs.i0)
-        return false;
-    return lhs.i1 < rhs.i1;
+    return lhs.v1 < rhs.v1;
 }
 
 bool Link::operator ==(Strong const & lhs, Strong const & rhs)
 {
+    XCODE_COMPATIBLE_ASSERT(lhs.isNormalized());
+    XCODE_COMPATIBLE_ASSERT(rhs.isNormalized());
     return (lhs.v0 == rhs.v0) &&
            (lhs.v1 == rhs.v1) &&
-           (((lhs.i0 == rhs.i0) && (lhs.i1 == rhs.i1)) || ((lhs.i0 == rhs.i1) && (lhs.i1 == rhs.i0)));
+           (lhs.i0 == rhs.i0) &&
+           (lhs.i1 == rhs.i1);
 }
 
 bool Link::operator <(Weak const & lhs, Weak const & rhs)

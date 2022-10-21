@@ -69,3 +69,20 @@ std::vector<int> Candidates::findAll(List const & candidates, int v)
     }
     return found;
 }
+
+std::vector<int> Candidates::findAll(List const& candidates, std::vector<int> const& group, int v)
+{
+    XCODE_COMPATIBLE_ASSERT(candidates.size() == Board::NUM_CELLS);
+    XCODE_COMPATIBLE_ASSERT(group.size() == Board::SIZE);
+
+    Type mask = fromValue(v);
+    std::vector<int> found;
+    for (int u = 0; u < Board::SIZE; ++u)
+    {
+        int i = group[u];
+        Type c = candidates[i];
+        if ((c & mask) && !isSolved(c))
+            found.push_back(i);
+    }
+    return found;
+}
