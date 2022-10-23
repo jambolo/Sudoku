@@ -263,7 +263,7 @@ public:
         return "123456789"[c];
     }
 
-    // Returns the name of the given column
+    // Returns the name of the given box
     static char boxName(int b)
     {
         return "123456789"[b];

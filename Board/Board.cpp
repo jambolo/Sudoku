@@ -429,6 +429,7 @@ void Board::Cell::next(int * r, int * c)
 
 std::vector<int> const & Board::Cell::dependents(int i)
 {
+    // Note: The returned values must be increasing
     static std::vector<int> const DEPENDENTS_BY_INDEX[NUM_CELLS] =
     {
         {   1, 2,  3,  4,  5,  6,  7,  8,  9,  10, 11, 18, 19, 20, 27, 36, 45, 54, 63, 72 },
@@ -541,6 +542,7 @@ std::string Board::Cell::name(int r, int c)
 
 std::vector<int> const & Board::Group::row(int r)
 {
+    // Note: The returned values must be increasing
     static std::vector<int> const INDEXES_BY_ROW[SIZE] =
     {
         {  0, 1,  2,  3,  4,  5,  6,  7,  8  },
@@ -559,6 +561,7 @@ std::vector<int> const & Board::Group::row(int r)
 
 std::vector<int> const & Board::Group::column(int c)
 {
+    // Note: The returned values must be increasing
     static std::vector<int> const INDEXES_BY_COLUMN[SIZE] =
     {
         {  0, 9,  18, 27, 36, 45, 54, 63, 72 },
@@ -577,6 +580,7 @@ std::vector<int> const & Board::Group::column(int c)
 
 std::vector<int> const & Board::Group::box(int b)
 {
+    // Note: The returned values must be increasing
     static std::vector<int> const INDEXES_BY_BOX[SIZE] =
     {
         {  0, 1,  2,  9,  10, 11, 18, 19, 20 },

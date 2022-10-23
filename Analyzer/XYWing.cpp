@@ -49,18 +49,16 @@ bool XYWing::existsAt(int                i0,
     if (links.empty())
         return true;
 
-    for (Link::Weak::List::const_iterator link1 = links.begin();
-         link1 != std::prev(links.end()); ++link1)
+    for (auto link1 = links.begin(); link1 != std::prev(links.end()); ++link1)
     {
         int i1 = link1->i1;
-        int v1 = link1->v0;
+        int v1 = link1->v;
         Candidates::Type candidates1 = candidates_[i1];
 
-        for (Link::Weak::List::const_iterator link2 = std::next(link1); link2 != links.end();
-             ++link2)
+        for (auto link2 = std::next(link1); link2 != links.end(); ++link2)
         {
             int i2 = link2->i1;
-            int v2 = link2->v0;
+            int v2 = link2->v;
             if (i1 == i2 || v1 == v2)
                 continue;
 
@@ -70,9 +68,7 @@ bool XYWing::existsAt(int                i0,
             if (candidates3)
             {
                 assert(Candidates::count(candidates3) == 1);
-                // A Y-wing has been found. The candidate v3 can be removed from all cells
-                // that can
-                // see both i1 and i2.
+                // A XY-wing has been found. The candidate v3 can be removed from all cells that can see both i1 and i2.
                 int v3 = Candidates::value(candidates3);
                 std::vector<int> seen = Board::Cell::dependents(i1, i2);
                 for (auto s : seen)
