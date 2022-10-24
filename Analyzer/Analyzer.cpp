@@ -16,7 +16,6 @@
 #endif // defined(_DEBUG)
 
 #include <nlohmann/json.hpp>
-using json = nlohmann::json;
 
 #include <algorithm>
 #include <cassert>
@@ -29,6 +28,8 @@ using json = nlohmann::json;
 #define XCODE_COMPATIBLE_ASSERT(...)
 #endif
 #endif // !defined(XCODE_COMPATIBLE_ASSERT)
+
+using json = nlohmann::json;
 
 struct TechniqueInfoEntry
 {

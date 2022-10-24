@@ -996,12 +996,51 @@ TEST(Board_Cell, next)
     }
 }
 
-TEST(Board_Cell, DISABLED_dependents1)
+TEST(Board_Cell, dependents1)
 {
+    for (int i = 0; i < Board::NUM_CELLS; ++i)
+    {
+        std::vector<int> dependents;
+        std::vector<int> d;
+        d = Board::Group::row(Board::Group::whichRow(i));
+        dependents.insert(dependents.end(), d.begin(), d.end());
+        d = Board::Group::column(Board::Group::whichColumn(i));
+        dependents.insert(dependents.end(), d.begin(), d.end());
+        d = Board::Group::box(Board::Group::whichBox(i));
+        dependents.insert(dependents.end(), d.begin(), d.end());
+
+        // Remove i from the list
+        dependents.erase(std::remove(dependents.begin(), dependents.end(), i), dependents.end());
+
+        // Sort and remove duplicates from the list
+        std::sort(dependents.begin(), dependents.end());
+        dependents.erase(std::unique(dependents.begin(), dependents.end()), dependents.end());
+
+        // Now check
+        EXPECT_EQ(dependents, Board::Cell::dependents(i));
+    }
 }
 
-TEST(Board_Cell, DISABLED_dependents2)
+TEST(Board_Cell, dependents2)
 {
+    // Note: this test assumes that the Board_Cell.dependents1 test passes
+
+    for (int i = 0; i < Board::NUM_CELLS; ++i)
+    {
+        std::vector<int> const & i_dependents = Board::Cell::dependents(i);
+        for (int j = 0; j < Board::NUM_CELLS; ++j)
+        {
+            std::vector<int> const & j_dependents = Board::Cell::dependents(j);
+
+            std::vector<int> intersection;
+            std::set_intersection(i_dependents.begin(), i_dependents.end(),
+                                  j_dependents.begin(), j_dependents.end(),
+                                  std::back_inserter(intersection));
+
+            // Now check
+            EXPECT_EQ(intersection, Board::Cell::dependents(i, j));
+        }
+    }
 }
 
 TEST(Board_Cell, indexOf)
