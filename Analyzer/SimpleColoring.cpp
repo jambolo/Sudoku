@@ -127,8 +127,9 @@ void SimpleColoring::createGraph(int v, int i0, std::set<int> & a, std::set<int>
 
         // If the other cell hasn't already been included in list 'b', then recursively extend the graph. Note that there is
         // no possibility of the other cell already being in list 'a'.
-        if (b.find(link.i1) == b.end())
-            createGraph(v, link.i1, b, a);  // Note: swapping the lists in order to alternate inferences.
+        int other = (i0 == link.i0) ? link.i1 : link.i0;
+        if (b.find(other) == b.end())
+            createGraph(v, other, b, a);  // Note: swapping the lists in order to alternate inferences.
     }
 }
 

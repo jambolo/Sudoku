@@ -443,7 +443,11 @@ Weak::List Weak::find(Candidates::List const & candidates, int i0, std::vector<i
         for (auto v : values)
         {
             if (!Candidates::isSolved(candidates1) && Candidates::includes(candidates1, v))
-                links.emplace_back(Weak{ v, i0, i1 });
+            {
+                Weak link{ v, i0, i1 };
+                link.normalize();
+                links.emplace_back(link);
+            }
         }
     }
 
@@ -473,7 +477,11 @@ Weak::List Weak::find(Candidates::List const & candidates, int i0, int v, std::v
         Candidates::Type candidates1 = candidates[i1];
 
         if (!Candidates::isSolved(candidates1) && Candidates::includes(candidates1, v))
-            links.emplace_back(Weak{ v, i0, i1 });
+        {
+            Weak link{ v, i0, i1 };
+            link.normalize();
+            links.emplace_back(link);
+        }
     }
     return links;
 }

@@ -128,7 +128,7 @@ Analyzer::Step Analyzer::next()
         return { Step::DONE };
     }
 
-    // Ensure that every cell has at least candidate. If not, then the board is not solvable.
+    // Ensure that every cell has at least one candidate. If not, then the board is not solvable.
     for (int i = 0; i < Board::NUM_CELLS; ++i)
     {
         if (candidates_[i] == Candidates::NONE)
