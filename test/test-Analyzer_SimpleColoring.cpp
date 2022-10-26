@@ -4,12 +4,10 @@
 
 TEST(SimpleColoring, DISABLED_SimpleColoring)
 {
-
 }
 
 TEST(SimpleColoring, DISABLED_exists)
 {
-
 }
 
 int main(int argc, char ** argv)

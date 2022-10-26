@@ -30,7 +30,7 @@ int main(int argc, char ** argv)
     }
 
     // Get the board. Remove the "SD" prefix if present
-    char const* boardString = *argv;
+    char const * boardString = *argv;
     if (boardString[0] == 'S' && boardString[1] == 'D')
         boardString += 2;
 

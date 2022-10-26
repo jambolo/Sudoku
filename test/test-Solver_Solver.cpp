@@ -2,20 +2,16 @@
 
 #include <gtest/gtest.h>
 
-
 TEST(Solver, DISABLED_solve)
 {
-
 }
 
 TEST(Solver, DISABLED_allSolutions)
 {
-
 }
 
 TEST(Solver, DISABLED_hasUniqueSolution)
 {
-
 }
 
 int main(int argc, char ** argv)

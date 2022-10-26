@@ -81,7 +81,7 @@ static void printStep(Analyzer::Step const & step, Verbosity verbosity, int i = 
 
 int main(int argc, char ** argv)
 {
-    bool all = false;
+    bool      all       = false;
     Verbosity verbosity = QUIET;
 
     --argc;
@@ -177,7 +177,7 @@ int main(int argc, char ** argv)
     if (verbosity >= JSON)
     {
         s_json["initial"] = analyzer.board().toJson();
-        s_json["steps"] = json();
+        s_json["steps"]   = json();
     }
     else
     {

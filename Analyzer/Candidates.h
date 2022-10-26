@@ -73,7 +73,7 @@ public:
     static std::vector<int> findAll(List const & candidates, int v);
 
     // Finds all unsolved cells in a group with v as a candidate
-    static std::vector<int> findAll(List const& candidates, std::vector<int> const & group, int v);
+    static std::vector<int> findAll(List const & candidates, std::vector<int> const & group, int v);
 };
 
 #endif // defined(ANALYZER_CANDIDATES_H_INCLUDED)

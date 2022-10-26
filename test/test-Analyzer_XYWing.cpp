@@ -4,12 +4,10 @@
 
 TEST(XYWing, DISABLED_XYWing)
 {
-
 }
 
 TEST(XYWing, DISABLED_exists)
 {
-
 }
 
 int main(int argc, char ** argv)

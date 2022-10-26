@@ -73,7 +73,7 @@ bool Board::initialize(char const * s)
             else if (isdigit(digit))
                 cell =  digit - '0';
             else
-               return false;
+                return false;
         }
     }
 

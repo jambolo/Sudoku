@@ -4,12 +4,10 @@
 
 TEST(LockedCandidates, DISABLED_LockedCandidates)
 {
-
 }
 
 TEST(LockedCandidates, DISABLED_exists)
 {
-
 }
 
 int main(int argc, char ** argv)

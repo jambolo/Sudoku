@@ -11,7 +11,11 @@
 class Hidden
 {
 public:
-    Hidden(Board const & board, Candidates::List const & candidates) : board_(board), candidates_(candidates) {}
+    Hidden(Board const & board, Candidates::List const & candidates)
+        : board_(board)
+        , candidates_(candidates)
+    {
+    }
 
     // Returns true if a hidden single exists
     bool singleExists(std::vector<int> & indexes, std::vector<int> & values, std::string & reason);

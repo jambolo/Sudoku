@@ -2,10 +2,8 @@
 
 #include <gtest/gtest.h>
 
-
 TEST(Generator, DISABLED_generate)
 {
-
 }
 
 int main(int argc, char ** argv)

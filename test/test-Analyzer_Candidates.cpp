@@ -29,7 +29,7 @@ TEST(Candidates, isBivalue)
             if (a == b)
                 EXPECT_FALSE(Candidates::isBivalue(Candidates::fromValue(a)));
             else
-                EXPECT_TRUE(Candidates::isBivalue(Candidates::fromValue(a)|Candidates::fromValue(b)));
+                EXPECT_TRUE(Candidates::isBivalue(Candidates::fromValue(a) | Candidates::fromValue(b)));
         }
     }
     EXPECT_FALSE(Candidates::isBivalue(Candidates::ALL));
@@ -62,10 +62,10 @@ TEST(Candidates, values)
 
 TEST(Candidates, count)
 {
-    for (Candidates::Type candidates = 0; candidates <= Candidates::ALL; candidates+=2)
+    for (Candidates::Type candidates = 0; candidates <= Candidates::ALL; candidates += 2)
     {
         Candidates::Type c = candidates;
-        int count = 0;
+        int count          = 0;
         while (c != 0)
         {
             c >>= 1;
@@ -78,7 +78,6 @@ TEST(Candidates, count)
 
 TEST(Candidates, DISABLED_findAll)
 {
-
 }
 
 int main(int argc, char ** argv)

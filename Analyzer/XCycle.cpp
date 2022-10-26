@@ -12,7 +12,7 @@ bool XCycle::exists(std::vector<int> & indexes, std::vector<int> & values, std::
 {
     // For each candidate in each cell:
     //  Form a graph of alternating strong and weak links of the candidate value rooted at the cell starting with a strong link
-    //  until a cycle is found.
+    //   until a cycle is found.
     //  1. If the last link in the cycle is a weak link, then any cells that can see both ends of any weak link in the cycle cannot
     // have the candidates value.
     //  2. If the last link in the cycle is a strong link, then the first cell of cycle must be the candidate value.
