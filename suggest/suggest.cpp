@@ -2,9 +2,10 @@
 #include "Board/Board.h"
 
 #include <nlohmann/json.hpp>
-using json = nlohmann::json;
 
 #include <cstdio>
+
+using json = nlohmann::json;
 
 enum Verbosity
 {
@@ -19,12 +20,12 @@ static json s_json;
 
 static void syntax()
 {
-    fprintf(stderr, "syntax: suggest [-a] [-vvv | -j] <81 digits, 0-9>\n");
+    fprintf(stderr, "syntax: suggest [-a] [-vvv | -j] <81 digits ('.', ' ', '0', and '1'-'9'), optionally prefixed by \"SD\">\n");
     fprintf(stderr, "Options:\n");
+    fprintf(stderr, "  -a:   outputs the complete solution.\n");
     fprintf(stderr, "  -v:   outputs additional information\n");
     fprintf(stderr, "  -vv:  outputs additional additional information\n");
     fprintf(stderr, "  -vvv: outputs additional additional additional information\n");
-    fprintf(stderr, "  -a:   outputs the complete solution.\n");
     fprintf(stderr, "  -j:   outputs information in json format.\n");
 }
 
@@ -86,39 +87,43 @@ int main(int argc, char ** argv)
     --argc;
     ++argv;
 
-    while (**argv == '-')
+    if (argc > 1)
     {
-        if (strcmp(*argv, "-a") == 0)
+        while (**argv == '-')
         {
-            all = true;
-        }
-        else if (strcmp(*argv, "-v") == 0)
-        {
-            verbosity = VERBOSE;
-        }
-        else if (strcmp(*argv, "-vv") == 0)
-        {
-            verbosity = DETAILED;
-        }
-        else if (strcmp(*argv, "-vvv") == 0)
-        {
-            verbosity = CHATTY;
-        }
-        else if (strcmp(*argv, "-j") == 0)
-        {
-            verbosity = JSON;
-        }
-        else
-        {
-            fprintf(stderr, "Invalid parameter '%s'\n", *argv);
-            syntax();
-            return 1;
-        }
+            if (strcmp(*argv, "-a") == 0)
+            {
+                all = true;
+            }
+            else if (strcmp(*argv, "-v") == 0)
+            {
+                verbosity = VERBOSE;
+            }
+            else if (strcmp(*argv, "-vv") == 0)
+            {
+                verbosity = DETAILED;
+            }
+            else if (strcmp(*argv, "-vvv") == 0)
+            {
+                verbosity = CHATTY;
+            }
+            else if (strcmp(*argv, "-j") == 0)
+            {
+                verbosity = JSON;
+            }
+            else
+            {
+                fprintf(stderr, "Invalid parameter '%s'\n", *argv);
+                syntax();
+                return 1;
+            }
 
-        ++argv;
-        --argc;
+            ++argv;
+            --argc;
+        }
     }
 
+    // After all the options, there is one argument -- the board
     if (argc < 1)
     {
         fprintf(stderr, "Missing board\n");
@@ -133,14 +138,19 @@ int main(int argc, char ** argv)
         return 2;
     }
 
-    if (strlen(*argv) < 81)
+    // Get the board. Remove the "SD" prefix if present
+    char const * boardString = *argv;
+    if (boardString[0] == 'S' && boardString[1] == 'D')
+        boardString += 2;
+
+    if (strlen(boardString) < 81)
     {
         fprintf(stderr, "The board is missing squares\n");
         syntax();
         return 3;
     }
 
-    if (strlen(*argv) > 81)
+    if (strlen(boardString) > 81)
     {
         fprintf(stderr, "The board has too many squares\n");
         syntax();
@@ -148,9 +158,9 @@ int main(int argc, char ** argv)
     }
 
     Board board;
-    if (!board.initialize(*argv))
+    if (!board.initialize(boardString))
     {
-        fprintf(stderr, "The squares must be 0-9.\n");
+        fprintf(stderr, "The squares must be '.', ' ', '0', or '1'-'9'.\n");
         syntax();
         return 3;
     }
@@ -166,7 +176,7 @@ int main(int argc, char ** argv)
 
     if (verbosity >= JSON)
     {
-        s_json["start"] = analyzer.board().toJson();
+        s_json["initial"] = analyzer.board().toJson();
         s_json["steps"] = json();
     }
     else
@@ -194,26 +204,12 @@ int main(int argc, char ** argv)
             }
             else
             {
-                printStep(step, verbosity, i++);
+                printStep(step, verbosity, i);
                 if (verbosity >= CHATTY && (step.action == Analyzer::Step::SOLVE || step.action == Analyzer::Step::ELIMINATE))
                     analyzer.drawCandidates();
             }
+            ++i;
         } while (!analyzer.done());
-
-        if (verbosity == JSON)
-        {
-            s_json["end"] = analyzer.board().toJson();
-            printf("%s\n", s_json.dump().c_str());
-        }
-        else
-        {
-            printf("\n");
-            if (analyzer.stuck() && verbosity >= DETAILED)
-                analyzer.drawCandidates();
-            else
-                analyzer.board().draw();
-            printf("\n");
-        }
     }
     else
     {
@@ -228,25 +224,27 @@ int main(int argc, char ** argv)
             }
             else
             {
-                printStep(step, verbosity, i++);
+                printStep(step, verbosity, i);
                 if (verbosity >= CHATTY && step.action == Analyzer::Step::ELIMINATE)
                     analyzer.drawCandidates();
             }
+            ++i;
         } while (step.action == Analyzer::Step::ELIMINATE);
+    }
 
-        if (verbosity == JSON)
-        {
-            s_json["end"] = analyzer.board().toJson();
-            printf("%s\n", s_json.dump().c_str());
-        }
-        else
-        {
-            printf("\n");
-            if (verbosity >= DETAILED)
-                analyzer.drawCandidates();
-            else if (verbosity >= VERBOSE)
-                analyzer.board().draw();
-        }
+    if (verbosity == JSON)
+    {
+        s_json["final"] = analyzer.board().toJson();
+        printf("%s\n", s_json.dump().c_str());
+    }
+    else
+    {
+        printf("\n");
+        if (!analyzer.solved() && verbosity >= DETAILED)
+            analyzer.drawCandidates();
+        else if (!all && verbosity >= VERBOSE)
+            analyzer.board().draw();
+        printf("\n");
     }
 
     return 0;

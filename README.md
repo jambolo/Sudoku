@@ -36,7 +36,7 @@ Rates the difficulty of a puzzle
 
 | Parameter | Description |
 |-----------|-------------|
-| puzzle    | 81 digits, 0-9 |
+| puzzle    | 81 digits, '.', ' ', '0', or '1'-'9', optionally prefixed with "SD" |
 
 #### Options
 
@@ -65,10 +65,10 @@ Solves a puzzle
 
 | Parameter | Description |
 |-----------|-------------|
-| puzzle    | 81 digits, 0-9 |
+| puzzle    | 81 digits, '.', ' ', '0', or '1'-'9', optionally prefixed with "SD" |
 
 ## suggest
-Suggests the next move for solving a puzzle
+Suggests next steps until the first square in the puzzle is solved
 
 #### Command syntax
 
@@ -78,12 +78,12 @@ Suggests the next move for solving a puzzle
 
 | Parameter | Description |
 |-----------|-------------|
-| puzzle    | 81 digits, 0-9 |
+| puzzle    | 81 digits, '.', ' ', '0', or '1'-'9', optionally prefixed with "SD" |
 
 #### Options
 
 | Option        | Description |
 |---------------|-------------|
+| -a            | Lists the all of the steps for a complete solution |
 | -v, -vv, -vvv | Verbosity   |
-| -a            | outputs the all of the steps for a complete solution |
 | -j            | outputs in JSON format |

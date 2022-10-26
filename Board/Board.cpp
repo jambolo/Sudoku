@@ -68,9 +68,12 @@ bool Board::initialize(char const * s)
         for (auto & cell : row)
         {
             char digit = *s++;
-            if (!digit || !isdigit(digit))
-                return false;
-            cell =  digit - '0';
+            if (digit == ' ' || digit == '.')
+                cell = 0;
+            else if (isdigit(digit))
+                cell =  digit - '0';
+            else
+               return false;
         }
     }
 

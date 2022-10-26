@@ -125,8 +125,8 @@ Analyzer::Step Analyzer::next()
 
     if (board_.completed())
     {
-        done_ = true;
-        return { Step::DONE };
+        solved_ = true;
+        return { Step::DONE, Step::NONE, {}, {}, "Solved."};
     }
 
     // Ensure that every cell has at least one candidate. If not, then the board is not solvable.
@@ -137,7 +137,6 @@ Analyzer::Step Analyzer::next()
             std::vector<int> indexes{ i };
             std::vector<int> values{ 0 };
             std::string      reason = "The puzzle cannot be solved. There is no possible value for " + Board::Cell::name(i) + ".";
-            done_  = true;
             stuck_ = true;
             return { Step::STUCK, Step::NONE, {}, {}, reason };
         }
@@ -278,7 +277,6 @@ Analyzer::Step Analyzer::next()
     }
 
     // If we get here, then none of the techniques found anything
-    done_  = true;
     stuck_ = true;
     return { Step::STUCK, Step::NONE, {}, {}, "I'm stuck." };
 }

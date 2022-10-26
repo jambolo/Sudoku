@@ -7,7 +7,7 @@
 
 static void syntax()
 {
-    fprintf(stderr, "syntax: solve <81 digits, 0-9>\n");
+    fprintf(stderr, "syntax: solve <81 digits ('.', ' ', '0', and '1'-'9'), optionally prefixed by \"SD\">\n");
 }
 
 int main(int argc, char ** argv)
@@ -29,14 +29,19 @@ int main(int argc, char ** argv)
         return 2;
     }
 
-    if (strlen(*argv) < 81)
+    // Get the board. Remove the "SD" prefix if present
+    char const* boardString = *argv;
+    if (boardString[0] == 'S' && boardString[1] == 'D')
+        boardString += 2;
+
+    if (strlen(boardString) < 81)
     {
         fprintf(stderr, "The board is missing squares.\n");
         syntax();
         return 3;
     }
 
-    if (strlen(*argv) > 81)
+    if (strlen(boardString) > 81)
     {
         fprintf(stderr, "The board has too many squares.\n");
         syntax();
@@ -44,9 +49,9 @@ int main(int argc, char ** argv)
     }
 
     Board board;
-    if (!board.initialize(*argv))
+    if (!board.initialize(boardString))
     {
-        fprintf(stderr, "The squares must be 0-9.\n");
+        fprintf(stderr, "The squares must be '.', ' ', '0', or '1'-'9'.\n");
         syntax();
         return 3;
     }

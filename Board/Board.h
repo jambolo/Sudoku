@@ -25,13 +25,13 @@ public:
     // Constructs a board with initial values
     explicit Board(std::vector<int> const & v);
 
-    // Constructs a board from a terminated string of 81 digits
+    // Constructs a board from a terminated string of 81 digits ('0', ' ', and '.' represent empty squares)
     explicit Board(char const * s);
 
     // Initializes the board
     bool initialize(std::vector<int> const & v);
 
-    // Initializes the board from a terminated string of 81 digits
+    // Initializes the board from a terminated string of 81 digits ('0', ' ', and '.' represent empty squares)
     bool initialize(char const * s);
 
     // Returns the values of all cells in row-major order
