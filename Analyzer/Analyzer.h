@@ -44,7 +44,8 @@ public:
             XY_WING,
             SIMPLE_COLORING,
             UNIQUE_RECTANGLE,
-            LAST = UNIQUE_RECTANGLE
+            X_CYCLE,
+            LAST = X_CYCLE
         };
         static int constexpr NUMBER_OF_TECHNIQUES = TechniqueId::LAST - TechniqueId::NONE + 1;
 
@@ -103,7 +104,7 @@ private:
 
     Board board_;                   // Current state of the board
     Candidates::List candidates_;   // Masks of possible values for each cell
-    bool stuck_ = false;            // True if the analyzer  is stumped
+    bool stuck_  = false;           // True if the analyzer  is stumped
     bool solved_ = false;           // True if the board is solved
 #if defined(_DEBUG)
     Board solvedBoard_;             // All results are checked against this board

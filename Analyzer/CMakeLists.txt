@@ -17,6 +17,8 @@ set(SOURCES
     SimpleColoring.h
     UniqueRectangle.cpp
     UniqueRectangle.h
+    XCycle.cpp
+    XCycle.h
     XWing.cpp
     XWing.h
     XYWing.cpp

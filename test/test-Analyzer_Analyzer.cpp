@@ -49,7 +49,8 @@ TEST(Analyzer_Step, techniqueName)
     EXPECT_STREQ(Analyzer::Step::techniqueName(Analyzer::Step::JELLYFISH), "jellyfish");
     EXPECT_STREQ(Analyzer::Step::techniqueName(Analyzer::Step::SIMPLE_COLORING), "simple coloring");
     EXPECT_STREQ(Analyzer::Step::techniqueName(Analyzer::Step::UNIQUE_RECTANGLE), "unique rectangle");
-    EXPECT_STREQ(Analyzer::Step::techniqueName(Analyzer::Step::LAST), "unique rectangle");
+    EXPECT_STREQ(Analyzer::Step::techniqueName(Analyzer::Step::X_CYCLE), "x-cycle");
+    EXPECT_STREQ(Analyzer::Step::techniqueName(Analyzer::Step::LAST), "x-cycle");
 }
 
 TEST(Analyzer_Step, actionName)

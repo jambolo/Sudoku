@@ -24,6 +24,7 @@ set(SOURCES
     test-Analyzer_LockedCandidates.cpp
     test-Analyzer_Naked.cpp
     test-Analyzer_SimpleColoring.cpp
+    test-Analyzer_XCycle.cpp
     test-Analyzer_XWing.cpp
     test-Analyzer_XYWing.cpp
     test-Analyzer_UniqueRectangle.cpp

@@ -7,6 +7,7 @@
 #include "Naked.h"
 #include "SimpleColoring.h"
 #include "UniqueRectangle.h"
+#include "XCycle.h"
 #include "XWing.h"
 #include "XYWing.h"
 
@@ -33,34 +34,33 @@ using json = nlohmann::json;
 
 struct TechniqueInfoEntry
 {
-    Analyzer::Step::TechniqueId id;
     char const * name;
     int difficulty;
-    Analyzer::Step::ActionId action;
 };
 
 // Info about techniques by technique ID
 static TechniqueInfoEntry const TECHNIQUE_INFO[Analyzer::Step::NUMBER_OF_TECHNIQUES] =
 {
-    { Analyzer::Step::NONE,              "none",              0, Analyzer::Step::STUCK     },
-    { Analyzer::Step::NAKED_SINGLE,      "naked single",      1, Analyzer::Step::SOLVE     },
-    { Analyzer::Step::NAKED_PAIR,        "naked pair",        2, Analyzer::Step::ELIMINATE },
-    { Analyzer::Step::NAKED_TRIPLE,      "naked triple",      3, Analyzer::Step::ELIMINATE },
-    { Analyzer::Step::NAKED_QUAD,        "naked quad",        5, Analyzer::Step::ELIMINATE },
-    { Analyzer::Step::HIDDEN_SINGLE,     "hidden single",     1, Analyzer::Step::SOLVE     },
-    { Analyzer::Step::HIDDEN_PAIR,       "hidden pair",       2, Analyzer::Step::ELIMINATE },
-    { Analyzer::Step::HIDDEN_TRIPLE,     "hidden triple",     3, Analyzer::Step::ELIMINATE },
-    { Analyzer::Step::HIDDEN_QUAD,       "hidden quad",       5, Analyzer::Step::ELIMINATE },
-    { Analyzer::Step::LOCKED_CANDIDATES, "locked candidates", 4, Analyzer::Step::ELIMINATE },
-    { Analyzer::Step::X_WING,            "x-wing",            6, Analyzer::Step::ELIMINATE },
-    { Analyzer::Step::SWORDFISH,         "swordfish",         7, Analyzer::Step::ELIMINATE },
-    { Analyzer::Step::JELLYFISH,         "jellyfish",         8, Analyzer::Step::ELIMINATE },
-    { Analyzer::Step::XY_WING,           "xy-wing",           7, Analyzer::Step::ELIMINATE },
-    { Analyzer::Step::SIMPLE_COLORING,   "simple coloring",   8, Analyzer::Step::ELIMINATE },
-    { Analyzer::Step::UNIQUE_RECTANGLE,  "unique rectangle",  8, Analyzer::Step::ELIMINATE }
+    { "none",              0 },     // Analyzer::Step::NONE,
+    { "naked single",      1 },     // Analyzer::Step::NAKED_SINGLE,
+    { "naked pair",        2 },     // Analyzer::Step::NAKED_PAIR,
+    { "naked triple",      3 },     // Analyzer::Step::NAKED_TRIPLE,
+    { "naked quad",        5 },     // Analyzer::Step::NAKED_QUAD,
+    { "hidden single",     1 },     // Analyzer::Step::HIDDEN_SINGLE,
+    { "hidden pair",       2 },     // Analyzer::Step::HIDDEN_PAIR,
+    { "hidden triple",     3 },     // Analyzer::Step::HIDDEN_TRIPLE,
+    { "hidden quad",       5 },     // Analyzer::Step::HIDDEN_QUAD,
+    { "locked candidates", 4 },     // Analyzer::Step::LOCKED_CANDIDATES,
+    { "x-wing",            6 },     // Analyzer::Step::X_WING,
+    { "swordfish",         7 },     // Analyzer::Step::SWORDFISH,
+    { "jellyfish",         8 },     // Analyzer::Step::JELLYFISH,
+    { "xy-wing",           7 },     // Analyzer::Step::XY_WING,
+    { "simple coloring",   8 },     // Analyzer::Step::SIMPLE_COLORING,
+    { "unique rectangle",  8 },     // Analyzer::Step::UNIQUE_RECTANGLE,
+    { "x-cycle",           9 }      // Analyzer::Step::X_CYCLE,
 };
 static_assert((size_t)Analyzer::Step::NUMBER_OF_TECHNIQUES == sizeof(TECHNIQUE_INFO) / sizeof(*TECHNIQUE_INFO),
-              "techniqueInfo has the wrong number of elements");
+              "TECHNIQUE_INFO has the wrong number of elements");
 
 Analyzer::Analyzer(Board const & board)
     : board_(board)
@@ -126,7 +126,7 @@ Analyzer::Step Analyzer::next()
     if (board_.completed())
     {
         solved_ = true;
-        return { Step::DONE, Step::NONE, {}, {}, "Solved."};
+        return { Step::DONE, Step::NONE, {}, {}, "Solved." };
     }
 
     // Ensure that every cell has at least one candidate. If not, then the board is not solvable.
@@ -142,120 +142,149 @@ Analyzer::Step Analyzer::next()
         }
     }
 
-    // Technique info sorted by difficulty
-    std::vector<TechniqueInfoEntry> sortedTechniqueInfo(std::begin(TECHNIQUE_INFO), std::end(TECHNIQUE_INFO));
-    std::sort(sortedTechniqueInfo.begin(),
-              sortedTechniqueInfo.end(),
-              [](TechniqueInfoEntry const & a, TechniqueInfoEntry const & b) {
-                  return a.difficulty < b.difficulty;
+    // Technique ids sorted by difficulty
+    XCODE_COMPATIBLE_ASSERT(Step::NONE == 0);
+    std::vector<int> sortedIds(Step::NUMBER_OF_TECHNIQUES - 1); // Skip NONE
+    std::iota(sortedIds.begin(), sortedIds.end(), Step::NONE + 1);
+    std::sort(sortedIds.begin(), sortedIds.end(), [] (int a, int b) {
+                  return TECHNIQUE_INFO[a].difficulty < TECHNIQUE_INFO[b].difficulty;
               });
 
     std::vector<int> indexes;
     std::vector<int> values;
     std::string      reason;
 
-    // Try each technique
-    for (auto const & info : sortedTechniqueInfo)
+    // Try each technique in order of difficulty
+    for (auto id : sortedIds)
     {
-        bool found = false; // True when a technique finds something
+        bool           found  = false; // True when a technique finds something
+        Step::ActionId action = Step::STUCK;
 
-        switch (info.id)
+        switch (id)
         {
             case Step::NAKED_SINGLE:
             {
                 Naked naked(board_, candidates_);
-                found = naked.singleExists(indexes, values, reason);
+                found  = naked.singleExists(indexes, values, reason);
+                action = Step::SOLVE;
                 break;
             }
             case Step::NAKED_PAIR:
             {
                 Naked naked(board_, candidates_);
-                found = naked.pairExists(indexes, values, reason);
+                found  = naked.pairExists(indexes, values, reason);
+                action = Step::ELIMINATE;
                 break;
             }
             case Step::NAKED_TRIPLE:
             {
                 Naked naked(board_, candidates_);
-                found = naked.tripleExists(indexes, values, reason);
+                found  = naked.tripleExists(indexes, values, reason);
+                action = Step::ELIMINATE;
                 break;
             }
             case Step::NAKED_QUAD:
             {
                 Naked naked(board_, candidates_);
-                found = naked.quadExists(indexes, values, reason);
+                found  = naked.quadExists(indexes, values, reason);
+                action = Step::ELIMINATE;
                 break;
             }
             case Step::HIDDEN_SINGLE:
             {
                 Hidden hidden(board_, candidates_);
-                found = hidden.singleExists(indexes, values, reason);
+                found  = hidden.singleExists(indexes, values, reason);
+                action = Step::SOLVE;
                 break;
             }
             case Step::HIDDEN_PAIR:
             {
                 Hidden hidden(board_, candidates_);
-                found = hidden.pairExists(indexes, values, reason);
+                found  = hidden.pairExists(indexes, values, reason);
+                action = Step::ELIMINATE;
                 break;
             }
             case Step::HIDDEN_TRIPLE:
             {
                 Hidden hidden(board_, candidates_);
-                found = hidden.tripleExists(indexes, values, reason);
+                found  = hidden.tripleExists(indexes, values, reason);
+                action = Step::ELIMINATE;
                 break;
             }
             case Step::HIDDEN_QUAD:
             {
                 Hidden hidden(board_, candidates_);
-                found = hidden.quadExists(indexes, values, reason);
+                found  = hidden.quadExists(indexes, values, reason);
+                action = Step::ELIMINATE;
                 break;
             }
             case Step::LOCKED_CANDIDATES:
             {
                 LockedCandidates lockedCandidates(candidates_);
-                found = lockedCandidates.exists(indexes, values, reason);
+                found  = lockedCandidates.exists(indexes, values, reason);
+                action = Step::ELIMINATE;
                 break;
             }
             case Step::X_WING:
             {
                 XWing xWing(candidates_);
-                found = xWing.exists(indexes, values, reason);
+                found  = xWing.exists(indexes, values, reason);
+                action = Step::ELIMINATE;
                 break;
             }
             case Step::SWORDFISH:
             {
                 Swordfish swordfish(candidates_);
-                found = swordfish.exists(indexes, values, reason);
+                found  = swordfish.exists(indexes, values, reason);
+                action = Step::ELIMINATE;
                 break;
             }
             case Step::JELLYFISH:
             {
                 Jellyfish jellyfish(candidates_);
-                found = jellyfish.exists(indexes, values, reason);
+                found  = jellyfish.exists(indexes, values, reason);
+                action = Step::ELIMINATE;
                 break;
             }
             case Step::XY_WING:
             {
                 XYWing xyWing(candidates_);
-                found = xyWing.exists(indexes, values, reason);
+                found  = xyWing.exists(indexes, values, reason);
+                action = Step::ELIMINATE;
                 break;
             }
             case Step::SIMPLE_COLORING:
             {
+                // Note that one simple coloring heuristic determines both solved cells and eliminated candidates, but to simplify
+                // the code (for now perhaps) we will only eliminate candidates.
                 SimpleColoring simpleColoring(candidates_);
-                found = simpleColoring.exists(indexes, values, reason);
+                found  = simpleColoring.exists(indexes, values, reason);
+                action = Step::ELIMINATE;
                 break;
             }
             case Step::UNIQUE_RECTANGLE:
             {
                 UniqueRectangle uniqueRectangle(candidates_);
-                found = uniqueRectangle.exists(indexes, values, reason);
+                found  = uniqueRectangle.exists(indexes, values, reason);
+                action = Step::ELIMINATE;
                 break;
             }
+            case Step::X_CYCLE:
+            {
+                XCycle xcycle(candidates_);
+                bool   solves = false;
+                found  = xcycle.exists(indexes, values, reason, solves);
+                action = solves ? Step::SOLVE : Step::ELIMINATE;
+                break;
+            }
+            default:
+                XCODE_COMPATIBLE_ASSERT(!"Unimplemented technique ID.");
+                break;
         }
 
         if (found)
         {
-            switch (info.action)
+            switch (action)
             {
                 case Step::SOLVE:
                     setValue(indexes.front(), values.front());
@@ -269,10 +298,15 @@ Analyzer::Step Analyzer::next()
                     break;
                 case Step::DONE:
                     // Should never get here
-                    XCODE_COMPATIBLE_ASSERT(info.action != Step::DONE);
+                    XCODE_COMPATIBLE_ASSERT(action != Step::DONE);
+                    break;
+                default:
+                    // Should never get here
+                    XCODE_COMPATIBLE_ASSERT(!"Unhandled step action");
                     break;
             }
-            return { info.action, info.id, indexes, values, reason };
+            XCODE_COMPATIBLE_ASSERT(id >= 0 && id < Step::NUMBER_OF_TECHNIQUES);
+            return { action, Step::TechniqueId(id), indexes, values, reason };
         }
     }
 
